@@ -1,0 +1,306 @@
+<script setup lang="ts">
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { useAuthStore } from '@/stores';
+import { userApi, reservationApi, equipmentApi } from '@/api';
+import { ReservationTable } from '@/components';
+import { ApplicationStatus } from '@/types';
+import type { User, Reservation, EquipmentApplication } from '@/types';
+
+const authStore = useAuthStore();
+
+const activeTab = ref('info');
+const user = ref<User | null>(null);
+const editDialogVisible = ref(false);
+const pendingReservations = ref<Reservation[]>([]);
+const pendingApplications = ref<EquipmentApplication[]>([]);
+const loading = ref(false);
+
+const editForm = reactive({
+  nickname: '',
+  email: '',
+  phone: '',
+  teachingTags: [] as string[],
+});
+
+const fetchUserInfo = () => {
+  user.value = authStore.getUserInfo;
+  if (user.value) {
+    editForm.nickname = user.value.nickname || '';
+    editForm.email = user.value.email || '';
+    editForm.phone = user.value.phone || '';
+    editForm.teachingTags = user.value.teachingTags || [];
+  }
+};
+
+const fetchPendingReservations = async () => {
+  loading.value = true;
+  try {
+    const response = await reservationApi.getPendingReviews({ page: 1, pageSize: 20 });
+    pendingReservations.value = response.list;
+  } catch (error) {
+    console.error('获取待审核预约失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchPendingApplications = async () => {
+  loading.value = true;
+  try {
+    const response = await equipmentApi.getPendingApplications({ page: 1, pageSize: 20 });
+    pendingApplications.value = response.list;
+  } catch (error) {
+    console.error('获取待审核申请失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleTabChange = (tabName: string) => {
+  switch (tabName) {
+    case 'reservations':
+      fetchPendingReservations();
+      break;
+    case 'applications':
+      fetchPendingApplications();
+      break;
+  }
+};
+
+const handleSaveProfile = async () => {
+  try {
+    await userApi.updateProfile(editForm);
+    await authStore.fetchUserInfo();
+    fetchUserInfo();
+    editDialogVisible.value = false;
+    ElMessage.success('保存成功');
+  } catch (error) {
+    ElMessage.error('保存失败');
+  }
+};
+
+const handleApproveReservation = async (id: string | number) => {
+  try {
+    await reservationApi.approveReservation(id);
+    ElMessage.success('已通过');
+    fetchPendingReservations();
+  } catch (error) {
+    ElMessage.error('操作失败');
+  }
+};
+
+const handleRejectReservation = async (id: string | number) => {
+  try {
+    const { value: reason } = await ElMessageBox.prompt('请输入驳回原因', '驳回预约', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputPattern: /.+/,
+      inputErrorMessage: '请输入驳回原因',
+    });
+    
+    if (reason) {
+      await reservationApi.rejectReservation(id, reason);
+      ElMessage.success('已驳回');
+      fetchPendingReservations();
+    }
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      ElMessage.error('操作失败');
+    }
+  }
+};
+
+const approveApplication = async (id: string | number) => {
+  try {
+    await equipmentApi.approveApplication(id);
+    ElMessage.success('已通过');
+    fetchPendingApplications();
+  } catch (error) {
+    ElMessage.error('操作失败');
+  }
+};
+
+const rejectApplication = async (id: string | number) => {
+  try {
+    const { value: reason } = await ElMessageBox.prompt('请输入驳回原因', '驳回申请', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputPattern: /.+/,
+      inputErrorMessage: '请输入驳回原因',
+    });
+    
+    if (reason) {
+      await equipmentApi.rejectApplication(id, reason);
+      ElMessage.success('已驳回');
+      fetchPendingApplications();
+    }
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      ElMessage.error('操作失败');
+    }
+  }
+};
+
+const getApplicationStatusType = (status: ApplicationStatus) => {
+  switch (status) {
+    case ApplicationStatus.PENDING:
+      return 'warning';
+    case ApplicationStatus.APPROVED:
+      return 'success';
+    case ApplicationStatus.REJECTED:
+      return 'danger';
+    default:
+      return 'info';
+  }
+};
+
+const getApplicationStatusText = (status: ApplicationStatus) => {
+  switch (status) {
+    case ApplicationStatus.PENDING:
+      return '待审核';
+    case ApplicationStatus.APPROVED:
+      return '已通过';
+    case ApplicationStatus.REJECTED:
+      return '已驳回';
+    default:
+      return '未知';
+  }
+};
+
+onMounted(() => {
+  fetchUserInfo();
+});
+</script>
+
+<template>
+  <div>
+    <el-tabs v-model="activeTab" @tab-change="handleTabChange">
+      <el-tab-pane label="基本信息" name="info">
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold">个人信息</h2>
+            <el-button type="primary" @click="editDialogVisible = true">
+              编辑
+            </el-button>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <span class="text-gray-600 w-24">用户名：</span>
+              <span class="font-medium">{{ user?.username }}</span>
+            </div>
+            <div class="flex items-center">
+              <span class="text-gray-600 w-24">昵称：</span>
+              <span class="font-medium">{{ user?.nickname || '未设置' }}</span>
+            </div>
+            <div class="flex items-center">
+              <span class="text-gray-600 w-24">邮箱：</span>
+              <span class="font-medium">{{ user?.email || '未设置' }}</span>
+            </div>
+            <div class="flex items-center">
+              <span class="text-gray-600 w-24">手机号：</span>
+              <span class="font-medium">{{ user?.phone || '未设置' }}</span>
+            </div>
+            <div class="flex items-center">
+              <span class="text-gray-600 w-24">角色：</span>
+              <el-tag type="primary">教师</el-tag>
+            </div>
+            <div class="flex items-start">
+              <span class="text-gray-600 w-24">教学标签：</span>
+              <div class="flex flex-wrap gap-2">
+                <el-tag
+                  v-for="tag in user?.teachingTags"
+                  :key="tag"
+                  type="success"
+                >
+                  {{ tag }}
+                </el-tag>
+                <span v-if="!user?.teachingTags || user.teachingTags.length === 0" class="text-gray-400">
+                  未设置
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-tab-pane>
+
+      <el-tab-pane label="预约审核" name="reservations">
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <ReservationTable
+            :reservations="pendingReservations"
+            :loading="loading"
+            :show-user="true"
+            @approve="handleApproveReservation"
+            @reject="handleRejectReservation"
+          />
+        </div>
+      </el-tab-pane>
+
+      <el-tab-pane label="申请审核" name="applications">
+        <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
+          <el-table :data="pendingApplications" stripe>
+            <el-table-column prop="userName" label="申请人" />
+            <el-table-column prop="equipmentName" label="仪器名称" />
+            <el-table-column prop="purpose" label="用途" />
+            <el-table-column prop="timeSlot" label="使用时段" />
+            <el-table-column prop="description" label="详细说明" show-overflow-tooltip />
+            <el-table-column label="操作" width="180">
+              <template #default="{ row }">
+                <el-button
+                  type="success"
+                  size="small"
+                  @click="approveApplication(row.id)"
+                >
+                  通过
+                </el-button>
+                <el-button
+                  type="danger"
+                  size="small"
+                  @click="rejectApplication(row.id)"
+                >
+                  驳回
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </el-tab-pane>
+    </el-tabs>
+
+    <el-dialog v-model="editDialogVisible" title="编辑个人信息" width="500px">
+      <el-form :model="editForm" label-width="80px">
+        <el-form-item label="昵称">
+          <el-input v-model="editForm.nickname" />
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="editForm.email" />
+        </el-form-item>
+        <el-form-item label="手机号">
+          <el-input v-model="editForm.phone" maxlength="11" />
+        </el-form-item>
+        <el-form-item label="教学标签">
+          <el-select
+            v-model="editForm.teachingTags"
+            multiple
+            allow-create
+            filterable
+            placeholder="输入并回车添加标签"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="tag in editForm.teachingTags"
+              :key="tag"
+              :label="tag"
+              :value="tag"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="editDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSaveProfile">保存</el-button>
+      </template>
+    </el-dialog>
+  </div>
+</template>

@@ -2,7 +2,8 @@ import { defineStore } from "pinia";
 
 import { setStorage, getStorage, cleanupStorage } from "@/utils";
 
-import { STORAGE_KEY } from "@/types";
+import { STORAGE_KEY, UserRole, type User, type LoginForm, type RegisterForm } from "@/types";
+import { authApi } from "@/api";
 
 interface AuthState {
   /**是否登录 */
@@ -10,11 +11,11 @@ interface AuthState {
   // 是否处于请求中
   isRequesting: boolean;
   // 用户信息
-  userInfo: null;
+  userInfo: User | null;
   /** token */
   token: string | undefined;
   // 用户角色
-  role: "job_seeker" | "recruiter";
+  role: UserRole;
 }
 
 /**
@@ -28,15 +29,14 @@ export const LOGIN_PATH = "/login";
  * @returns 默认首页路径
  */
 export function getDefaultHomePath(
-  role: "job_seeker" | "recruiter" = "job_seeker"
+  role: UserRole = UserRole.STUDENT
 ): string {
   switch (role) {
-    case "recruiter":
-      // return "/recruiter/rc-dashboard";
-      return "/recruiter/rc-applicants";
-    case "job_seeker":
+    case UserRole.TEACHER:
+      return "/teacher/reservations";
+    case UserRole.STUDENT:
     default:
-      return "/job-seeker/js-home";
+      return "/home";
   }
 }
 
@@ -50,7 +50,7 @@ export const useAuthStore = defineStore("auth", {
     isLoggedIn: false,
     isRequesting: false,
     userInfo: null,
-    role: "job_seeker",
+    role: UserRole.STUDENT,
     token: undefined,
   }),
   getters: {
@@ -81,34 +81,71 @@ export const useAuthStore = defineStore("auth", {
   },
   actions: {
     /** 用户登录 */
-    async login(params: any) {
+    async login(params: LoginForm) {
       try {
-        try {
-        } catch (userInfoError) {
-          // 获取用户信息失败，清理 token
-          console.error("获取用户信息失败:", userInfoError);
-          this.clear();
-          throw userInfoError;
+        const response = await authApi.login(params);
+        
+        this.setToken(response.token);
+        this.setUserInfo(response.user);
+        
+        if (params.rememberPassword) {
+          await setStorage(STORAGE_KEY.USER_TOKEN, response.token, Date.now() + 7 * 24 * 60 * 60 * 1000);
+        } else {
+          await setStorage(STORAGE_KEY.USER_TOKEN, response.token);
         }
-      } catch (error) {}
+        
+        await setStorage(STORAGE_KEY.USER_INFO, response.user);
+        
+        return response;
+      } catch (error) {
+        this.clear();
+        throw error;
+      }
     },
 
     /** 用户注册 */
-    async register(params: any) {},
+    async register(params: RegisterForm) {
+      try {
+        const response = await authApi.register(params);
+        
+        this.setToken(response.token);
+        this.setUserInfo(response.user);
+        
+        await setStorage(STORAGE_KEY.USER_TOKEN, response.token);
+        await setStorage(STORAGE_KEY.USER_INFO, response.user);
+        
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
 
     /** 获取用户信息 */
     async fetchUserInfo() {
       try {
-      } catch (error) {}
+        const userInfo = await authApi.getUserInfo();
+        this.setUserInfo(userInfo);
+        await setStorage(STORAGE_KEY.USER_INFO, userInfo);
+        return userInfo;
+      } catch (error) {
+        this.clear();
+        throw error;
+      }
     },
 
     /** 修改用户信息*/
-    async updateUserInfo(userInfo: any) {},
+    async updateUserInfo(userInfo: User) {
+      this.userInfo = userInfo;
+      await setStorage(STORAGE_KEY.USER_INFO, userInfo);
+    },
+    
     /**设置token */
-    setToken(token: string) {},
+    setToken(token: string) {
+      this.token = token;
+    },
 
     /** 设置用户信息 */
-    setUserInfo(userInfo: null) {
+    setUserInfo(userInfo: User | null) {
       this.userInfo = userInfo;
       this.setIsLoggedIn(true);
       if (userInfo?.role) {
@@ -118,7 +155,15 @@ export const useAuthStore = defineStore("auth", {
     },
 
     /** 退出登录 */
-    async logout() {},
+    async logout() {
+      try {
+        await authApi.logout();
+      } catch (error) {
+        console.error('退出登录失败:', error);
+      } finally {
+        this.clear();
+      }
+    },
 
     /** 设置登录状态 */
     setIsLoggedIn(isLoggedIn: boolean) {
@@ -131,7 +176,8 @@ export const useAuthStore = defineStore("auth", {
         cleanupStorage();
         this.setIsLoggedIn(false);
         this.userInfo = null;
-        this.role = "job_seeker";
+        this.role = UserRole.STUDENT;
+        this.token = undefined;
       } catch (error) {
         console.error("清除存储认证信息失败:", error);
       }
