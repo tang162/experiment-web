@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { reservationApi } from '@/api';
+import { PageHeader, ReservationTable } from '@/components';
 import type { Reservation } from '@/types';
 
 const reservations = ref<Reservation[]>([]);
@@ -18,6 +20,28 @@ const fetchReservations = async () => {
   }
 };
 
+const handleCancel = async (id: string | number) => {
+  try {
+    await ElMessageBox.confirm('确定要取消此预约吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
+    
+    await reservationApi.cancelReservation(id);
+    ElMessage.success('取消成功');
+    fetchReservations();
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      ElMessage.error('取消失败');
+    }
+  }
+};
+
+const handleView = (reservation: Reservation) => {
+  console.log('查看预约详情', reservation);
+};
+
 onMounted(() => {
   fetchReservations();
 });
@@ -26,20 +50,18 @@ onMounted(() => {
 <template>
   <div class="min-h-screen bg-gray-50 py-8">
     <div class="container mx-auto px-4">
-      <h1 class="text-3xl font-bold text-gray-900 mb-6">我的预约</h1>
-      <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
-        <el-table :data="reservations" stripe>
-          <el-table-column prop="labName" label="实验室" />
-          <el-table-column prop="date" label="预约日期" />
-          <el-table-column prop="timeSlot" label="时段" />
-          <el-table-column prop="status" label="状态">
-            <template #default="{ row }">
-              <el-tag :type="row.status === 'APPROVED' ? 'success' : 'warning'">
-                {{ row.status }}
-              </el-tag>
-            </template>
-          </el-table-column>
-        </el-table>
+      <PageHeader
+        title="我的预约"
+        description="查看和管理您的预约记录"
+      />
+      
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <ReservationTable
+          :reservations="reservations"
+          :loading="loading"
+          @cancel="handleCancel"
+          @view="handleView"
+        />
       </div>
     </div>
   </div>

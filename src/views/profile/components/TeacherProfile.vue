@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { useAuthStore } from '@/stores';
 import { userApi, reservationApi, equipmentApi } from '@/api';
+import { ReservationTable } from '@/components';
+import { ApplicationStatus } from '@/types';
 import type { User, Reservation, EquipmentApplication } from '@/types';
 
 const authStore = useAuthStore();
@@ -78,7 +80,7 @@ const handleSaveProfile = async () => {
   }
 };
 
-const approveReservation = async (id: string | number) => {
+const handleApproveReservation = async (id: string | number) => {
   try {
     await reservationApi.approveReservation(id);
     ElMessage.success('已通过');
@@ -88,15 +90,24 @@ const approveReservation = async (id: string | number) => {
   }
 };
 
-const rejectReservation = async (id: string | number) => {
+const handleRejectReservation = async (id: string | number) => {
   try {
-    const reason = prompt('请输入驳回原因：');
-    if (!reason) return;
-    await reservationApi.rejectReservation(id, reason);
-    ElMessage.success('已驳回');
-    fetchPendingReservations();
-  } catch (error) {
-    ElMessage.error('操作失败');
+    const { value: reason } = await ElMessageBox.prompt('请输入驳回原因', '驳回预约', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputPattern: /.+/,
+      inputErrorMessage: '请输入驳回原因',
+    });
+    
+    if (reason) {
+      await reservationApi.rejectReservation(id, reason);
+      ElMessage.success('已驳回');
+      fetchPendingReservations();
+    }
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      ElMessage.error('操作失败');
+    }
   }
 };
 
@@ -112,13 +123,48 @@ const approveApplication = async (id: string | number) => {
 
 const rejectApplication = async (id: string | number) => {
   try {
-    const reason = prompt('请输入驳回原因：');
-    if (!reason) return;
-    await equipmentApi.rejectApplication(id, reason);
-    ElMessage.success('已驳回');
-    fetchPendingApplications();
-  } catch (error) {
-    ElMessage.error('操作失败');
+    const { value: reason } = await ElMessageBox.prompt('请输入驳回原因', '驳回申请', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputPattern: /.+/,
+      inputErrorMessage: '请输入驳回原因',
+    });
+    
+    if (reason) {
+      await equipmentApi.rejectApplication(id, reason);
+      ElMessage.success('已驳回');
+      fetchPendingApplications();
+    }
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      ElMessage.error('操作失败');
+    }
+  }
+};
+
+const getApplicationStatusType = (status: ApplicationStatus) => {
+  switch (status) {
+    case ApplicationStatus.PENDING:
+      return 'warning';
+    case ApplicationStatus.APPROVED:
+      return 'success';
+    case ApplicationStatus.REJECTED:
+      return 'danger';
+    default:
+      return 'info';
+  }
+};
+
+const getApplicationStatusText = (status: ApplicationStatus) => {
+  switch (status) {
+    case ApplicationStatus.PENDING:
+      return '待审核';
+    case ApplicationStatus.APPROVED:
+      return '已通过';
+    case ApplicationStatus.REJECTED:
+      return '已驳回';
+    default:
+      return '未知';
   }
 };
 
@@ -180,33 +226,14 @@ onMounted(() => {
       </el-tab-pane>
 
       <el-tab-pane label="预约审核" name="reservations">
-        <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
-          <el-table :data="pendingReservations" stripe>
-            <el-table-column prop="userName" label="申请人" />
-            <el-table-column prop="labName" label="实验室" />
-            <el-table-column prop="date" label="预约日期" />
-            <el-table-column prop="timeSlot" label="时段" />
-            <el-table-column prop="purpose" label="用途" />
-            <el-table-column prop="participantCount" label="人数" />
-            <el-table-column label="操作" width="180">
-              <template #default="{ row }">
-                <el-button
-                  type="success"
-                  size="small"
-                  @click="approveReservation(row.id)"
-                >
-                  通过
-                </el-button>
-                <el-button
-                  type="danger"
-                  size="small"
-                  @click="rejectReservation(row.id)"
-                >
-                  驳回
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <ReservationTable
+            :reservations="pendingReservations"
+            :loading="loading"
+            :show-user="true"
+            @approve="handleApproveReservation"
+            @reject="handleRejectReservation"
+          />
         </div>
       </el-tab-pane>
 
@@ -259,6 +286,7 @@ onMounted(() => {
             allow-create
             filterable
             placeholder="输入并回车添加标签"
+            style="width: 100%"
           >
             <el-option
               v-for="tag in editForm.teachingTags"

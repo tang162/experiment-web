@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { useAuthStore } from '@/stores';
 import { userApi, reservationApi, equipmentApi, labApi } from '@/api';
+import { ReservationTable, LabCard } from '@/components';
+import { ApplicationStatus, RepairStatus } from '@/types';
 import type { User, Reservation, EquipmentApplication, RepairRequest, Lab } from '@/types';
 
 const authStore = useAuthStore();
@@ -108,13 +110,21 @@ const handleSaveProfile = async () => {
   }
 };
 
-const cancelReservation = async (id: string | number) => {
+const handleCancelReservation = async (id: string | number) => {
   try {
+    await ElMessageBox.confirm('确定要取消此预约吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    });
+    
     await reservationApi.cancelReservation(id);
     ElMessage.success('取消成功');
     fetchReservations();
-  } catch (error) {
-    ElMessage.error('取消失败');
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      ElMessage.error('取消失败');
+    }
   }
 };
 
@@ -125,6 +135,58 @@ const removeFavorite = async (lab: Lab) => {
     fetchFavorites();
   } catch (error) {
     ElMessage.error('操作失败');
+  }
+};
+
+const getApplicationStatusType = (status: ApplicationStatus) => {
+  switch (status) {
+    case ApplicationStatus.PENDING:
+      return 'warning';
+    case ApplicationStatus.APPROVED:
+      return 'success';
+    case ApplicationStatus.REJECTED:
+      return 'danger';
+    default:
+      return 'info';
+  }
+};
+
+const getApplicationStatusText = (status: ApplicationStatus) => {
+  switch (status) {
+    case ApplicationStatus.PENDING:
+      return '待审核';
+    case ApplicationStatus.APPROVED:
+      return '已通过';
+    case ApplicationStatus.REJECTED:
+      return '已驳回';
+    default:
+      return '未知';
+  }
+};
+
+const getRepairStatusType = (status: RepairStatus) => {
+  switch (status) {
+    case RepairStatus.PENDING:
+      return 'warning';
+    case RepairStatus.IN_PROGRESS:
+      return 'primary';
+    case RepairStatus.COMPLETED:
+      return 'success';
+    default:
+      return 'info';
+  }
+};
+
+const getRepairStatusText = (status: RepairStatus) => {
+  switch (status) {
+    case RepairStatus.PENDING:
+      return '待处理';
+    case RepairStatus.IN_PROGRESS:
+      return '维修中';
+    case RepairStatus.COMPLETED:
+      return '已完成';
+    default:
+      return '未知';
   }
 };
 
@@ -171,44 +233,12 @@ onMounted(() => {
       </el-tab-pane>
 
       <el-tab-pane label="预约历史" name="reservations">
-        <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
-          <el-table :data="reservations" stripe>
-            <el-table-column prop="labName" label="实验室" />
-            <el-table-column prop="date" label="预约日期" />
-            <el-table-column prop="timeSlot" label="时段" />
-            <el-table-column prop="status" label="状态">
-              <template #default="{ row }">
-                <el-tag
-                  :type="
-                    row.status === 'PENDING' ? 'warning' :
-                    row.status === 'APPROVED' ? 'success' :
-                    row.status === 'REJECTED' ? 'danger' :
-                    row.status === 'COMPLETED' ? 'info' : ''
-                  "
-                >
-                  {{
-                    row.status === 'PENDING' ? '待审核' :
-                    row.status === 'APPROVED' ? '已通过' :
-                    row.status === 'REJECTED' ? '已驳回' :
-                    row.status === 'COMPLETED' ? '已完成' : '已取消'
-                  }}
-                </el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="120">
-              <template #default="{ row }">
-                <el-button
-                  v-if="row.status === 'PENDING'"
-                  type="danger"
-                  size="small"
-                  text
-                  @click="cancelReservation(row.id)"
-                >
-                  取消
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <ReservationTable
+            :reservations="reservations"
+            :loading="loading"
+            @cancel="handleCancelReservation"
+          />
         </div>
       </el-tab-pane>
 
@@ -220,16 +250,8 @@ onMounted(() => {
             <el-table-column prop="timeSlot" label="使用时段" />
             <el-table-column prop="status" label="状态">
               <template #default="{ row }">
-                <el-tag
-                  :type="
-                    row.status === 'PENDING' ? 'warning' :
-                    row.status === 'APPROVED' ? 'success' : 'danger'
-                  "
-                >
-                  {{
-                    row.status === 'PENDING' ? '待审核' :
-                    row.status === 'APPROVED' ? '已通过' : '已驳回'
-                  }}
+                <el-tag :type="getApplicationStatusType(row.status)">
+                  {{ getApplicationStatusText(row.status) }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -246,16 +268,8 @@ onMounted(() => {
             <el-table-column prop="faultType" label="故障类型" />
             <el-table-column prop="status" label="状态">
               <template #default="{ row }">
-                <el-tag
-                  :type="
-                    row.status === 'PENDING' ? 'warning' :
-                    row.status === 'IN_PROGRESS' ? 'primary' : 'success'
-                  "
-                >
-                  {{
-                    row.status === 'PENDING' ? '待处理' :
-                    row.status === 'IN_PROGRESS' ? '维修中' : '已完成'
-                  }}
+                <el-tag :type="getRepairStatusType(row.status)">
+                  {{ getRepairStatusText(row.status) }}
                 </el-tag>
               </template>
             </el-table-column>

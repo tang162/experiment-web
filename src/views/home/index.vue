@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { Search } from '@element-plus/icons-vue';
 import { bannerApi, labApi } from '@/api';
-import type { Banner, Lab, LabFilter } from '@/types';
+import { LabCard, SearchBar } from '@/components';
+import type { Banner, Lab } from '@/types';
 
 const router = useRouter();
 
@@ -62,14 +62,10 @@ const fetchPopularLabs = async () => {
   }
 };
 
-const handleSearch = () => {
-  const filter: LabFilter = {};
-  if (searchKeyword.value) {
-    filter.keyword = searchKeyword.value;
-  }
+const handleSearch = (keyword: string) => {
   router.push({
     path: '/labs',
-    query: filter,
+    query: keyword ? { keyword } : {},
   });
 };
 
@@ -77,8 +73,17 @@ const goToFunction = (route: string) => {
   router.push(route);
 };
 
-const goToLabDetail = (id: string | number) => {
-  router.push(`/labs/${id}`);
+const handleLabClick = (lab: Lab) => {
+  router.push(`/labs/${lab.id}`);
+};
+
+const handleToggleFavorite = async (lab: Lab) => {
+  try {
+    await labApi.toggleFavorite(lab.id);
+    lab.isFavorite = !lab.isFavorite;
+  } catch (error) {
+    console.error('收藏操作失败:', error);
+  }
 };
 
 onMounted(() => {
@@ -109,20 +114,11 @@ onMounted(() => {
 
       <div class="mb-12">
         <div class="max-w-2xl mx-auto">
-          <el-input
+          <SearchBar
             v-model="searchKeyword"
-            size="large"
             placeholder="搜索实验室名称或设备类型"
-            clearable
-            @keyup.enter="handleSearch"
-          >
-            <template #prefix>
-              <el-icon><Search /></el-icon>
-            </template>
-            <template #append>
-              <el-button type="primary" @click="handleSearch">搜索</el-button>
-            </template>
-          </el-input>
+            @search="handleSearch"
+          />
         </div>
       </div>
 
@@ -160,37 +156,13 @@ onMounted(() => {
         </div>
 
         <div v-loading="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div
+          <LabCard
             v-for="lab in popularLabs"
             :key="lab.id"
-            class="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-            @click="goToLabDetail(lab.id)"
-          >
-            <div class="h-48 bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
-              <el-icon :size="64" color="white">
-                <School />
-              </el-icon>
-            </div>
-            <div class="p-6">
-              <div class="flex items-center justify-between mb-2">
-                <h3 class="text-lg font-bold text-gray-900">{{ lab.name }}</h3>
-                <el-tag size="small" :type="lab.status === 'AVAILABLE' ? 'success' : 'info'">
-                  {{ lab.status === 'AVAILABLE' ? '可用' : lab.status === 'OCCUPIED' ? '占用' : '维护中' }}
-                </el-tag>
-              </div>
-              <p class="text-sm text-gray-600 mb-3">{{ lab.department }}</p>
-              <div class="flex items-center justify-between text-sm text-gray-500">
-                <span class="flex items-center">
-                  <el-icon class="mr-1"><User /></el-icon>
-                  {{ lab.capacity }}人
-                </span>
-                <span class="flex items-center">
-                  <el-icon class="mr-1"><Star /></el-icon>
-                  {{ lab.rating?.toFixed(1) || '暂无评分' }}
-                </span>
-              </div>
-            </div>
-          </div>
+            :lab="lab"
+            @click="handleLabClick"
+            @toggle-favorite="handleToggleFavorite"
+          />
         </div>
       </div>
     </div>
