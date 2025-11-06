@@ -10,3 +10,5 @@ export * from "./router";
 export * from "./directives";
 
 export * from "./message";
+
+export * from "./async";

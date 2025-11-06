@@ -1,22 +1,16 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { ElPagination } from 'element-plus';
+import { ElPagination, ElMessage } from 'element-plus';
 import { labApi } from '@/api';
-import { PageHeader, LabCard, LabFilter, EmptyState } from '@/components';
+import { PageLayout, LabCard, LabFilter, EmptyState } from '@/components';
+import { useApi, usePagination } from '@/composables';
 import { LabStatus, type Lab, type LabFilter as LabFilterType } from '@/types';
 
 const router = useRouter();
 const route = useRoute();
 
 const labs = ref<Lab[]>([]);
-const total = ref(0);
-const loading = ref(false);
-
-const pagination = reactive({
-  page: 1,
-  pageSize: 12,
-});
 
 const filters = reactive<LabFilterType>({
   keyword: (route.query.keyword as string) || '',
@@ -27,25 +21,26 @@ const filters = reactive<LabFilterType>({
   maxCapacity: undefined,
 });
 
-const fetchLabs = async () => {
-  loading.value = true;
-  try {
-    const response = await labApi.getLabList({
+const total = ref(0);
+const { loading, execute: fetchLabs } = useApi<{ list: Lab[], total: number }>();
+const { pagination, handlePageChange, resetPage } = usePagination({
+  initialPage: 1,
+  initialPageSize: 12,
+  totalItems: total,
+});
+
+const loadLabs = async () => {
+  const result = await fetchLabs(() => 
+    labApi.getLabList({
       ...filters,
       ...pagination,
-    });
-    labs.value = response.list;
-    total.value = response.total;
-  } catch (error) {
-    console.error('获取实验室列表失败:', error);
-  } finally {
-    loading.value = false;
+    })
+  );
+  
+  if (result) {
+    labs.value = result.list;
+    total.value = result.total;
   }
-};
-
-const handlePageChange = (page: number) => {
-  pagination.page = page;
-  fetchLabs();
 };
 
 const handleFilterUpdate = (newFilters: LabFilterType) => {
@@ -53,13 +48,13 @@ const handleFilterUpdate = (newFilters: LabFilterType) => {
 };
 
 const handleFilter = () => {
-  pagination.page = 1;
-  fetchLabs();
+  resetPage();
+  loadLabs();
 };
 
 const handleReset = () => {
-  pagination.page = 1;
-  fetchLabs();
+  resetPage();
+  loadLabs();
 };
 
 const handleLabClick = (lab: Lab) => {
@@ -70,59 +65,62 @@ const handleToggleFavorite = async (lab: Lab) => {
   try {
     await labApi.toggleFavorite(lab.id);
     lab.isFavorite = !lab.isFavorite;
+    ElMessage.success('操作成功');
   } catch (error) {
-    console.error('收藏操作失败:', error);
+    ElMessage.error('收藏操作失败');
   }
 };
 
+// Watch for pagination changes
+watch(() => pagination.page, () => {
+  loadLabs();
+});
+
 onMounted(() => {
-  fetchLabs();
+  loadLabs();
 });
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="container mx-auto px-4">
-      <PageHeader
-        title="实验室预约"
-        description="选择适合您的实验室"
+  <PageLayout
+    title="实验室预约"
+    description="选择适合您的实验室"
+    :loading="loading"
+  >
+    <div class="mb-6">
+      <LabFilter
+        :model-value="filters"
+        @update:model-value="handleFilterUpdate"
+        @filter="handleFilter"
+        @reset="handleReset"
+      />
+    </div>
+
+    <div class="min-h-[400px]">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
+        <LabCard
+          v-for="lab in labs"
+          :key="lab.id"
+          :lab="lab"
+          @click="handleLabClick"
+          @toggle-favorite="handleToggleFavorite"
+        />
+      </div>
+
+      <EmptyState
+        v-if="labs.length === 0 && !loading"
+        description="暂无实验室"
       />
 
-      <div class="mb-6">
-        <LabFilter
-          :model-value="filters"
-          @update:model-value="handleFilterUpdate"
-          @filter="handleFilter"
-          @reset="handleReset"
+      <div v-if="total && total > pagination.pageSize" class="flex justify-center">
+        <ElPagination
+          v-model:current-page="pagination.page"
+          :page-size="pagination.pageSize"
+          :total="total"
+          layout="prev, pager, next, jumper"
+          @current-change="handlePageChange"
         />
-      </div>
-
-      <div v-loading="loading" class="min-h-[400px]">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
-          <LabCard
-            v-for="lab in labs"
-            :key="lab.id"
-            :lab="lab"
-            @click="handleLabClick"
-            @toggle-favorite="handleToggleFavorite"
-          />
-        </div>
-
-        <EmptyState
-          v-if="labs.length === 0 && !loading"
-          description="暂无实验室"
-        />
-
-        <div v-if="total > pagination.pageSize" class="flex justify-center">
-          <ElPagination
-            v-model:current-page="pagination.page"
-            :page-size="pagination.pageSize"
-            :total="total"
-            layout="prev, pager, next, jumper"
-            @current-change="handlePageChange"
-          />
-        </div>
       </div>
     </div>
-  </div>
+  </PageLayout>
 </template>

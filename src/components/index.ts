@@ -10,3 +10,5 @@ export { default as PageHeader } from './Common/PageHeader.vue';
 export { default as EmptyState } from './Common/EmptyState.vue';
 export { default as ImageUpload } from './Common/ImageUpload.vue';
 export { default as SearchBar } from './Common/SearchBar.vue';
+
+export * from './Layout';
