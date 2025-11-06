@@ -16,8 +16,10 @@ function mergeRouteModules(
   const mergedRoutes: RouteRecordRaw[] = [];
 
   for (const routeModule of Object.values(routeModules)) {
-    const moduleRoutes = (routeModule as RouteModuleType)?.default ?? [];
-    mergedRoutes.push(...moduleRoutes);
+    const moduleRoutes = (routeModule as RouteModuleType)?.default;
+    if (Array.isArray(moduleRoutes)) {
+      mergedRoutes.push(...moduleRoutes);
+    }
   }
 
   return mergedRoutes;
