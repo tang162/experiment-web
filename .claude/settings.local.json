@@ -1,10 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(pkill -f \"vite\")",
-      "Bash(pkill -f \"bash\")",
-      "Bash(pkill -9 -f \"bash\\|vite\")",
-      "Bash(pkill -9 -f \"node\\|bash\\|vite\")"
+      "Bash(for file in src/views/labs/detail.vue src/views/labs/reserve.vue src/views/notifications/index.vue)",
+      "Bash(do echo \"=== Checking $file ===\" head -10 \"$file\")"
     ],
     "deny": [],
     "ask": []

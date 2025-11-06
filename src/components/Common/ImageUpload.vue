@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElUpload, ElIcon } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
 import type { UploadProps, UploadUserFile } from 'element-plus';
 
@@ -44,7 +44,7 @@ const handleBeforeUpload: UploadProps['beforeUpload'] = (file) => {
     ElMessage.error(`图片大小不能超过${props.maxSize}MB`);
     return false;
   }
-  
+
   emit('upload', file);
   return false;
 };
@@ -60,17 +60,10 @@ const handlePreview: UploadProps['onPreview'] = (uploadFile) => {
 </script>
 
 <template>
-  <el-upload
-    v-model:file-list="fileList"
-    action="#"
-    list-type="picture-card"
-    :accept="accept"
-    :limit="maxCount"
-    :on-exceed="handleExceed"
-    :before-upload="handleBeforeUpload"
-    :on-remove="handleRemove"
-    :on-preview="handlePreview"
-  >
-    <el-icon v-if="!isLimitExceeded"><Plus /></el-icon>
-  </el-upload>
+  <ElUpload v-model:file-list="fileList" action="#" list-type="picture-card" :accept="accept" :limit="maxCount"
+    :on-exceed="handleExceed" :before-upload="handleBeforeUpload" :on-remove="handleRemove" :on-preview="handlePreview">
+    <ElIcon v-if="!isLimitExceeded">
+      <Plus />
+    </ElIcon>
+  </ElUpload>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElSelect, ElOption } from 'element-plus';
 import { useAuthStore } from '@/stores';
 import { userApi, reservationApi, equipmentApi } from '@/api';
 import { ReservationTable } from '@/components';
@@ -98,7 +98,7 @@ const handleRejectReservation = async (id: string | number) => {
       inputPattern: /.+/,
       inputErrorMessage: '请输入驳回原因',
     });
-    
+
     if (reason) {
       await reservationApi.rejectReservation(id, reason);
       ElMessage.success('已驳回');
@@ -129,7 +129,7 @@ const rejectApplication = async (id: string | number) => {
       inputPattern: /.+/,
       inputErrorMessage: '请输入驳回原因',
     });
-    
+
     if (reason) {
       await equipmentApi.rejectApplication(id, reason);
       ElMessage.success('已驳回');
@@ -175,14 +175,14 @@ onMounted(() => {
 
 <template>
   <div>
-    <el-tabs v-model="activeTab" @tab-change="handleTabChange">
-      <el-tab-pane label="基本信息" name="info">
+    <ElTabs v-model="activeTab" @tab-change="handleTabChange">
+      <ElTabPane label="基本信息" name="info">
         <div class="bg-white rounded-lg shadow-md p-6">
           <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-bold">个人信息</h2>
-            <el-button type="primary" @click="editDialogVisible = true">
+            <ElButton type="primary" @click="editDialogVisible = true">
               编辑
-            </el-button>
+            </ElButton>
           </div>
 
           <div class="space-y-4">
@@ -204,16 +204,12 @@ onMounted(() => {
             </div>
             <div class="flex items-center">
               <span class="text-gray-600 w-24">角色：</span>
-              <el-tag type="primary">教师</el-tag>
+              <ElTag type="primary">教师</el-tag>
             </div>
             <div class="flex items-start">
               <span class="text-gray-600 w-24">教学标签：</span>
               <div class="flex flex-wrap gap-2">
-                <el-tag
-                  v-for="tag in user?.teachingTags"
-                  :key="tag"
-                  type="success"
-                >
+                <ElTag v-for="tag in user?.teachingTags" :key="tag" type="success">
                   {{ tag }}
                 </el-tag>
                 <span v-if="!user?.teachingTags || user.teachingTags.length === 0" class="text-gray-400">
@@ -225,81 +221,57 @@ onMounted(() => {
         </div>
       </el-tab-pane>
 
-      <el-tab-pane label="预约审核" name="reservations">
+      <ElTabPane label="预约审核" name="reservations">
         <div class="bg-white rounded-lg shadow-md p-6">
-          <ReservationTable
-            :reservations="pendingReservations"
-            :loading="loading"
-            :show-user="true"
-            @approve="handleApproveReservation"
-            @reject="handleRejectReservation"
-          />
+          <ReservationTable :reservations="pendingReservations" :loading="loading" :show-user="true"
+            @approve="handleApproveReservation" @reject="handleRejectReservation" />
         </div>
       </el-tab-pane>
 
-      <el-tab-pane label="申请审核" name="applications">
+      <ElTabPane label="申请审核" name="applications">
         <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
-          <el-table :data="pendingApplications" stripe>
-            <el-table-column prop="userName" label="申请人" />
-            <el-table-column prop="equipmentName" label="仪器名称" />
-            <el-table-column prop="purpose" label="用途" />
-            <el-table-column prop="timeSlot" label="使用时段" />
-            <el-table-column prop="description" label="详细说明" show-overflow-tooltip />
-            <el-table-column label="操作" width="180">
+          <ElTable :data="pendingApplications" stripe>
+            <ElTable-column prop="userName" label="申请人" />
+            <ElTable-column prop="equipmentName" label="仪器名称" />
+            <ElTable-column prop="purpose" label="用途" />
+            <ElTable-column prop="timeSlot" label="使用时段" />
+            <ElTable-column prop="description" label="详细说明" show-overflow-tooltip />
+            <ElTable-column label="操作" width="180">
               <template #default="{ row }">
-                <el-button
-                  type="success"
-                  size="small"
-                  @click="approveApplication(row.id)"
-                >
+                <ElButton type="success" size="small" @click="approveApplication(row.id)">
                   通过
-                </el-button>
-                <el-button
-                  type="danger"
-                  size="small"
-                  @click="rejectApplication(row.id)"
-                >
+                </ElButton>
+                <ElButton type="danger" size="small" @click="rejectApplication(row.id)">
                   驳回
-                </el-button>
+                </ElButton>
               </template>
-            </el-table-column>
-          </el-table>
+            </ElTable-column>
+          </ElTable>
         </div>
       </el-tab-pane>
     </el-tabs>
 
-    <el-dialog v-model="editDialogVisible" title="编辑个人信息" width="500px">
-      <el-form :model="editForm" label-width="80px">
-        <el-form-item label="昵称">
-          <el-input v-model="editForm.nickname" />
+    <ElDialog v-model="editDialogVisible" title="编辑个人信息" width="500px">
+      <ElForm :model="editForm" label-width="80px">
+        <ElForm-item label="昵称">
+          <ElInput v-model="editForm.nickname" />
         </el-form-item>
-        <el-form-item label="邮箱">
-          <el-input v-model="editForm.email" />
+        <ElForm-item label="邮箱">
+          <ElInput v-model="editForm.email" />
         </el-form-item>
-        <el-form-item label="手机号">
-          <el-input v-model="editForm.phone" maxlength="11" />
+        <ElForm-item label="手机号">
+          <ElInput v-model="editForm.phone" maxlength="11" />
         </el-form-item>
-        <el-form-item label="教学标签">
-          <el-select
-            v-model="editForm.teachingTags"
-            multiple
-            allow-create
-            filterable
-            placeholder="输入并回车添加标签"
-            style="width: 100%"
-          >
-            <el-option
-              v-for="tag in editForm.teachingTags"
-              :key="tag"
-              :label="tag"
-              :value="tag"
-            />
+        <ElForm-item label="教学标签">
+          <ElSelect v-model="editForm.teachingTags" multiple allow-create filterable placeholder="输入并回车添加标签"
+            style="width: 100%">
+            <ElOption v-for="tag in editForm.teachingTags" :key="tag" :label="tag" :value="tag" />
           </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="editDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSaveProfile">保存</el-button>
+        <ElButton @click="editDialogVisible = false">取消</ElButton>
+        <ElButton type="primary" @click="handleSaveProfile">保存</ElButton>
       </template>
     </el-dialog>
   </div>

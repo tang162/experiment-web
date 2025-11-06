@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { School, User, Star } from '@element-plus/icons-vue';
+import { ElIcon, ElTag } from 'element-plus';
 import type { Lab } from '@/types';
 import { LabStatus } from '@/types';
 
@@ -60,34 +61,34 @@ const handleFavoriteClick = (event: Event) => {
     @click="handleClick"
   >
     <div class="h-48 bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center relative">
-      <el-icon :size="64" color="white">
+      <ElIcon :size="64" color="white">
         <School />
-      </el-icon>
+      </ElIcon>
       <div
         v-if="showFavorite"
         class="absolute top-3 right-3 cursor-pointer"
         @click="handleFavoriteClick"
       >
-        <el-icon :size="24" :color="lab.isFavorite ? '#f56c6c' : 'white'">
+        <ElIcon :size="24" :color="lab.isFavorite ? '#f56c6c' : 'white'">
           <Star :filled="lab.isFavorite" />
-        </el-icon>
+        </ElIcon>
       </div>
     </div>
     <div class="p-5">
       <div class="flex items-center justify-between mb-2">
         <h3 class="text-lg font-bold text-gray-900 truncate flex-1 mr-2">{{ lab.name }}</h3>
-        <el-tag size="small" :type="statusType">
+        <ElTag size="small" :type="statusType">
           {{ statusText }}
-        </el-tag>
+        </ElTag>
       </div>
       <p class="text-sm text-gray-600 mb-3 truncate">{{ lab.department }}</p>
       <div class="flex items-center justify-between text-sm text-gray-500">
         <span class="flex items-center">
-          <el-icon class="mr-1"><User /></el-icon>
+          <ElIcon class="mr-1"><User /></ElIcon>
           {{ lab.capacity }}人
         </span>
         <span class="flex items-center">
-          <el-icon class="mr-1"><Star /></el-icon>
+          <ElIcon class="mr-1"><Star /></ElIcon>
           {{ lab.rating?.toFixed(1) || '暂无' }}
         </span>
       </div>

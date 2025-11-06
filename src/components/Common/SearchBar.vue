@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import { ElButton, ElIcon, ElInput } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 
 interface Props {
@@ -40,19 +41,15 @@ const handleKeyup = (event: KeyboardEvent) => {
 </script>
 
 <template>
-  <el-input
-    v-model="localValue"
-    :size="size"
-    :placeholder="placeholder"
-    clearable
-    @input="handleInput"
-    @keyup="handleKeyup"
-  >
+  <ElInput v-model="localValue" :size="size" :placeholder="placeholder" clearable @input="handleInput"
+    @keyup="handleKeyup">
     <template #prefix>
-      <el-icon><Search /></el-icon>
+      <ElIcon>
+        <Search />
+      </ElIcon>
     </template>
     <template #append>
-      <el-button type="primary" @click="handleSearch">搜索</el-button>
+      <ElButton type="primary" @click="handleSearch">搜索</ElButton>
     </template>
-  </el-input>
+  </ElInput>
 </template>

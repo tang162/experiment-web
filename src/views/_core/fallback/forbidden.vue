@@ -25,8 +25,7 @@ const logout = async () => {
 
 <template>
   <div
-    class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-red-50 via-white to-orange-50 px-4"
-  >
+    class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-red-50 via-white to-orange-50 px-4">
     <!-- 403 动画图标 -->
     <div class="relative mb-8">
       <div class="text-9xl font-bold text-red-200 select-none">403</div>
@@ -48,62 +47,38 @@ const logout = async () => {
 
     <!-- 操作按钮 -->
     <div class="flex flex-col sm:flex-row gap-4 mb-8">
-      <el-button
-        type="primary"
-        size="large"
-        @click="goHome"
-        :icon="House"
-        class="flex items-center justify-center min-w-[140px] transition-all"
-      >
+      <ElButton type="primary" size="large" @click="goHome" :icon="House"
+        class="flex items-center justify-center min-w-[140px] transition-all">
         返回首页
-      </el-button>
+      </ElButton>
 
-      <el-button
-        size="large"
-        @click="goBack"
-        :icon="Refresh"
-        class="flex items-center justify-center min-w-[140px] transition-all"
-      >
+      <ElButton size="large" @click="goBack" :icon="Refresh"
+        class="flex items-center justify-center min-w-[140px] transition-all">
         返回上页
-      </el-button>
+      </ElButton>
     </div>
 
     <!-- 帮助信息 -->
     <div class="text-center text-gray-400 text-sm max-w-sm">
       <p class="mb-2">如果问题持续存在，您可以：</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-        <el-button
-          text
-          type="primary"
-          @click="logout"
-          :icon="SwitchButton"
-          class="flex items-center gap-1 text-red-600"
-        >
+        <ElButton text type="primary" @click="logout" :icon="SwitchButton" class="flex items-center gap-1 text-red-600">
           重新登录
-        </el-button>
+        </ElButton>
         <span class="hidden sm:inline text-gray-300">|</span>
-        <router-link
-          to="/my/help"
-          class="flex items-center gap-1 text-red-600 hover:text-red-700 transition-colors"
-        >
+        <router-link to="/my/help" class="flex items-center gap-1 text-red-600 hover:text-red-700 transition-colors">
           寻求帮助
         </router-link>
       </div>
     </div>
 
     <!-- 装饰元素 -->
-    <div
-      class="absolute top-10 left-10 w-20 h-20 bg-red-200 rounded-full opacity-20 animate-pulse"
-    ></div>
-    <div
-      class="absolute top-20 right-20 w-16 h-16 bg-orange-200 rounded-full opacity-20 animate-pulse delay-1000"
-    ></div>
-    <div
-      class="absolute bottom-20 left-20 w-24 h-24 bg-red-300 rounded-full opacity-20 animate-pulse delay-2000"
-    ></div>
-    <div
-      class="absolute bottom-10 right-10 w-12 h-12 bg-orange-300 rounded-full opacity-20 animate-pulse delay-3000"
-    ></div>
+    <div class="absolute top-10 left-10 w-20 h-20 bg-red-200 rounded-full opacity-20 animate-pulse"></div>
+    <div class="absolute top-20 right-20 w-16 h-16 bg-orange-200 rounded-full opacity-20 animate-pulse delay-1000">
+    </div>
+    <div class="absolute bottom-20 left-20 w-24 h-24 bg-red-300 rounded-full opacity-20 animate-pulse delay-2000"></div>
+    <div class="absolute bottom-10 right-10 w-12 h-12 bg-orange-300 rounded-full opacity-20 animate-pulse delay-3000">
+    </div>
   </div>
 </template>
 
@@ -120,12 +95,12 @@ const logout = async () => {
   animation-delay: 3s;
 }
 
-.el-button {
+.ElButton {
   border-radius: 8px;
   font-weight: 500;
   transition: all 0.3s;
 
-  &.el-button--primary {
+  &.ElButton--primary {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     border: none;
 
@@ -140,7 +115,7 @@ const logout = async () => {
     }
   }
 
-  &:not(.el-button--primary) {
+  &:not(.ElButton--primary) {
     border-color: #d1d5db;
     color: #6b7280;
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { ReservationStatus } from '@/types';
+import { ElTabs } from 'element-plus'
 
 interface Props {
   status: ReservationStatus;
@@ -43,11 +44,11 @@ const statusText = computed(() => {
     default:
       return '未知';
   }
-});
+})
 </script>
 
 <template>
-  <el-tag :type="tagType" :size="size">
+  <ElTabs :type="tagType" :size="size">
     {{ statusText }}
-  </el-tag>
+  </ElTabs>
 </template>

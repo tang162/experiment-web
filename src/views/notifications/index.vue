@@ -7,7 +7,7 @@ import { ref } from 'vue';
     <div class="container mx-auto px-4">
       <h1 class="text-3xl font-bold text-gray-900 mb-6">消息通知</h1>
       <div class="bg-white rounded-lg shadow-md p-6">
-        <el-empty description="暂无消息" />
+        <ElEmpty description="暂无消息" />
       </div>
     </div>
   </div>

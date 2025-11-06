@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { LabFilter, LabStatus } from '@/types';
+import { ElInput, ElSelect, ElOption, ElInputNumber, ElButton } from "element-plus";
+import type { LabFilter } from '@/types';
 import { LabStatus as LabStatusEnum } from '@/types';
 
 interface Props {
@@ -70,73 +71,35 @@ const handleReset = () => {
 <template>
   <div class="bg-white rounded-lg shadow-md p-6">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-      <el-input
-        v-model="localKeyword"
-        placeholder="搜索实验室名称"
-        clearable
-      />
-      
-      <el-select
-        v-model="localDepartment"
-        placeholder="选择院系"
-        clearable
-      >
-        <el-option
-          v-for="dept in departments"
-          :key="dept"
-          :label="dept"
-          :value="dept"
-        />
-      </el-select>
+      <ElInput v-model="localKeyword" placeholder="搜索实验室名称" clearable />
 
-      <el-select
-        v-model="localEquipmentType"
-        placeholder="设备类型"
-        clearable
-      >
-        <el-option
-          v-for="type in equipmentTypes"
-          :key="type"
-          :label="type"
-          :value="type"
-        />
-      </el-select>
+      <ElSelect v-model="localDepartment" placeholder="选择院系" clearable>
+        <ElOption v-for="dept in departments" :key="dept" :label="dept" :value="dept" />
+      </ElSelect>
 
-      <el-select
-        v-model="localStatus"
-        placeholder="状态"
-        clearable
-      >
-        <el-option label="可用" :value="LabStatusEnum.AVAILABLE" />
-        <el-option label="已占用" :value="LabStatusEnum.OCCUPIED" />
-        <el-option label="维护中" :value="LabStatusEnum.MAINTENANCE" />
-      </el-select>
+      <ElSelect v-model="localEquipmentType" placeholder="设备类型" clearable>
+        <ElOption v-for="type in equipmentTypes" :key="type" :label="type" :value="type" />
+      </ElSelect>
+
+      <ElSelect v-model="localStatus" placeholder="状态" clearable>
+        <ElOption label="可用" :value="LabStatusEnum.AVAILABLE" />
+        <ElOption label="已占用" :value="LabStatusEnum.OCCUPIED" />
+        <ElOption label="维护中" :value="LabStatusEnum.MAINTENANCE" />
+      </ElSelect>
     </div>
 
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-2">
         <span class="text-sm text-gray-600">容量范围：</span>
-        <el-input-number
-          v-model="localMinCapacity"
-          :min="0"
-          :max="1000"
-          placeholder="最小"
-          controls-position="right"
-          style="width: 120px"
-        />
+        <ElInputNumber v-model="localMinCapacity" :min="0" :max="1000" placeholder="最小" controls-position="right"
+          style="width: 120px" />
         <span class="text-gray-400">-</span>
-        <el-input-number
-          v-model="localMaxCapacity"
-          :min="0"
-          :max="1000"
-          placeholder="最大"
-          controls-position="right"
-          style="width: 120px"
-        />
+        <ElInputNumber v-model="localMaxCapacity" :min="0" :max="1000" placeholder="最大" controls-position="right"
+          style="width: 120px" />
       </div>
 
-      <el-button type="primary" @click="handleFilter">筛选</el-button>
-      <el-button @click="handleReset">重置</el-button>
+      <ElButton type="primary" @click="handleFilter">筛选</ElButton>
+      <ElButton @click="handleReset">重置</ElButton>
     </div>
   </div>
 </template>

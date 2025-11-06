@@ -5,15 +5,11 @@ import App from "./App.vue";
 import { router } from "@/router";
 import { initStores } from "@/stores";
 
-import { setupElement } from "@/plugins";
-
 // 导入自定义指令;
 import { setupDirectives } from "@/utils";
 
 async function bootstrap() {
   const app = createApp(App);
-
-  setupElement(app);
 
   // 注册自定义指令
   setupDirectives(app);

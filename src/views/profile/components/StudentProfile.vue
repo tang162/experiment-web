@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElTable, ElTableColumn } from 'element-plus';
 import { useAuthStore } from '@/stores';
 import { userApi, reservationApi, equipmentApi, labApi } from '@/api';
 import { ReservationTable, LabCard } from '@/components';
@@ -117,7 +117,7 @@ const handleCancelReservation = async (id: string | number) => {
       cancelButtonText: '取消',
       type: 'warning',
     });
-    
+
     await reservationApi.cancelReservation(id);
     ElMessage.success('取消成功');
     fetchReservations();
@@ -197,14 +197,14 @@ onMounted(() => {
 
 <template>
   <div>
-    <el-tabs v-model="activeTab" @tab-change="handleTabChange">
-      <el-tab-pane label="基本信息" name="info">
+    <ElTabs v-model="activeTab" @tab-change="handleTabChange">
+      <ElTabPane label="基本信息" name="info">
         <div class="bg-white rounded-lg shadow-md p-6">
           <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-bold">个人信息</h2>
-            <el-button type="primary" @click="editDialogVisible = true">
+            <ElButton type="primary" @click="editDialogVisible = true">
               编辑
-            </el-button>
+            </ElButton>
           </div>
 
           <div class="space-y-4">
@@ -226,75 +226,62 @@ onMounted(() => {
             </div>
             <div class="flex items-center">
               <span class="text-gray-600 w-24">角色：</span>
-              <el-tag type="success">学生</el-tag>
+              <ElTag type="success">学生</ElTag>
             </div>
           </div>
         </div>
-      </el-tab-pane>
+      </ElTabPane>
 
-      <el-tab-pane label="预约历史" name="reservations">
+      <ElTabPane label="预约历史" name="reservations">
         <div class="bg-white rounded-lg shadow-md p-6">
-          <ReservationTable
-            :reservations="reservations"
-            :loading="loading"
-            @cancel="handleCancelReservation"
-          />
+          <ReservationTable :reservations="reservations" :loading="loading" @cancel="handleCancelReservation" />
         </div>
-      </el-tab-pane>
+      </ElTabPane>
 
-      <el-tab-pane label="仪器申请" name="applications">
+      <ElTabPane label="仪器申请" name="applications">
         <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
-          <el-table :data="applications" stripe>
-            <el-table-column prop="equipmentName" label="仪器名称" />
-            <el-table-column prop="purpose" label="用途" />
-            <el-table-column prop="timeSlot" label="使用时段" />
-            <el-table-column prop="status" label="状态">
+          <ElTable :data="applications" stripe>
+            <ElTable-column prop="equipmentName" label="仪器名称" />
+            <ElTable-column prop="purpose" label="用途" />
+            <ElTable-column prop="timeSlot" label="使用时段" />
+            <ElTable-column prop="status" label="状态">
               <template #default="{ row }">
-                <el-tag :type="getApplicationStatusType(row.status)">
+                <ElTag :type="getApplicationStatusType(row.status)">
                   {{ getApplicationStatusText(row.status) }}
                 </el-tag>
               </template>
-            </el-table-column>
-            <el-table-column prop="createdAt" label="申请时间" />
-          </el-table>
+            </ElTable-column>
+            <ElTable-column prop="createdAt" label="申请时间" />
+          </ElTable>
         </div>
-      </el-tab-pane>
+      </ElTabPane>
 
-      <el-tab-pane label="报修记录" name="repairs">
+      <ElTabPane label="报修记录" name="repairs">
         <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
-          <el-table :data="repairRequests" stripe>
-            <el-table-column prop="repairNumber" label="报修单号" />
-            <el-table-column prop="equipmentName" label="设备名称" />
-            <el-table-column prop="faultType" label="故障类型" />
-            <el-table-column prop="status" label="状态">
+          <ElTable :data="repairRequests" stripe>
+            <ElTable-column prop="repairNumber" label="报修单号" />
+            <ElTable-column prop="equipmentName" label="设备名称" />
+            <ElTable-column prop="faultType" label="故障类型" />
+            <ElTable-column prop="status" label="状态">
               <template #default="{ row }">
-                <el-tag :type="getRepairStatusType(row.status)">
+                <ElTag :type="getRepairStatusType(row.status)">
                   {{ getRepairStatusText(row.status) }}
                 </el-tag>
               </template>
-            </el-table-column>
-            <el-table-column prop="createdAt" label="报修时间" />
-          </el-table>
+            </ElTable-column>
+            <ElTable-column prop="createdAt" label="报修时间" />
+          </ElTable>
         </div>
-      </el-tab-pane>
+      </ElTabPane>
 
-      <el-tab-pane label="我的收藏" name="favorites">
+      <ElTabPane label="我的收藏" name="favorites">
         <div v-loading="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div
-            v-for="lab in favorites"
-            :key="lab.id"
-            class="bg-white rounded-lg shadow-md p-6"
-          >
+          <div v-for="lab in favorites" :key="lab.id" class="bg-white rounded-lg shadow-md p-6">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-lg font-bold">{{ lab.name }}</h3>
-              <el-button
-                type="danger"
-                size="small"
-                text
-                @click="removeFavorite(lab)"
-              >
+              <ElButton type="danger" size="small" text @click="removeFavorite(lab)">
                 取消收藏
-              </el-button>
+              </ElButton>
             </div>
             <p class="text-gray-600 mb-2">{{ lab.department }}</p>
             <div class="flex items-center justify-between text-sm text-gray-500">
@@ -303,25 +290,25 @@ onMounted(() => {
             </div>
           </div>
         </div>
-      </el-tab-pane>
+      </ElTabPane>
     </el-tabs>
 
-    <el-dialog v-model="editDialogVisible" title="编辑个人信息" width="500px">
-      <el-form :model="editForm" label-width="80px">
-        <el-form-item label="昵称">
-          <el-input v-model="editForm.nickname" />
-        </el-form-item>
-        <el-form-item label="邮箱">
-          <el-input v-model="editForm.email" />
-        </el-form-item>
-        <el-form-item label="手机号">
-          <el-input v-model="editForm.phone" maxlength="11" />
-        </el-form-item>
-      </el-form>
+    <ElDialog v-model="editDialogVisible" title="编辑个人信息" width="500px">
+      <ElForm :model="editForm" label-width="80px">
+        <ElForm-item label="昵称">
+          <ElInput v-model="editForm.nickname" />
+        </ElForm-item>
+        <ElForm-item label="邮箱">
+          <ElInput v-model="editForm.email" />
+        </ElForm-item>
+        <ElForm-item label="手机号">
+          <ElInput v-model="editForm.phone" maxlength="11" />
+        </ElForm-item>
+      </ElForm>
       <template #footer>
-        <el-button @click="editDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSaveProfile">保存</el-button>
+        <ElButton @click="editDialogVisible = false">取消</ElButton>
+        <ElButton type="primary" @click="handleSaveProfile">保存</ElButton>
       </template>
-    </el-dialog>
+    </ElDialog>
   </div>
 </template>

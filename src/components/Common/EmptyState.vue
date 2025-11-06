@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ElIcon, ElButton } from "element-plus";
+
 interface Props {
   description?: string;
   icon?: string;
@@ -19,12 +21,12 @@ const emit = defineEmits<{
 
 <template>
   <div class="flex flex-col items-center justify-center py-12">
-    <el-icon v-if="icon" :size="64" class="text-gray-400 mb-4">
+    <ElIcon v-if="icon" :size="64" class="text-gray-400 mb-4">
       <component :is="icon" />
-    </el-icon>
+    </ElIcon>
     <p class="text-gray-500 mb-4">{{ description }}</p>
-    <el-button v-if="showAction" type="primary" @click="emit('action')">
+    <ElButton v-if="showAction" type="primary" @click="emit('action')">
       {{ actionText }}
-    </el-button>
+    </ElButton>
   </div>
 </template>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElForm, ElFormItem, ElInput, ElRadioGroup, ElRadio, ElButton, ElIcon } from 'element-plus';
+import { Loading } from '@element-plus/icons-vue';
 import { useAuthStore } from '@/stores';
 import { authApi } from '@/api';
 import { UserRole, type RegisterForm } from '@/types';
@@ -30,7 +31,7 @@ const validatePassword = (rule: any, value: any, callback: any) => {
     const hasUpperCase = /[A-Z]/.test(value);
     const hasLowerCase = /[a-z]/.test(value);
     const hasNumber = /[0-9]/.test(value);
-    
+
     if (!hasUpperCase || !hasLowerCase || !hasNumber) {
       callback(new Error('密码必须包含大小写字母和数字'));
     } else if (registerForm.confirmPassword !== '') {
@@ -67,11 +68,11 @@ let usernameCheckTimer: NodeJS.Timeout | null = null;
 
 const checkUsernameAvailability = async () => {
   if (!registerForm.username || registerForm.username.length < 4) return;
-  
+
   if (usernameCheckTimer) {
     clearTimeout(usernameCheckTimer);
   }
-  
+
   usernameCheckTimer = setTimeout(async () => {
     checkingUsername.value = true;
     try {
@@ -112,15 +113,15 @@ const rules: FormRules = {
 
 const handleRegister = async () => {
   if (!formRef.value) return;
-  
+
   await formRef.value.validate(async (valid) => {
     if (!valid) return;
-    
+
     loading.value = true;
     try {
       await authStore.register(registerForm);
       ElMessage.success('注册成功');
-      
+
       router.push(authStore.getDefaultHomePath);
     } catch (error: any) {
       ElMessage.error(error.message || '注册失败');
@@ -144,87 +145,53 @@ const goToLogin = () => {
           <p class="text-gray-600">加入实验室预约系统</p>
         </div>
 
-        <el-form
-          ref="formRef"
-          :model="registerForm"
-          :rules="rules"
-          label-position="top"
-          size="large"
-        >
-          <el-form-item label="用户名" prop="username">
-            <el-input
-              v-model="registerForm.username"
-              placeholder="4-20个字符，字母+数字"
-              clearable
-              @input="checkUsernameAvailability"
-            >
+        <ElForm ref="formRef" :model="registerForm" :rules="rules" label-position="top" size="large">
+          <ElFormItem label="用户名" prop="username">
+            <ElInput v-model="registerForm.username" placeholder="4-20个字符，字母+数字" clearable
+              @input="checkUsernameAvailability">
               <template #suffix>
-                <el-icon v-if="checkingUsername" class="is-loading">
+                <ElIcon v-if="checkingUsername" class="is-loading">
                   <Loading />
-                </el-icon>
+                </ElIcon>
               </template>
-            </el-input>
-          </el-form-item>
+            </ElInput>
+          </ElFormItem>
 
-          <el-form-item label="密码" prop="password">
-            <el-input
-              v-model="registerForm.password"
-              type="password"
-              placeholder="8-20个字符，含大小写+数字"
-              show-password
-            />
-          </el-form-item>
+          <ElFormItem label="密码" prop="password">
+            <ElInput v-model="registerForm.password" type="password" placeholder="8-20个字符，含大小写+数字" show-password />
+          </ElFormItem>
 
-          <el-form-item label="确认密码" prop="confirmPassword">
-            <el-input
-              v-model="registerForm.confirmPassword"
-              type="password"
-              placeholder="请再次输入密码"
-              show-password
-            />
-          </el-form-item>
+          <ElFormItem label="确认密码" prop="confirmPassword">
+            <ElInput v-model="registerForm.confirmPassword" type="password" placeholder="请再次输入密码" show-password />
+          </ElFormItem>
 
-          <el-form-item label="角色" prop="role">
-            <el-radio-group v-model="registerForm.role" class="w-full">
-              <el-radio :label="UserRole.STUDENT" class="w-full mb-2">学生</el-radio>
-              <el-radio :label="UserRole.TEACHER" class="w-full">教师</el-radio>
-            </el-radio-group>
-          </el-form-item>
+          <ElFormItem label="角色" prop="role">
+            <ElRadioGroup v-model="registerForm.role" class="w-full">
+              <ElRadio :label="UserRole.STUDENT" class="w-full mb-2">学生</ElRadio>
+              <ElRadio :label="UserRole.TEACHER" class="w-full">教师</ElRadio>
+            </ElRadioGroup>
+          </ElFormItem>
 
-          <el-form-item label="邮箱（选填）" prop="email">
-            <el-input
-              v-model="registerForm.email"
-              placeholder="请输入邮箱地址"
-              clearable
-            />
-          </el-form-item>
+          <ElFormItem label="邮箱（选填）" prop="email">
+            <ElInput v-model="registerForm.email" placeholder="请输入邮箱地址" clearable />
+          </ElFormItem>
 
-          <el-form-item label="手机号（选填）" prop="phone">
-            <el-input
-              v-model="registerForm.phone"
-              placeholder="请输入11位手机号"
-              clearable
-              maxlength="11"
-            />
-          </el-form-item>
+          <ElFormItem label="手机号（选填）" prop="phone">
+            <ElInput v-model="registerForm.phone" placeholder="请输入11位手机号" clearable maxlength="11" />
+          </ElFormItem>
 
-          <el-form-item>
-            <el-button
-              type="primary"
-              :loading="loading"
-              class="w-full"
-              @click="handleRegister"
-            >
+          <ElFormItem>
+            <ElButton type="primary" :loading="loading" class="w-full" @click="handleRegister">
               注册
-            </el-button>
-          </el-form-item>
-        </el-form>
+            </ElButton>
+          </ElFormItem>
+        </ElForm>
 
         <div class="text-center mt-6">
           <span class="text-gray-600">已有账号？</span>
-          <el-button type="text" @click="goToLogin">
+          <ElButton type="text" @click="goToLogin">
             立即登录
-          </el-button>
+          </ElButton>
         </div>
       </div>
     </div>
@@ -244,7 +211,7 @@ const goToLogin = () => {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   margin-right: 0;
-  
+
   &.is-checked {
     border-color: #409eff;
     background-color: #f0f8ff;
