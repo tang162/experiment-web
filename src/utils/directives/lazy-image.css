@@ -1,0 +1,176 @@
+/* 懒加载图片基础样式 */
+.lazy-image-loading,
+.lazy-image-error,
+.lazy-image-success {
+  transition: opacity 0.3s ease-in-out, filter 0.3s ease-in-out;
+}
+
+/* 加载中状态 */
+.lazy-image-loading {
+  opacity: 0.7;
+  filter: blur(1px);
+}
+
+/* 错误状态 */
+.lazy-image-error {
+  opacity: 0.8;
+  filter: grayscale(100%);
+}
+
+/* 成功状态 */
+.lazy-image-success {
+  opacity: 1;
+  filter: none;
+}
+
+/* 加载动画覆盖层 */
+.lazy-image-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(2px);
+  z-index: 10;
+}
+
+/* 加载动画容器 */
+.lazy-image-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 加载动画圆圈 */
+.lazy-image-spinner-circle {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: lazy-image-spin 1s linear infinite;
+}
+
+/* 加载动画关键帧 */
+@keyframes lazy-image-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .lazy-image-spinner-circle {
+    width: 24px;
+    height: 24px;
+    border-width: 2px;
+  }
+}
+
+/* 深色主题支持 */
+@media (prefers-color-scheme: dark) {
+  .lazy-image-loading-overlay {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+  
+  .lazy-image-spinner-circle {
+    border-color: #444;
+    border-top-color: #64b5f6;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .lazy-image-loading-overlay {
+    background-color: rgba(255, 255, 255, 0.95);
+  }
+  
+  .lazy-image-spinner-circle {
+    border-width: 4px;
+    border-color: #000;
+    border-top-color: #0066cc;
+  }
+}
+
+/* 减少动画偏好支持 */
+@media (prefers-reduced-motion: reduce) {
+  .lazy-image-loading,
+  .lazy-image-error,
+  .lazy-image-success {
+    transition: none;
+  }
+  
+  .lazy-image-spinner-circle {
+    animation: none;
+    border-top-color: #3498db;
+  }
+}
+
+/* 自定义主题变量 */
+:root {
+  --lazy-image-loading-bg: rgba(255, 255, 255, 0.8);
+  --lazy-image-spinner-color: #3498db;
+  --lazy-image-spinner-bg: #f3f3f3;
+  --lazy-image-transition-duration: 0.3s;
+}
+
+/* 使用CSS变量的样式 */
+.lazy-image-loading-overlay {
+  background-color: var(--lazy-image-loading-bg);
+  transition: opacity var(--lazy-image-transition-duration) ease-in-out;
+}
+
+.lazy-image-spinner-circle {
+  border-color: var(--lazy-image-spinner-bg);
+  border-top-color: var(--lazy-image-spinner-color);
+}
+
+/* 图片容器建议样式 */
+.lazy-image-container {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.lazy-image-container img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* 骨架屏效果 */
+.lazy-image-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: lazy-image-skeleton-loading 1.5s infinite;
+}
+
+@keyframes lazy-image-skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* 淡入效果 */
+.lazy-image-fade-in {
+  animation: lazy-image-fade-in 0.5s ease-in-out;
+}
+
+@keyframes lazy-image-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

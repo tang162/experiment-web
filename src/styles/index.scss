@@ -1,0 +1,34 @@
+// Tailwind CSS v4
+@use "tailwindcss";
+
+// Tailwind v4 自定义配置
+@theme {
+  --breakpoint-xs: 475px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  --max-width-8xl: 88rem;
+  --max-width-9xl: 96rem;
+
+  --color-primary: #409eff;
+  --color-success: #67c23a;
+  --color-warning: #e6a23c;
+  --color-danger: #f56c6c;
+  --color-info: #909399;
+}
+
+// Element Plus 样式变量
+:root {
+  --primary-color: #409eff;
+  --success-color: #67c23a;
+  --warning-color: #e6a23c;
+  --danger-color: #f56c6c;
+  --info-color: #909399;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
