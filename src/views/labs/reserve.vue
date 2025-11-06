@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElInput, ElInputNumber, ElButton, ElForm, ElFormItem, ElRadioGroup, ElRadio, ElDatePicker, ElSelect, ElOption } from 'element-plus';
 import { reservationApi } from '@/api';
 import { TimeSlot, type CreateReservationForm } from '@/types';
 import type { FormInstance, FormRules } from 'element-plus';
@@ -45,10 +45,10 @@ const rules: FormRules = {
 
 const handleSubmit = async () => {
   if (!formRef.value) return;
-  
+
   await formRef.value.validate(async (valid) => {
     if (!valid) return;
-    
+
     loading.value = true;
     try {
       const availability = await reservationApi.checkTimeSlotAvailability(
@@ -56,12 +56,12 @@ const handleSubmit = async () => {
         reservationForm.date,
         reservationForm.timeSlot
       );
-      
+
       if (!availability.available) {
         ElMessage.warning('该时段已被预约，请选择其他时段');
         return;
       }
-      
+
       await reservationApi.createReservation(reservationForm);
       ElMessage.success('预约成功，请等待审核');
       router.push('/reservations');
@@ -80,64 +80,39 @@ const handleSubmit = async () => {
       <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
         <h1 class="text-2xl font-bold text-gray-900 mb-6">预约实验室</h1>
 
-        <el-form
-          ref="formRef"
-          :model="reservationForm"
-          :rules="rules"
-          label-width="100px"
-          size="large"
-        >
-          <el-form-item label="预约日期" prop="date">
-            <el-date-picker
-              v-model="reservationForm.date"
-              type="date"
-              placeholder="选择日期"
-              :disabled-date="disabledDate"
-              format="YYYY-MM-DD"
-              value-format="YYYY-MM-DD"
-              style="width: 100%"
-            />
-          </el-form-item>
+        <ElForm ref="formRef" :model="reservationForm" :rules="rules" label-width="100px" size="large">
+          <ElForm-item label="预约日期" prop="date">
+            <ElDatePicker v-model="reservationForm.date" type="date" placeholder="选择日期" :disabled-date="disabledDate"
+              format="YYYY-MM-DD" value-format="YYYY-MM-DD" style="width: 100%" />
+          </ElForm-item>
 
-          <el-form-item label="预约时段" prop="timeSlot">
-            <el-radio-group v-model="reservationForm.timeSlot">
-              <el-radio :label="TimeSlot.MORNING">上午（8:00-12:00）</el-radio>
-              <el-radio :label="TimeSlot.AFTERNOON">下午（14:00-18:00）</el-radio>
-              <el-radio :label="TimeSlot.EVENING">晚上（19:00-22:00）</el-radio>
-            </el-radio-group>
-          </el-form-item>
+          <ElForm-item label="预约时段" prop="timeSlot">
+            <ElRadio-group v-model="reservationForm.timeSlot">
+              <ElRadio :label="TimeSlot.MORNING">上午（8:00-12:00）</ElRadio>
+              <ElRadio :label="TimeSlot.AFTERNOON">下午（14:00-18:00）</ElRadio>
+              <ElRadio :label="TimeSlot.EVENING">晚上（19:00-22:00）</ElRadio>
+            </ElRadio-group>
+          </ElForm-item>
 
-          <el-form-item label="实验用途" prop="purpose">
-            <el-input
-              v-model="reservationForm.purpose"
-              placeholder="请输入实验用途"
-            />
-          </el-form-item>
+          <ElForm-item label="实验用途" prop="purpose">
+            <ElInput v-model="reservationForm.purpose" placeholder="请输入实验用途" />
+          </ElForm-item>
 
-          <el-form-item label="内容描述" prop="description">
-            <el-input
-              v-model="reservationForm.description"
-              type="textarea"
-              :rows="4"
-              placeholder="请详细描述实验内容"
-            />
-          </el-form-item>
+          <ElForm-item label="内容描述" prop="description">
+            <ElInput v-model="reservationForm.description" type="textarea" :rows="4" placeholder="请详细描述实验内容" />
+          </ElForm-item>
 
-          <el-form-item label="使用人数" prop="participantCount">
-            <el-input-number
-              v-model="reservationForm.participantCount"
-              :min="1"
-              :max="100"
-            />
-          </el-form-item>
+          <ElForm-item label="使用人数" prop="participantCount">
+            <ElInput-number v-model="reservationForm.participantCount" :min="1" :max="100" />
+          </ElForm-item>
 
-          <el-form-item>
-            <el-button type="primary" :loading="loading" @click="handleSubmit">
+          <ElForm-item>
+            <ElButton type="primary" :loading="loading" @click="handleSubmit">
               提交预约
-            </el-button>
-            <el-button @click="router.back()">取消</el-button>
-          </el-form-item>
-        </el-form>
+            </ElButton>
+            <ElButton @click="router.back()">取消</ElButton>
+          </ElForm-item>
+        </ElForm>
       </div>
     </div>
   </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { ElPagination } from 'element-plus';
 import { labApi } from '@/api';
 import { PageHeader, LabCard, LabFilter, EmptyState } from '@/components';
 import { LabStatus, type Lab, type LabFilter as LabFilterType } from '@/types';
@@ -113,7 +114,7 @@ onMounted(() => {
         />
 
         <div v-if="total > pagination.pageSize" class="flex justify-center">
-          <el-pagination
+          <ElPagination
             v-model:current-page="pagination.page"
             :page-size="pagination.pageSize"
             :total="total"

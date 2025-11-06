@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { ElCarousel, ElCarouselItem, ElButton, ElIcon } from 'element-plus';
+import { ArrowRight } from '@element-plus/icons-vue';
 import { bannerApi, labApi } from '@/api';
 import { LabCard, SearchBar } from '@/components';
 import type { Banner, Lab } from '@/types';
@@ -96,8 +98,8 @@ onMounted(() => {
   <div class="min-h-screen bg-gray-50">
     <div class="container mx-auto px-4 py-8">
       <div class="mb-8">
-        <el-carousel height="400px" :interval="5000" arrow="always">
-          <el-carousel-item v-for="banner in banners" :key="banner.id">
+        <ElCarousel height="400px" :interval="5000" arrow="always">
+          <ElCarouselItem v-for="banner in banners" :key="banner.id">
             <div
               class="h-full w-full cursor-pointer"
               @click="banner.link && router.push(banner.link)"
@@ -108,8 +110,8 @@ onMounted(() => {
                 class="w-full h-full object-cover rounded-lg"
               />
             </div>
-          </el-carousel-item>
-        </el-carousel>
+          </ElCarouselItem>
+        </ElCarousel>
       </div>
 
       <div class="mb-12">
@@ -137,9 +139,9 @@ onMounted(() => {
             >
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-xl font-bold">{{ card.title }}</h3>
-                <el-icon :size="32">
+                <ElIcon :size="32">
                   <component :is="card.icon" />
-                </el-icon>
+                </ElIcon>
               </div>
               <p class="text-white/90">{{ card.description }}</p>
             </div>
@@ -150,9 +152,9 @@ onMounted(() => {
       <div>
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-2xl font-bold text-gray-900">热门实验室</h2>
-          <el-button type="text" @click="router.push('/labs')">
-            查看更多 <el-icon class="ml-1"><ArrowRight /></el-icon>
-          </el-button>
+          <ElButton type="text" @click="router.push('/labs')">
+            查看更多 <ElIcon class="ml-1"><ArrowRight /></ElIcon>
+          </ElButton>
         </div>
 
         <div v-loading="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

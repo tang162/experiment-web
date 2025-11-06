@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { ElButton, ElIcon, ElTag, ElDivider, ElRate } from 'element-plus';
 import { labApi } from '@/api';
 import type { Lab } from '@/types';
 
@@ -50,17 +51,19 @@ onMounted(() => {
             <p class="text-gray-600">{{ lab.department }}</p>
           </div>
           <div class="flex items-center space-x-4">
-            <el-button @click="toggleFavorite">
-              <el-icon><Star :filled="lab.isFavorite" /></el-icon>
+            <ElButton @click="toggleFavorite">
+              <ElIcon>
+                <Star :filled="lab.isFavorite" />
+              </ElIcon>
               {{ lab.isFavorite ? '已收藏' : '收藏' }}
-            </el-button>
-            <el-button type="primary" @click="goToReserve">
+            </ElButton>
+            <ElButton type="primary" @click="goToReserve">
               预约实验室
-            </el-button>
+            </ElButton>
           </div>
         </div>
 
-        <el-divider />
+        <ElDivider />
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
@@ -72,9 +75,9 @@ onMounted(() => {
               </div>
               <div class="flex items-center">
                 <span class="text-gray-600 w-24">状态：</span>
-                <el-tag :type="lab.status === 'AVAILABLE' ? 'success' : 'info'">
+                <ElTag :type="lab.status === 'AVAILABLE' ? 'success' : 'info'">
                   {{ lab.status === 'AVAILABLE' ? '可用' : lab.status === 'OCCUPIED' ? '占用' : '维护中' }}
-                </el-tag>
+                </ElTag>
               </div>
               <div class="flex items-center">
                 <span class="text-gray-600 w-24">位置：</span>
@@ -82,7 +85,7 @@ onMounted(() => {
               </div>
               <div class="flex items-center">
                 <span class="text-gray-600 w-24">评分：</span>
-                <el-rate v-model="lab.rating" disabled show-score />
+                <ElRate v-model="lab.rating" disabled show-score />
               </div>
             </div>
           </div>
@@ -90,9 +93,9 @@ onMounted(() => {
           <div>
             <h3 class="text-lg font-semibold mb-4">设备类型</h3>
             <div class="flex flex-wrap gap-2">
-              <el-tag v-for="type in lab.equipmentTypes" :key="type" type="info">
+              <ElTag v-for="type in lab.equipmentTypes" :key="type" type="info">
                 {{ type }}
-              </el-tag>
+              </ElTag>
             </div>
           </div>
         </div>

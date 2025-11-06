@@ -1,6 +1,9 @@
 <script setup lang="ts">
+
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { ElBadge, ElButton, ElIcon, ElDropdown, ElAvatar, ElDropdownMenu, ElDropdownItem } from 'element-plus'
+import { User, SwitchButton } from '@element-plus/icons-vue';
 import { useAuthStore } from '@/stores';
 import { notificationApi } from '@/api';
 import { UserRole } from '@/types';
@@ -73,45 +76,48 @@ if (authStore.getIsLoggedIn) {
             </div>
 
             <nav class="hidden md:flex space-x-6">
-              <div
-                v-for="item in menuItems"
-                :key="item.path"
+              <div v-for="item in menuItems" :key="item.path"
                 class="px-3 py-2 rounded-md text-sm font-medium cursor-pointer transition-colors"
                 :class="$route.path.startsWith(item.path) ? 'bg-indigo-50 text-indigo-600' : 'text-gray-700 hover:bg-gray-50'"
-                @click="handleMenuClick(item.path)"
-              >
+                @click="handleMenuClick(item.path)">
                 {{ item.title }}
               </div>
             </nav>
           </div>
 
           <div class="flex items-center space-x-4">
-            <el-badge :value="unreadCount" :hidden="unreadCount === 0">
-              <el-button text circle @click="goToNotifications">
-                <el-icon :size="20"><Bell /></el-icon>
-              </el-button>
-            </el-badge>
+            <ElBadge :value="unreadCount" :hidden="unreadCount === 0">
+              <ElButton text circle @click="goToNotifications">
+                <ElIcon :size="20">
+                  <Bell />
+                </ElIcon>
+              </ElButton>
+            </ElBadge>
 
-            <el-dropdown trigger="click">
+            <ElDropdown trigger="click">
               <div class="flex items-center space-x-2 cursor-pointer">
-                <el-avatar :size="32">
+                <ElAvatar :size="32">
                   {{ userInfo?.nickname?.[0] || userInfo?.username?.[0] || 'U' }}
-                </el-avatar>
+                </ElAvatar>
                 <span class="text-sm font-medium">{{ userInfo?.nickname || userInfo?.username }}</span>
               </div>
               <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item @click="goToProfile">
-                    <el-icon><User /></el-icon>
+                <ElDropdown-menu>
+                  <ElDropdown-item @click="goToProfile">
+                    <ElIcon>
+                      <User />
+                    </ElIcon>
                     个人中心
-                  </el-dropdown-item>
-                  <el-dropdown-item divided @click="handleLogout">
-                    <el-icon><SwitchButton /></el-icon>
+                  </ElDropdown-item>
+                  <ElDropdown-item divided @click="handleLogout">
+                    <ElIcon>
+                      <SwitchButton />
+                    </ElIcon>
                     退出登录
-                  </el-dropdown-item>
-                </el-dropdown-menu>
+                  </ElDropdown-item>
+                </ElDropdown-menu>
               </template>
-            </el-dropdown>
+            </ElDropdown>
           </div>
         </div>
       </div>
@@ -129,5 +135,4 @@ if (authStore.getIsLoggedIn) {
   </div>
 </template>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
