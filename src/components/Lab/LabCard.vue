@@ -23,9 +23,9 @@ const statusType = computed(() => {
   switch (props.lab.status) {
     case LabStatus.AVAILABLE:
       return 'success';
-    case LabStatus.OCCUPIED:
-      return 'warning';
     case LabStatus.MAINTENANCE:
+      return 'warning';
+    case LabStatus.DISABLED:
       return 'info';
     default:
       return 'info';
@@ -36,9 +36,9 @@ const statusText = computed(() => {
   switch (props.lab.status) {
     case LabStatus.AVAILABLE:
       return '可用';
-    case LabStatus.OCCUPIED:
-      return '占用';
     case LabStatus.MAINTENANCE:
+      return '占用';
+    case LabStatus.DISABLED:
       return '维护中';
     default:
       return '未知';
@@ -58,17 +58,12 @@ const handleFavoriteClick = (event: Event) => {
 <template>
   <div
     class="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-    @click="handleClick"
-  >
+    @click="handleClick">
     <div class="h-48 bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center relative">
       <ElIcon :size="64" color="white">
         <School />
       </ElIcon>
-      <div
-        v-if="showFavorite"
-        class="absolute top-3 right-3 cursor-pointer"
-        @click="handleFavoriteClick"
-      >
+      <div v-if="showFavorite" class="absolute top-3 right-3 cursor-pointer" @click="handleFavoriteClick">
         <ElIcon :size="24" :color="lab.isFavorite ? '#f56c6c' : 'white'">
           <Star :filled="lab.isFavorite" />
         </ElIcon>
@@ -84,12 +79,16 @@ const handleFavoriteClick = (event: Event) => {
       <p class="text-sm text-gray-600 mb-3 truncate">{{ lab.department }}</p>
       <div class="flex items-center justify-between text-sm text-gray-500">
         <span class="flex items-center">
-          <ElIcon class="mr-1"><User /></ElIcon>
+          <ElIcon class="mr-1">
+            <User />
+          </ElIcon>
           {{ lab.capacity }}人
         </span>
         <span class="flex items-center">
-          <ElIcon class="mr-1"><Star /></ElIcon>
-          {{ lab.rating?.toFixed(1) || '暂无' }}
+          <ElIcon class="mr-1">
+            <Star />
+          </ElIcon>
+          {{ lab.rating || '暂无' }}
         </span>
       </div>
     </div>

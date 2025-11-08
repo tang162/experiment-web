@@ -5,6 +5,7 @@ export * from "./modules/user";
 export * from "./modules/lab";
 export * from "./modules/reservation";
 export * from "./modules/equipment";
+export * from "./modules/instrument.api";
 export * from "./modules/notification";
 export * from "./modules/news";
 export * from "./modules/banner";

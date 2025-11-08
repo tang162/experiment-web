@@ -4,10 +4,12 @@ import type {
   SearchFilter,
   BaseEntity,
   OptionsRults,
+  PaginationData,
 } from "@/api";
 
 // 实验室基础信息
 interface LabBase {
+  id: number;
   /** 实验室名称 */
   name: string;
   /** 实验室位置 */
@@ -45,8 +47,6 @@ export namespace LabApi {
     department?: string;
     /** 实验室状态：0-正常，1-维护中，2-停用*/
     status?: number;
-    /** 实验室标签 */
-    tags?: string[];
   }
 
   /** 实验室列表项 - 继承多个基础接口 */
@@ -83,7 +83,7 @@ export async function getLabsDropdownApi(params: PaginationParam) {
 
 /** 获取实验室列表 */
 export async function getLabsApi(params: Partial<LabApi.GetLabsParams>) {
-  return request.get<LabApi.LabListItem[]>(Api.GET_LABS, params);
+  return request.get<PaginationData<LabApi.LabListItem>>(Api.GET_LABS, params);
 }
 
 /** 获取实验室详情 */

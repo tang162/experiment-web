@@ -1,22 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { ElInput, ElSelect, ElOption, ElInputNumber, ElButton } from "element-plus";
-import type { LabFilter } from '@/types';
-import { LabStatus as LabStatusEnum } from '@/types';
+import { ElInput, ElSelect, ElOption, ElButton } from "element-plus";
+import type { LabApi } from '@/api';
 
 interface Props {
-  modelValue: LabFilter;
+  modelValue: Partial<LabApi.GetLabsParams>;
   departments?: string[];
-  equipmentTypes?: string[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
   departments: () => ['计算机学院', '电子工程学院', '机械学院', '化学学院', '物理学院'],
-  equipmentTypes: () => ['计算机', '示波器', '显微镜', '3D打印机', '激光设备'],
 });
 
 const emit = defineEmits<{
-  'update:modelValue': [value: LabFilter];
+  'update:modelValue': [value: Partial<LabApi.GetLabsParams>];
   filter: [];
   reset: [];
 }>();
@@ -31,24 +28,11 @@ const localDepartment = computed({
   set: (value) => emit('update:modelValue', { ...props.modelValue, department: value }),
 });
 
-const localEquipmentType = computed({
-  get: () => props.modelValue.equipmentType,
-  set: (value) => emit('update:modelValue', { ...props.modelValue, equipmentType: value }),
-});
+
 
 const localStatus = computed({
   get: () => props.modelValue.status,
   set: (value) => emit('update:modelValue', { ...props.modelValue, status: value }),
-});
-
-const localMinCapacity = computed({
-  get: () => props.modelValue.minCapacity,
-  set: (value) => emit('update:modelValue', { ...props.modelValue, minCapacity: value }),
-});
-
-const localMaxCapacity = computed({
-  get: () => props.modelValue.maxCapacity,
-  set: (value) => emit('update:modelValue', { ...props.modelValue, maxCapacity: value }),
 });
 
 const handleFilter = () => {
@@ -59,10 +43,7 @@ const handleReset = () => {
   emit('update:modelValue', {
     keyword: '',
     department: '',
-    equipmentType: '',
     status: undefined,
-    minCapacity: undefined,
-    maxCapacity: undefined,
   });
   emit('reset');
 };
@@ -77,27 +58,14 @@ const handleReset = () => {
         <ElOption v-for="dept in departments" :key="dept" :label="dept" :value="dept" />
       </ElSelect>
 
-      <ElSelect v-model="localEquipmentType" placeholder="设备类型" clearable>
-        <ElOption v-for="type in equipmentTypes" :key="type" :label="type" :value="type" />
-      </ElSelect>
-
       <ElSelect v-model="localStatus" placeholder="状态" clearable>
-        <ElOption label="可用" :value="LabStatusEnum.AVAILABLE" />
-        <ElOption label="已占用" :value="LabStatusEnum.OCCUPIED" />
-        <ElOption label="维护中" :value="LabStatusEnum.MAINTENANCE" />
+        <ElOption label="正常" :value="0" />
+        <ElOption label="维护中" :value="1" />
+        <ElOption label="停用" :value="2" />
       </ElSelect>
     </div>
 
     <div class="flex items-center gap-4">
-      <div class="flex items-center gap-2">
-        <span class="text-sm text-gray-600">容量范围：</span>
-        <ElInputNumber v-model="localMinCapacity" :min="0" :max="1000" placeholder="最小" controls-position="right"
-          style="width: 120px" />
-        <span class="text-gray-400">-</span>
-        <ElInputNumber v-model="localMaxCapacity" :min="0" :max="1000" placeholder="最大" controls-position="right"
-          style="width: 120px" />
-      </div>
-
       <ElButton type="primary" @click="handleFilter">筛选</ElButton>
       <ElButton @click="handleReset">重置</ElButton>
     </div>

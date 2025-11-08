@@ -1,5 +1,5 @@
 // Re-export from API module for consistency
-export type { LabApi } from '@/api/modules/lab';
+export type { LabApi } from "@/api/modules/lab";
 
 // Legacy enums for backward compatibility
 export enum LabStatus {
@@ -9,9 +9,9 @@ export enum LabStatus {
 }
 
 export enum TimeSlot {
-  MORNING = 'MORNING',
-  AFTERNOON = 'AFTERNOON',
-  EVENING = 'EVENING',
+  MORNING = "MORNING",
+  AFTERNOON = "AFTERNOON",
+  EVENING = "EVENING",
 }
 
 // Legacy Lab interface for backward compatibility

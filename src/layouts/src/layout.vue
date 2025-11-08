@@ -20,7 +20,8 @@ const menuItems = computed(() => {
   const baseMenus = [
     { title: '首页', path: '/lab/home', icon: 'House' },
     { title: '实验室', path: '/lab/labs', icon: 'School' },
-    { title: '仪器申请', path: '/equipment/apply', icon: 'Tools' },
+    { title: '仪器列表', path: '/lab/instruments', icon: 'Monitor' },
+    { title: '我的申请', path: '/equipment/apply', icon: 'Tools' },
     { title: '设备报修', path: '/equipment/repair', icon: 'Warning' },
   ];
 
