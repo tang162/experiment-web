@@ -1,20 +1,23 @@
 import { Layout } from '@/layouts';
 import type { RouteRecordRaw } from 'vue-router';
 
-const notificationRoutes: RouteRecordRaw = {
-  path: '/',
-  component: Layout,
-  children: [
-    {
-      path: '/notifications',
-      name: 'Notifications',
-      component: () => import('@/views/notifications/index.vue'),
-      meta: {
-        title: '消息通知',
-        requiresAuth: true,
+// 消息通知模块路由
+const notificationRoutes: RouteRecordRaw[] = [
+  {
+    path: '/notification',
+    component: Layout,
+    children: [
+      {
+        path: 'list',
+        name: 'Notifications',
+        component: () => import('@/views/notifications/index.vue'),
+        meta: {
+          title: '消息通知',
+          requiresAuth: true,
+        },
       },
-    },
-  ],
-};
+    ],
+  },
+];
 
 export default notificationRoutes;
