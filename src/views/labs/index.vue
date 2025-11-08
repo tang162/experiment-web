@@ -2,7 +2,7 @@
 import { ref, reactive, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { ElPagination, ElMessage } from 'element-plus';
-import { labApi } from '@/api';
+import { getLabsApi } from '@/api';
 import { PageLayout, LabCard, LabFilter, EmptyState } from '@/components';
 import { useApi, usePagination } from '@/composables';
 import { LabStatus, type Lab, type LabFilter as LabFilterType } from '@/types';
@@ -22,7 +22,7 @@ const filters = reactive<LabFilterType>({
 });
 
 const total = ref(0);
-const { loading, execute: fetchLabs } = useApi<{ list: Lab[], total: number }>();
+const { loading, execute: fetchLabs } = useApi<Lab[]>();
 const { pagination, handlePageChange, resetPage } = usePagination({
   initialPage: 1,
   initialPageSize: 12,
@@ -30,16 +30,20 @@ const { pagination, handlePageChange, resetPage } = usePagination({
 });
 
 const loadLabs = async () => {
-  const result = await fetchLabs(() => 
-    labApi.getLabList({
-      ...filters,
-      ...pagination,
+  const result = await fetchLabs(() =>
+    getLabsApi({
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      keyword: filters.keyword,
+      department: filters.department,
+      status: filters.status,
+      tags: filters.tags,
     })
   );
-  
+
   if (result) {
-    labs.value = result.list;
-    total.value = result.total;
+    labs.value = result || [];
+    total.value = result?.length || 0;
   }
 };
 
@@ -58,17 +62,13 @@ const handleReset = () => {
 };
 
 const handleLabClick = (lab: Lab) => {
-  router.push(`/labs/${lab.id}`);
+  router.push(`/lab/labs/${lab.id}`);
 };
 
 const handleToggleFavorite = async (lab: Lab) => {
-  try {
-    await labApi.toggleFavorite(lab.id);
-    lab.isFavorite = !lab.isFavorite;
-    ElMessage.success('操作成功');
-  } catch (error) {
-    ElMessage.error('收藏操作失败');
-  }
+  // TODO: Implement favorite toggle API
+  lab.isFavorite = !lab.isFavorite;
+  ElMessage.success(lab.isFavorite ? '已添加收藏' : '已取消收藏');
 };
 
 // Watch for pagination changes

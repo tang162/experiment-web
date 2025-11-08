@@ -7,29 +7,34 @@ import type { UploadProps, UploadUserFile } from 'element-plus';
 interface Props {
   modelValue: string[];
   maxCount?: number;
+  limit?: number;
   maxSize?: number;
   accept?: string;
+  multiple?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   maxCount: 3,
+  limit: 3,
   maxSize: 5,
   accept: 'image/*',
+  multiple: false,
 });
 
 const emit = defineEmits<{
   'update:modelValue': [value: string[]];
+  'change': [value: string[]];
   upload: [file: File];
 }>();
 
 const fileList = ref<UploadUserFile[]>([]);
 
 const isLimitExceeded = computed(() => {
-  return fileList.value.length >= props.maxCount;
+  return fileList.value.length >= (props.limit || props.maxCount);
 });
 
 const handleExceed: UploadProps['onExceed'] = (files) => {
-  ElMessage.warning(`最多只能上传${props.maxCount}张图片`);
+  ElMessage.warning(`最多只能上传${props.limit || props.maxCount}张图片`);
 };
 
 const handleBeforeUpload: UploadProps['beforeUpload'] = (file) => {
@@ -52,6 +57,7 @@ const handleBeforeUpload: UploadProps['beforeUpload'] = (file) => {
 const handleRemove: UploadProps['onRemove'] = (file, uploadFiles) => {
   const urls = uploadFiles.map(f => f.url).filter(Boolean) as string[];
   emit('update:modelValue', urls);
+  emit('change', urls);
 };
 
 const handlePreview: UploadProps['onPreview'] = (uploadFile) => {
@@ -60,8 +66,18 @@ const handlePreview: UploadProps['onPreview'] = (uploadFile) => {
 </script>
 
 <template>
-  <ElUpload v-model:file-list="fileList" action="#" list-type="picture-card" :accept="accept" :limit="maxCount"
-    :on-exceed="handleExceed" :before-upload="handleBeforeUpload" :on-remove="handleRemove" :on-preview="handlePreview">
+  <ElUpload
+    v-model:file-list="fileList"
+    action="#"
+    list-type="picture-card"
+    :accept="accept"
+    :limit="limit || maxCount"
+    :multiple="multiple"
+    :on-exceed="handleExceed"
+    :before-upload="handleBeforeUpload"
+    :on-remove="handleRemove"
+    :on-preview="handlePreview"
+  >
     <ElIcon v-if="!isLimitExceeded">
       <Plus />
     </ElIcon>

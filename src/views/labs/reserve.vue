@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElInput, ElInputNumber, ElButton, ElForm, ElFormItem, ElRadioGroup, ElRadio, ElDatePicker, ElSelect, ElOption } from 'element-plus';
-import { reservationApi } from '@/api';
+import { reservationApi } from '@/api/modules/reservation';
 import { PageLayout } from '@/components';
 import { useForm } from '@/composables';
 import { TimeSlot, type CreateReservationForm } from '@/types';
@@ -35,7 +35,7 @@ const rules: FormRules = {
 
 const { formRef, form: reservationForm, loading, handleSubmit } = useForm<CreateReservationForm>({
   initialValues: {
-    labId: route.params.id as string,
+    labId: Number(route.params.id),
     date: '',
     timeSlot: TimeSlot.MORNING,
     purpose: '',

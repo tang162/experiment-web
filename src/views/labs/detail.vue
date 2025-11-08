@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElButton, ElIcon, ElTag, ElDivider, ElRate, ElMessage } from 'element-plus';
-import { labApi } from '@/api';
+import { getLabDetailApi } from '@/api';
 import { PageLayout } from '@/components';
 import { useApi } from '@/composables';
 import type { Lab } from '@/types';
@@ -13,28 +13,24 @@ const router = useRouter();
 const { data: lab, loading, execute: fetchLabDetail } = useApi<Lab>();
 
 const loadLabDetail = async () => {
-  const result = await fetchLabDetail(() => 
-    labApi.getLabDetail(route.params.id as string)
+  const result = await fetchLabDetail(() =>
+    getLabDetailApi(Number(route.params.id))
   );
-  
+
   if (result) {
     lab.value = result;
   }
 };
 
 const goToReserve = () => {
-  router.push(`/labs/${route.params.id}/reserve`);
+  router.push(`/lab/labs/${route.params.id}/reserve`);
 };
 
 const toggleFavorite = async () => {
   if (!lab.value) return;
-  try {
-    await labApi.toggleFavorite(lab.value.id);
-    lab.value.isFavorite = !lab.value.isFavorite;
-    ElMessage.success('操作成功');
-  } catch (error) {
-    ElMessage.error('收藏操作失败');
-  }
+  // TODO: Implement favorite toggle API
+  lab.value.isFavorite = !lab.value.isFavorite;
+  ElMessage.success(lab.value.isFavorite ? '已添加收藏' : '已取消收藏');
 };
 
 onMounted(() => {
@@ -79,8 +75,8 @@ onMounted(() => {
             </div>
             <div class="flex items-center">
               <span class="text-gray-600 w-24">状态：</span>
-              <ElTag :type="lab.status === 'AVAILABLE' ? 'success' : 'info'">
-                {{ lab.status === 'AVAILABLE' ? '可用' : lab.status === 'OCCUPIED' ? '占用' : '维护中' }}
+              <ElTag :type="lab.status === 0 ? 'success' : lab.status === 1 ? 'warning' : 'danger'">
+                {{ lab.status === 0 ? '正常' : lab.status === 1 ? '维护中' : '停用' }}
               </ElTag>
             </div>
             <div class="flex items-center">
@@ -94,11 +90,19 @@ onMounted(() => {
           </div>
         </div>
 
-        <div>
-          <h3 class="text-lg font-semibold mb-4">设备类型</h3>
+        <div v-if="lab.equipmentList && lab.equipmentList.length > 0">
+          <h3 class="text-lg font-semibold mb-4">设备列表</h3>
           <div class="flex flex-wrap gap-2">
-            <ElTag v-for="type in lab.equipmentTypes" :key="type" type="info">
-              {{ type }}
+            <ElTag v-for="equipment in lab.equipmentList" :key="equipment" type="info">
+              {{ equipment }}
+            </ElTag>
+          </div>
+        </div>
+        <div v-else-if="lab.tags && lab.tags.length > 0">
+          <h3 class="text-lg font-semibold mb-4">标签</h3>
+          <div class="flex flex-wrap gap-2">
+            <ElTag v-for="tag in lab.tags" :key="tag" type="info">
+              {{ tag }}
             </ElTag>
           </div>
         </div>
