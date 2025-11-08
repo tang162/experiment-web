@@ -1,49 +1,54 @@
-<script setup lang="ts">
-import { computed } from 'vue';
+<script setup>
+import { computed } from "vue";
 import { ElInput, ElSelect, ElOption, ElButton } from "element-plus";
-import type { InstrumentApi } from '@/api/modules/instrument.api';
 
-interface Props {
-  modelValue: Partial<InstrumentApi.GetInstrumentsParams>;
-  showLabFilter?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  showLabFilter: false,
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: () => ({}),
+  },
+  showLabFilter: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits<{
-  'update:modelValue': [value: Partial<InstrumentApi.GetInstrumentsParams>];
-  filter: [];
-  reset: [];
-}>();
+const emit = defineEmits([
+  "update:modelValue",
+  "filter",
+  "reset",
+]);
 
 const localLabId = computed({
   get: () => props.modelValue.labId,
-  set: (value) => emit('update:modelValue', { ...props.modelValue, labId: value }),
+  set: (value) => {
+    emit("update:modelValue", { ...props.modelValue, labId: value });
+  },
 });
 
 const localStatus = computed({
   get: () => props.modelValue.status,
-  set: (value) => emit('update:modelValue', { ...props.modelValue, status: value }),
+  set: (value) => {
+    emit("update:modelValue", { ...props.modelValue, status: value });
+  },
 });
 
 const handleFilter = () => {
-  emit('filter');
+  emit("filter");
 };
 
 const handleReset = () => {
-  emit('update:modelValue', {
+  emit("update:modelValue", {
     labId: undefined,
     status: undefined,
   });
-  emit('reset');
+  emit("reset");
 };
 </script>
 
 <template>
   <div class="bg-white rounded-lg shadow-md p-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+    <div class="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2 lg:grid-cols-3">
       <ElInput
         v-if="showLabFilter"
         v-model.number="localLabId"

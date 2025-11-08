@@ -1,19 +1,14 @@
-<script setup lang="ts">
-import { ArrowLeft } from '@element-plus/icons-vue';
-import { ElButton, ElIcon } from 'element-plus';
-interface Props {
-  title: string;
-  description?: string;
-  showBack?: boolean;
-}
+<script setup>
+import { ArrowLeft } from "@element-plus/icons-vue";
+import { ElButton, ElIcon } from "element-plus";
 
-withDefaults(defineProps<Props>(), {
-  showBack: false,
+defineProps({
+  title: { type: String, required: true },
+  description: { type: String, default: "" },
+  showBack: { type: Boolean, default: false },
 });
 
-const emit = defineEmits<{
-  back: [];
-}>();
+const emit = defineEmits(["back"]);
 </script>
 
 <template>

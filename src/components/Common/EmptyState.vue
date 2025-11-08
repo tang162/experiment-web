@@ -1,22 +1,14 @@
-<script setup lang="ts">
+<script setup>
 import { ElIcon, ElButton } from "element-plus";
 
-interface Props {
-  description?: string;
-  icon?: string;
-  showAction?: boolean;
-  actionText?: string;
-}
-
-withDefaults(defineProps<Props>(), {
-  description: '暂无数据',
-  showAction: false,
-  actionText: '去添加',
+defineProps({
+  description: { type: String, default: "暂无数据" },
+  icon: { type: String, default: "" },
+  showAction: { type: Boolean, default: false },
+  actionText: { type: String, default: "去添加" },
 });
 
-const emit = defineEmits<{
-  action: [];
-}>();
+const emit = defineEmits(["action"]);
 </script>
 
 <template>

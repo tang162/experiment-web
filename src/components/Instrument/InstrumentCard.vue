@@ -1,33 +1,35 @@
-<script setup lang="ts">
-import { computed } from 'vue';
-import { Monitor, Location, Calendar } from '@element-plus/icons-vue';
-import { ElIcon, ElTag } from 'element-plus';
-import type { InstrumentApi } from '@/api/modules/instrument.api';
-import { INSTRUMENT_STATUS_MAP } from '@/types/instrument';
+<script setup>
+import { computed } from "vue";
+import { Monitor, Location, Calendar } from "@element-plus/icons-vue";
+import { ElIcon, ElTag } from "element-plus";
+import { INSTRUMENT_STATUS_MAP } from "@/types/instrument";
 
-interface Props {
-  instrument: InstrumentApi.InstrumentListItem;
-}
+const props = defineProps({
+  instrument: {
+    type: Object,
+    required: true,
+  },
+});
 
-const props = defineProps<Props>();
-
-const emit = defineEmits<{
-  click: [instrument: InstrumentApi.InstrumentListItem];
-}>();
+const emit = defineEmits(["click"]);
 
 const statusInfo = computed(() => {
-  return INSTRUMENT_STATUS_MAP[props.instrument.status || 0];
+  return INSTRUMENT_STATUS_MAP[props.instrument.status || 0] || {
+    label: "未知",
+    color: "info",
+  };
 });
 
 const handleClick = () => {
-  emit('click', props.instrument);
+  emit("click", props.instrument);
 };
 </script>
 
 <template>
   <div
     class="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-    @click="handleClick">
+    @click="handleClick"
+  >
     <div class="h-48 bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center relative">
       <ElIcon :size="64" color="white">
         <Monitor />
@@ -41,7 +43,7 @@ const handleClick = () => {
         </ElTag>
       </div>
       <p class="text-sm text-gray-600 mb-1 truncate">型号: {{ instrument.model }}</p>
-      <p class="text-sm text-gray-500 mb-3 truncate">序列号: {{ instrument.serialNumber || '未设置' }}</p>
+      <p class="text-sm text-gray-500 mb-3 truncate">序列号: {{ instrument.serialNumber || "未设置" }}</p>
       <div class="space-y-1 text-sm text-gray-500">
         <div class="flex items-center">
           <ElIcon class="mr-1">

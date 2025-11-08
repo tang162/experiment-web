@@ -1,48 +1,74 @@
-<script setup lang="ts">
-import { ref, computed } from 'vue';
-import { ElMessage, ElUpload, ElIcon } from 'element-plus';
-import { Plus } from '@element-plus/icons-vue';
-import type { UploadProps, UploadUserFile } from 'element-plus';
+<script setup>
+import { computed, ref, watch } from "vue";
+import { ElMessage, ElUpload, ElIcon } from "element-plus";
+import { Plus } from "@element-plus/icons-vue";
 
-interface Props {
-  modelValue: string[];
-  maxCount?: number;
-  limit?: number;
-  maxSize?: number;
-  accept?: string;
-  multiple?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  maxCount: 3,
-  limit: 3,
-  maxSize: 5,
-  accept: 'image/*',
-  multiple: false,
+const props = defineProps({
+  modelValue: {
+    type: Array,
+    default: () => [],
+  },
+  maxCount: {
+    type: Number,
+    default: 3,
+  },
+  limit: {
+    type: Number,
+    default: 3,
+  },
+  maxSize: {
+    type: Number,
+    default: 5,
+  },
+  accept: {
+    type: String,
+    default: "image/*",
+  },
+  multiple: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits<{
-  'update:modelValue': [value: string[]];
-  'change': [value: string[]];
-  upload: [file: File];
-}>();
+const emit = defineEmits([
+  "update:modelValue",
+  "change",
+  "upload",
+]);
 
-const fileList = ref<UploadUserFile[]>([]);
+const fileList = ref([]);
+
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (!Array.isArray(value)) {
+      fileList.value = [];
+      return;
+    }
+    fileList.value = value.map((url, index) => ({
+      name: `${index}`,
+      url,
+    }));
+  },
+  { immediate: true }
+);
 
 const isLimitExceeded = computed(() => {
-  return fileList.value.length >= (props.limit || props.maxCount);
+  const limit = props.limit ?? props.maxCount;
+  return fileList.value.length >= limit;
 });
 
-const handleExceed: UploadProps['onExceed'] = (files) => {
-  ElMessage.warning(`最多只能上传${props.limit || props.maxCount}张图片`);
+const handleExceed = () => {
+  const limit = props.limit ?? props.maxCount;
+  ElMessage.warning(`最多只能上传${limit}张图片`);
 };
 
-const handleBeforeUpload: UploadProps['beforeUpload'] = (file) => {
-  const isImage = file.type.startsWith('image/');
-  const isLtSize = file.size / 1024 / 1024 < props.maxSize;
+const handleBeforeUpload = (file) => {
+  const isImage = file.type ? file.type.startsWith("image/") : false;
+  const isLtSize = file.size ? file.size / 1024 / 1024 < props.maxSize : false;
 
   if (!isImage) {
-    ElMessage.error('只能上传图片文件');
+    ElMessage.error("只能上传图片文件");
     return false;
   }
   if (!isLtSize) {
@@ -50,17 +76,20 @@ const handleBeforeUpload: UploadProps['beforeUpload'] = (file) => {
     return false;
   }
 
-  emit('upload', file);
+  emit("upload", file);
   return false;
 };
 
-const handleRemove: UploadProps['onRemove'] = (file, uploadFiles) => {
-  const urls = uploadFiles.map(f => f.url).filter(Boolean) as string[];
-  emit('update:modelValue', urls);
-  emit('change', urls);
+const handleRemove = (file, uploadFiles = []) => {
+  const urls = uploadFiles
+    .map((item) => item.url)
+    .filter((url) => Boolean(url));
+
+  emit("update:modelValue", urls);
+  emit("change", urls);
 };
 
-const handlePreview: UploadProps['onPreview'] = (uploadFile) => {
+const handlePreview = (uploadFile) => {
   console.log(uploadFile);
 };
 </script>
