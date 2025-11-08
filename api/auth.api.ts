@@ -1,6 +1,3 @@
-import type { UserRole } from "@/types";
-import { request } from "@/utils";
-
 export namespace AuthApi {
   /** 登录参数 */
   export interface LoginParams {
@@ -21,7 +18,7 @@ export namespace AuthApi {
     /** 确认密码 */
     confirmPassword: string;
     /** 用户角色 */
-    role: UserRole;
+    role: Role;
     /** 用户邮箱 */
     email?: string;
     /** 用户手机号 */
@@ -32,29 +29,45 @@ export namespace AuthApi {
   export interface LoginResult {
     /** JWT Token */
     token: string;
+    /** 用户信息 */
+    user: {
+      id: number;
+      username: string;
+      nickname: string;
+      avatar: string;
+      role: Role;
+      email: string;
+      phone: string;
+      department: string;
+      status: string;
+    };
   }
 }
 
 enum Api {
   /** 用户登录 */
-  LOGIN = "/auth/login",
+  LOGIN = '/auth/login',
   /** 用户注册 */
-  REGISTER = "/auth/register",
+  REGISTER = '/auth/register',
+  /** 获取当前用户信息 */
+  ME = '/auth/me',
+  /** 刷新Token */
+  REFRESH = '/auth/refresh',
   /** 退出登录 */
-  LOGOUT = "/auth/logout",
+  LOGOUT = '/auth/logout',
 }
 
 /** 用户登录 */
-export async function loginApi(params: AuthApi.LoginParams) {
-  return request.post<AuthApi.LoginResult>(Api.LOGIN, params);
-}
+export async function loginApi(params: AuthApi.LoginParams) {}
 
 /** 用户注册 */
-export async function registerApi(params: AuthApi.RegisterParams) {
-  return request.post<AuthApi.LoginResult>(Api.REGISTER, params);
-}
+export async function registerApi(params: AuthApi.RegisterParams) {}
+
+/** 获取当前用户信息 */
+export async function getCurrentUserApi() {}
+
+/** 刷新Token */
+export async function refreshTokenApi() {}
 
 /** 退出登录 */
-export async function logoutApi() {
-  return request.post(Api.LOGOUT);
-}
+export async function logoutApi() {}

@@ -1,5 +1,7 @@
 /*** 本地存储字段映射 */
 export enum STORAGE_KEY {
+  /**  用户登录信息 */
+  USER_LOGIN_INFO = "userLoginInfo",
   /** 用户信息 */
   USER_INFO = "userInfo",
   /** 用户令牌 */

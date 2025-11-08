@@ -14,8 +14,8 @@ const formRef = ref<FormInstance>();
 const loading = ref(false);
 
 const loginForm = reactive<LoginForm>({
-  username: '',
-  password: '',
+  username: 'student001',
+  password: 'Password123',
   rememberPassword: false,
 });
 
@@ -42,6 +42,8 @@ const handleLogin = async () => {
       ElMessage.success('登录成功');
 
       const redirect = (route.query.redirect as string) || authStore.getDefaultHomePath;
+      console.log(redirect);
+
       router.push(redirect);
     } catch (error: any) {
       ElMessage.error(error.message || '登录失败');
@@ -90,7 +92,7 @@ const goToRegister = () => {
 
         <div class="text-center mt-6">
           <span class="text-gray-600">还没有账号？</span>
-          <ElButton type="text" @click="goToRegister">
+          <ElButton link @click="goToRegister">
             立即注册
           </ElButton>
         </div>

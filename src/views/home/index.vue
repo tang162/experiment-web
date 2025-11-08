@@ -152,7 +152,7 @@ onMounted(() => {
       <div>
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-2xl font-bold text-gray-900">热门实验室</h2>
-          <ElButton type="text" @click="router.push('/labs')">
+          <ElButton link @click="router.push('/labs')">
             查看更多 <ElIcon class="ml-1"><ArrowRight /></ElIcon>
           </ElButton>
         </div>

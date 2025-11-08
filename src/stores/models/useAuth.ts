@@ -2,8 +2,14 @@ import { defineStore } from "pinia";
 
 import { setStorage, getStorage, cleanupStorage } from "@/utils";
 
-import { STORAGE_KEY, UserRole, type User, type LoginForm, type RegisterForm } from "@/types";
-import { authApi } from "@/api";
+import {
+  STORAGE_KEY,
+  UserRole,
+  type User,
+  type LoginForm,
+  type RegisterForm,
+} from "@/types";
+import { getUserInfoApi, loginApi, logoutApi, registerApi } from "@/api";
 
 interface AuthState {
   /**是否登录 */
@@ -28,22 +34,21 @@ export const LOGIN_PATH = "/login";
  * @param role 用户角色
  * @returns 默认首页路径
  */
-export function getDefaultHomePath(
-  role: UserRole = UserRole.STUDENT
-): string {
+export function getDefaultHomePath(role: UserRole = UserRole.STUDENT): string {
   switch (role) {
     case UserRole.TEACHER:
       return "/teacher/reservations";
     case UserRole.STUDENT:
+      return "/lab";
     default:
-      return "/home";
+      return "/lab";
   }
 }
 
 /**
  * 默认首页地址
  */
-export const DEFAULT_HOME_PATH = "/home";
+export const DEFAULT_HOME_PATH = "/lab";
 
 export const useAuthStore = defineStore("auth", {
   state: (): AuthState => ({
@@ -83,20 +88,12 @@ export const useAuthStore = defineStore("auth", {
     /** 用户登录 */
     async login(params: LoginForm) {
       try {
-        const response = await authApi.login(params);
-        
-        this.setToken(response.token);
-        this.setUserInfo(response.user);
-        
+        const { token } = await loginApi(params);
+        this.setToken(token);
         if (params.rememberPassword) {
-          await setStorage(STORAGE_KEY.USER_TOKEN, response.token, Date.now() + 7 * 24 * 60 * 60 * 1000);
-        } else {
-          await setStorage(STORAGE_KEY.USER_TOKEN, response.token);
+          await setStorage(STORAGE_KEY.USER_LOGIN_INFO, params);
         }
-        
-        await setStorage(STORAGE_KEY.USER_INFO, response.user);
-        
-        return response;
+        return token;
       } catch (error) {
         this.clear();
         throw error;
@@ -106,15 +103,10 @@ export const useAuthStore = defineStore("auth", {
     /** 用户注册 */
     async register(params: RegisterForm) {
       try {
-        const response = await authApi.register(params);
-        
-        this.setToken(response.token);
-        this.setUserInfo(response.user);
-        
-        await setStorage(STORAGE_KEY.USER_TOKEN, response.token);
-        await setStorage(STORAGE_KEY.USER_INFO, response.user);
-        
-        return response;
+        const { token } = await registerApi(params);
+        this.setToken(token);
+        this.fetchUserInfo();
+        return token;
       } catch (error) {
         throw error;
       }
@@ -123,9 +115,8 @@ export const useAuthStore = defineStore("auth", {
     /** 获取用户信息 */
     async fetchUserInfo() {
       try {
-        const userInfo = await authApi.getUserInfo();
+        const userInfo = await getUserInfoApi();
         this.setUserInfo(userInfo);
-        await setStorage(STORAGE_KEY.USER_INFO, userInfo);
         return userInfo;
       } catch (error) {
         this.clear();
@@ -138,9 +129,10 @@ export const useAuthStore = defineStore("auth", {
       this.userInfo = userInfo;
       await setStorage(STORAGE_KEY.USER_INFO, userInfo);
     },
-    
+
     /**设置token */
-    setToken(token: string) {
+    async setToken(token: string) {
+      await setStorage(STORAGE_KEY.USER_TOKEN, token);
       this.token = token;
     },
 
@@ -157,9 +149,9 @@ export const useAuthStore = defineStore("auth", {
     /** 退出登录 */
     async logout() {
       try {
-        await authApi.logout();
+        await logoutApi();
       } catch (error) {
-        console.error('退出登录失败:', error);
+        console.error("退出登录失败:", error);
       } finally {
         this.clear();
       }

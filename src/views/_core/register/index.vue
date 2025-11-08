@@ -4,9 +4,9 @@ import { useRouter } from 'vue-router';
 import { ElMessage, ElForm, ElFormItem, ElInput, ElRadioGroup, ElRadio, ElButton, ElIcon } from 'element-plus';
 import { Loading } from '@element-plus/icons-vue';
 import { useAuthStore } from '@/stores';
-import { authApi } from '@/api';
 import { UserRole, type RegisterForm } from '@/types';
 import type { FormInstance, FormRules } from 'element-plus';
+import { checkUsernameExistsApi } from '@/api';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -16,12 +16,12 @@ const loading = ref(false);
 const checkingUsername = ref(false);
 
 const registerForm = reactive<RegisterForm>({
-  username: '',
-  password: '',
-  confirmPassword: '',
+  username: 'auv1',
+  password: '258956Li',
+  confirmPassword: '258956Li',
   role: UserRole.STUDENT,
-  email: '',
-  phone: '',
+  email: undefined,
+  phone: undefined,
 });
 
 const validatePassword = (rule: any, value: any, callback: any) => {
@@ -64,6 +64,15 @@ const validateUsername = (rule: any, value: any, callback: any) => {
   }
 };
 
+const validateUsernameAvailability = (rule: any, value: any, callback: any) => {
+  if (value && usernameCheckResult[value]) {
+    callback(new Error('该用户名已被注册'));
+  } else {
+    callback();
+  }
+};
+
+let usernameCheckResult: { [key: string]: boolean } = {};
 let usernameCheckTimer: NodeJS.Timeout | null = null;
 
 const checkUsernameAvailability = async () => {
@@ -76,10 +85,12 @@ const checkUsernameAvailability = async () => {
   usernameCheckTimer = setTimeout(async () => {
     checkingUsername.value = true;
     try {
-      const result = await authApi.checkUsername(registerForm.username);
-      if (!result.available) {
-        ElMessage.warning('用户名已被占用');
-      }
+      const { exists } = await checkUsernameExistsApi({
+        username: registerForm.username
+      });
+      usernameCheckResult[registerForm.username] = exists === 1;
+      // 触发规则提示，而不是ElMessage警告
+      formRef.value?.validateField('username');
     } catch (error) {
       console.error('检查用户名失败:', error);
     } finally {
@@ -92,6 +103,7 @@ const rules: FormRules = {
   username: [
     { required: true, validator: validateUsername, trigger: 'blur' },
     { min: 4, max: 20, message: '用户名长度为4-20个字符', trigger: 'blur' },
+    { validator: validateUsernameAvailability, trigger: 'change' },
   ],
   password: [
     { required: true, validator: validatePassword, trigger: 'blur' },
@@ -119,6 +131,7 @@ const handleRegister = async () => {
 
     loading.value = true;
     try {
+
       await authStore.register(registerForm);
       ElMessage.success('注册成功');
 
@@ -148,7 +161,7 @@ const goToLogin = () => {
         <ElForm ref="formRef" :model="registerForm" :rules="rules" label-position="top" size="large">
           <ElFormItem label="用户名" prop="username">
             <ElInput v-model="registerForm.username" placeholder="4-20个字符，字母+数字" clearable
-              @input="checkUsernameAvailability">
+              @blur="checkUsernameAvailability">
               <template #suffix>
                 <ElIcon v-if="checkingUsername" class="is-loading">
                   <Loading />
@@ -167,8 +180,8 @@ const goToLogin = () => {
 
           <ElFormItem label="角色" prop="role">
             <ElRadioGroup v-model="registerForm.role" class="w-full">
-              <ElRadio :label="UserRole.STUDENT" class="w-full mb-2">学生</ElRadio>
-              <ElRadio :label="UserRole.TEACHER" class="w-full">教师</ElRadio>
+              <ElRadio :value="UserRole.STUDENT" class="w-full mb-2">学生</ElRadio>
+              <ElRadio :value="UserRole.TEACHER" class="w-full">教师</ElRadio>
             </ElRadioGroup>
           </ElFormItem>
 
@@ -189,7 +202,7 @@ const goToLogin = () => {
 
         <div class="text-center mt-6">
           <span class="text-gray-600">已有账号？</span>
-          <ElButton type="text" @click="goToLogin">
+          <ElButton link @click="goToLogin">
             立即登录
           </ElButton>
         </div>
