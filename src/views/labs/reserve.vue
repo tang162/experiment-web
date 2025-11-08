@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElInput, ElInputNumber, ElButton, ElForm, ElFormItem, ElRadioGroup, ElRadio, ElDatePicker, ElSelect, ElOption } from 'element-plus';
 import { reservationApi } from '@/api/modules/reservation';
@@ -57,7 +56,7 @@ const { formRef, form: reservationForm, loading, handleSubmit } = useForm<Create
 
     await reservationApi.createReservation(values);
     ElMessage.success('预约成功，请等待审核');
-    router.push('/reservations');
+    router.push('/reservation/list');
   },
   onError: (error: any) => {
     ElMessage.error(error.message || '预约失败');
@@ -66,43 +65,40 @@ const { formRef, form: reservationForm, loading, handleSubmit } = useForm<Create
 </script>
 
 <template>
-  <PageLayout
-    title="预约实验室"
-    max-width="2xl"
-  >
+  <PageLayout title="预约实验室" max-width="2xl">
     <div class="bg-white rounded-lg shadow-md p-8">
       <ElForm ref="formRef" :model="reservationForm" :rules="rules" label-width="100px" size="large">
-        <ElForm-item label="预约日期" prop="date">
+        <ElFormItem label="预约日期" prop="date">
           <ElDatePicker v-model="reservationForm.date" type="date" placeholder="选择日期" :disabled-date="disabledDate"
             format="YYYY-MM-DD" value-format="YYYY-MM-DD" style="width: 100%" />
-        </ElForm-item>
+        </ElFormItem>
 
-        <ElForm-item label="预约时段" prop="timeSlot">
+        <ElFormItem label="预约时段" prop="timeSlot">
           <ElRadio-group v-model="reservationForm.timeSlot">
             <ElRadio :label="TimeSlot.MORNING">上午（8:00-12:00）</ElRadio>
             <ElRadio :label="TimeSlot.AFTERNOON">下午（14:00-18:00）</ElRadio>
             <ElRadio :label="TimeSlot.EVENING">晚上（19:00-22:00）</ElRadio>
           </ElRadio-group>
-        </ElForm-item>
+        </ElFormItem>
 
-        <ElForm-item label="实验用途" prop="purpose">
+        <ElFormItem label="实验用途" prop="purpose">
           <ElInput v-model="reservationForm.purpose" placeholder="请输入实验用途" />
-        </ElForm-item>
+        </ElFormItem>
 
-        <ElForm-item label="内容描述" prop="description">
+        <ElFormItem label="内容描述" prop="description">
           <ElInput v-model="reservationForm.description" type="textarea" :rows="4" placeholder="请详细描述实验内容" />
-        </ElForm-item>
+        </ElFormItem>
 
-        <ElForm-item label="使用人数" prop="participantCount">
+        <ElFormItem label="使用人数" prop="participantCount">
           <ElInput-number v-model="reservationForm.participantCount" :min="1" :max="100" />
-        </ElForm-item>
+        </ElFormItem>
 
-        <ElForm-item>
+        <ElFormItem>
           <ElButton type="primary" :loading="loading" @click="handleSubmit">
             提交预约
           </ElButton>
           <ElButton @click="router.back()">取消</ElButton>
-        </ElForm-item>
+        </ElFormItem>
       </ElForm>
     </div>
   </PageLayout>

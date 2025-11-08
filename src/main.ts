@@ -5,11 +5,17 @@ import App from "./App.vue";
 import { router } from "@/router";
 import { initStores } from "@/stores";
 
+// 导入 Element Plus 指令
+import { ElLoading } from "element-plus";
+
 // 导入自定义指令;
 import { setupDirectives } from "@/utils";
 
 async function bootstrap() {
   const app = createApp(App);
+
+  // 注册 Element Plus 指令
+  app.directive("loading", ElLoading.directive);
 
   // 注册自定义指令
   setupDirectives(app);

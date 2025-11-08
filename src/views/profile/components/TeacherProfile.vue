@@ -211,32 +211,32 @@ onMounted(() => {
               <div class="flex flex-wrap gap-2">
                 <ElTag v-for="tag in user?.teachingTags" :key="tag" type="success">
                   {{ tag }}
-                </el-tag>
-                <span v-if="!user?.teachingTags || user.teachingTags.length === 0" class="text-gray-400">
-                  未设置
-                </span>
+                  </el-tag>
+                  <span v-if="!user?.teachingTags || user.teachingTags.length === 0" class="text-gray-400">
+                    未设置
+                  </span>
               </div>
             </div>
           </div>
         </div>
-      </el-tab-pane>
+      </ElTabPane>
 
       <ElTabPane label="预约审核" name="reservations">
         <div class="bg-white rounded-lg shadow-md p-6">
           <ReservationTable :reservations="pendingReservations" :loading="loading" :show-user="true"
             @approve="handleApproveReservation" @reject="handleRejectReservation" />
         </div>
-      </el-tab-pane>
+      </ElTabPane>
 
       <ElTabPane label="申请审核" name="applications">
         <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
           <ElTable :data="pendingApplications" stripe>
-            <ElTable-column prop="userName" label="申请人" />
-            <ElTable-column prop="equipmentName" label="仪器名称" />
-            <ElTable-column prop="purpose" label="用途" />
-            <ElTable-column prop="timeSlot" label="使用时段" />
-            <ElTable-column prop="description" label="详细说明" show-overflow-tooltip />
-            <ElTable-column label="操作" width="180">
+            <ElTableColumn prop="userName" label="申请人" />
+            <ElTableColumn prop="equipmentName" label="仪器名称" />
+            <ElTableColumn prop="purpose" label="用途" />
+            <ElTableColumn prop="timeSlot" label="使用时段" />
+            <ElTableColumn prop="description" label="详细说明" show-overflow-tooltip />
+            <ElTableColumn label="操作" width="180">
               <template #default="{ row }">
                 <ElButton type="success" size="small" @click="approveApplication(row.id)">
                   通过
@@ -245,34 +245,34 @@ onMounted(() => {
                   驳回
                 </ElButton>
               </template>
-            </ElTable-column>
+            </ElTableColumn>
           </ElTable>
         </div>
-      </el-tab-pane>
-    </el-tabs>
+      </ElTabPane>
+    </ElTabs>
 
     <ElDialog v-model="editDialogVisible" title="编辑个人信息" width="500px">
       <ElForm :model="editForm" label-width="80px">
-        <ElForm-item label="昵称">
+        <ElFormItem label="昵称">
           <ElInput v-model="editForm.nickname" />
-        </el-form-item>
-        <ElForm-item label="邮箱">
+        </ElFormItem>
+        <ElFormItem label="邮箱">
           <ElInput v-model="editForm.email" />
-        </el-form-item>
-        <ElForm-item label="手机号">
+        </ElFormItem>
+        <ElFormItem label="手机号">
           <ElInput v-model="editForm.phone" maxlength="11" />
-        </el-form-item>
-        <ElForm-item label="教学标签">
+        </ElFormItem>
+        <ElFormItem label="教学标签">
           <ElSelect v-model="editForm.teachingTags" multiple allow-create filterable placeholder="输入并回车添加标签"
             style="width: 100%">
             <ElOption v-for="tag in editForm.teachingTags" :key="tag" :label="tag" :value="tag" />
-          </el-select>
-        </el-form-item>
-      </el-form>
+          </ElSelect>
+        </ElFormItem>
+      </ElForm>
       <template #footer>
         <ElButton @click="editDialogVisible = false">取消</ElButton>
         <ElButton type="primary" @click="handleSaveProfile">保存</ElButton>
       </template>
-    </el-dialog>
+    </ElDialog>
   </div>
 </template>

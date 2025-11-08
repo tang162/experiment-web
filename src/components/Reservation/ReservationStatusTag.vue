@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { ReservationStatus } from '@/types';
-import { ElTabs } from 'element-plus'
+import { ElTag } from 'element-plus'
 
 interface Props {
-  status: ReservationStatus;
+  status: number;
   size?: 'small' | 'default' | 'large';
 }
 
@@ -12,7 +12,7 @@ const props = withDefaults(defineProps<Props>(), {
   size: 'default',
 });
 
-const tagType = computed(() => {
+const tagType = computed<any>(() => {
   switch (props.status) {
     case ReservationStatus.PENDING:
       return 'warning';
@@ -48,7 +48,7 @@ const statusText = computed(() => {
 </script>
 
 <template>
-  <ElTabs :type="tagType" :size="size">
+  <ElTag :type="tagType" :size="size">
     {{ statusText }}
-  </ElTabs>
+  </ElTag>
 </template>

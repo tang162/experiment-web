@@ -1,5 +1,10 @@
 import { request } from "@/utils";
-import type { PaginationParam, SearchFilter, BaseEntity } from "@/api";
+import type {
+  PaginationParam,
+  SearchFilter,
+  BaseEntity,
+  OptionsRults,
+} from "@/api";
 
 // 实验室基础信息
 interface LabBase {
@@ -67,6 +72,13 @@ export namespace LabApi {
 enum Api {
   /** 获取实验室列表 */
   GET_LABS = "/labs",
+  /**  获取实验室下拉列表 */
+  GET_LABS_DROPDOWN = "/labs/dropdown",
+}
+
+/** 获取实验室下拉列表 */
+export async function getLabsDropdownApi(params: PaginationParam) {
+  return request.get<OptionsRults>(Api.GET_LABS_DROPDOWN, params);
 }
 
 /** 获取实验室列表 */

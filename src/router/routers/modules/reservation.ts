@@ -16,6 +16,15 @@ const reservationRoutes: RouteRecordRaw[] = [
           requiresAuth: true,
         },
       },
+      {
+        path: 'detail/:id',
+        name: 'ReservationDetail',
+        component: () => import('@/views/reservations/detail.vue'),
+        meta: {
+          title: '预约详情',
+          requiresAuth: true,
+        },
+      },
     ],
   },
 ];

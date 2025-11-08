@@ -10,7 +10,7 @@ const router = useRouter();
 const authStore = useAuthStore();
 
 const goHome = () => {
-  router.push("/home");
+  router.push("/lab/home");
 };
 
 const goBack = () => {

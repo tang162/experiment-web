@@ -3,9 +3,9 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElBadge, ElButton, ElIcon, ElDropdown, ElAvatar, ElDropdownMenu, ElDropdownItem } from 'element-plus'
-import { User, SwitchButton } from '@element-plus/icons-vue';
+import { User, SwitchButton, Bell } from '@element-plus/icons-vue';
 import { useAuthStore } from '@/stores';
-import { notificationApi } from '@/api';
+import { getUnreadCountApi } from '@/api';
 import { UserRole } from '@/types';
 
 const router = useRouter();
@@ -18,14 +18,14 @@ const isStudent = computed(() => authStore.getUserRole === UserRole.STUDENT);
 
 const menuItems = computed(() => {
   const baseMenus = [
-    { title: '首页', path: '/home', icon: 'House' },
-    { title: '实验室', path: '/labs', icon: 'School' },
+    { title: '首页', path: '/lab/home', icon: 'House' },
+    { title: '实验室', path: '/lab/labs', icon: 'School' },
     { title: '仪器申请', path: '/equipment/apply', icon: 'Tools' },
     { title: '设备报修', path: '/equipment/repair', icon: 'Warning' },
   ];
 
   if (isStudent.value) {
-    baseMenus.push({ title: '我的预约', path: '/reservations', icon: 'Calendar' });
+    baseMenus.push({ title: '我的预约', path: '/reservation/list', icon: 'Calendar' });
   } else {
     baseMenus.push({ title: '审核管理', path: '/teacher/reservations', icon: 'Document' });
   }
@@ -35,19 +35,19 @@ const menuItems = computed(() => {
 
 const fetchUnreadCount = async () => {
   try {
-    const response = await notificationApi.getUnreadCount();
-    unreadCount.value = response.count;
+    const { count } = await getUnreadCountApi();
+    unreadCount.value = count ?? 0
   } catch (error) {
     console.error('获取未读消息数失败:', error);
   }
 };
 
 const goToNotifications = () => {
-  router.push('/notifications');
+  router.push('/notification/list');
 };
 
 const goToProfile = () => {
-  router.push('/profile');
+  router.push('/profile/index');
 };
 
 const handleLogout = async () => {
@@ -71,7 +71,7 @@ if (authStore.getIsLoggedIn) {
       <div class="container mx-auto px-4">
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center space-x-8">
-            <div class="text-xl font-bold text-indigo-600 cursor-pointer" @click="router.push('/home')">
+            <div class="text-xl font-bold text-indigo-600 cursor-pointer" @click="router.push('/lab/home')">
               实验室预约系统
             </div>
 
@@ -102,20 +102,20 @@ if (authStore.getIsLoggedIn) {
                 <span class="text-sm font-medium">{{ userInfo?.nickname || userInfo?.username }}</span>
               </div>
               <template #dropdown>
-                <ElDropdown-menu>
-                  <ElDropdown-item @click="goToProfile">
+                <ElDropdownMenu>
+                  <ElDropdownItem @click="goToProfile">
                     <ElIcon>
                       <User />
                     </ElIcon>
                     个人中心
-                  </ElDropdown-item>
-                  <ElDropdown-item divided @click="handleLogout">
+                  </ElDropdownItem>
+                  <ElDropdownItem divided @click="handleLogout">
                     <ElIcon>
                       <SwitchButton />
                     </ElIcon>
                     退出登录
-                  </ElDropdown-item>
-                </ElDropdown-menu>
+                  </ElDropdownItem>
+                </ElDropdownMenu>
               </template>
             </ElDropdown>
           </div>

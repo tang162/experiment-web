@@ -14,7 +14,7 @@ interface Props {
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   showBack: false,
   loading: false,
   containerClass: '',
@@ -43,13 +43,8 @@ const maxWidthClass = computed(() => {
   <div class="min-h-screen bg-gray-50 py-8">
     <div class="container mx-auto px-4">
       <div :class="[maxWidthClass, 'mx-auto']">
-        <PageHeader
-          :title="title"
-          :description="description"
-          :show-back="showBack"
-          @back="emit('back')"
-        />
-        
+        <PageHeader :title="title" :description="description" :show-back="showBack" @back="emit('back')" />
+
         <div v-loading="loading" :class="contentClass">
           <slot />
         </div>

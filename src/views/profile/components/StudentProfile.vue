@@ -241,17 +241,17 @@ onMounted(() => {
       <ElTabPane label="仪器申请" name="applications">
         <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
           <ElTable :data="applications" stripe>
-            <ElTable-column prop="equipmentName" label="仪器名称" />
-            <ElTable-column prop="purpose" label="用途" />
-            <ElTable-column prop="timeSlot" label="使用时段" />
-            <ElTable-column prop="status" label="状态">
+            <ElTableColumn prop="equipmentName" label="仪器名称" />
+            <ElTableColumn prop="purpose" label="用途" />
+            <ElTableColumn prop="timeSlot" label="使用时段" />
+            <ElTableColumn prop="status" label="状态">
               <template #default="{ row }">
                 <ElTag :type="getApplicationStatusType(row.status)">
                   {{ getApplicationStatusText(row.status) }}
-                </el-tag>
+                </ElTag>
               </template>
-            </ElTable-column>
-            <ElTable-column prop="createdAt" label="申请时间" />
+            </ElTableColumn>
+            <ElTableColumn prop="createdAt" label="申请时间" />
           </ElTable>
         </div>
       </ElTabPane>
@@ -259,17 +259,17 @@ onMounted(() => {
       <ElTabPane label="报修记录" name="repairs">
         <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
           <ElTable :data="repairRequests" stripe>
-            <ElTable-column prop="repairNumber" label="报修单号" />
-            <ElTable-column prop="equipmentName" label="设备名称" />
-            <ElTable-column prop="faultType" label="故障类型" />
-            <ElTable-column prop="status" label="状态">
+            <ElTableColumn prop="repairNumber" label="报修单号" />
+            <ElTableColumn prop="equipmentName" label="设备名称" />
+            <ElTableColumn prop="faultType" label="故障类型" />
+            <ElTableColumn prop="status" label="状态">
               <template #default="{ row }">
                 <ElTag :type="getRepairStatusType(row.status)">
                   {{ getRepairStatusText(row.status) }}
-                </el-tag>
+                </ElTag>
               </template>
-            </ElTable-column>
-            <ElTable-column prop="createdAt" label="报修时间" />
+            </ElTableColumn>
+            <ElTableColumn prop="createdAt" label="报修时间" />
           </ElTable>
         </div>
       </ElTabPane>
@@ -291,19 +291,19 @@ onMounted(() => {
           </div>
         </div>
       </ElTabPane>
-    </el-tabs>
+    </ElTabs>
 
     <ElDialog v-model="editDialogVisible" title="编辑个人信息" width="500px">
       <ElForm :model="editForm" label-width="80px">
-        <ElForm-item label="昵称">
+        <ElFormItem label="昵称">
           <ElInput v-model="editForm.nickname" />
-        </ElForm-item>
-        <ElForm-item label="邮箱">
+        </ElFormItem>
+        <ElFormItem label="邮箱">
           <ElInput v-model="editForm.email" />
-        </ElForm-item>
-        <ElForm-item label="手机号">
+        </ElFormItem>
+        <ElFormItem label="手机号">
           <ElInput v-model="editForm.phone" maxlength="11" />
-        </ElForm-item>
+        </ElFormItem>
       </ElForm>
       <template #footer>
         <ElButton @click="editDialogVisible = false">取消</ElButton>

@@ -102,7 +102,7 @@ const goToRegister = () => {
 </template>
 
 <style lang="scss" scoped>
-:deep(.el-form-item__label) {
+:deep(.ElFormItem__label) {
   font-weight: 500;
   color: #374151;
 }

@@ -1,11 +1,11 @@
-import type { TimeSlot } from './lab';
+import type { TimeSlot } from "./lab";
 
 export enum ReservationStatus {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
+  PENDING = 0,
+  APPROVED = 1,
+  REJECTED = 2,
+  COMPLETED = 3,
+  CANCELLED = 4,
 }
 
 export interface Reservation {
@@ -15,7 +15,7 @@ export interface Reservation {
   userId: string | number;
   userName?: string;
   date: string;
-  timeSlot: TimeSlot;
+  timeSlot: number;
   purpose: string;
   description: string;
   participantCount: number;

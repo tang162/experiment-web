@@ -47,7 +47,7 @@ const functionCards = [
 
 const fetchBanners = async () => {
   try {
-    banners.value = await bannerApi.getBanners(5);
+    // banners.value = await bannerApi.getBanners(5);
   } catch (error) {
     console.error('获取轮播图失败:', error);
   }
@@ -56,8 +56,8 @@ const fetchBanners = async () => {
 const fetchPopularLabs = async () => {
   try {
     loading.value = true;
-    const result = await getLabsApi({ pageSize: 6 });
-    popularLabs.value = result || [];
+    // const result = await getLabsApi({ pageSize: 6 });
+    // popularLabs.value = result || [];
   } catch (error) {
     console.error('获取热门实验室失败:', error);
   } finally {
@@ -67,7 +67,7 @@ const fetchPopularLabs = async () => {
 
 const handleSearch = (keyword: string) => {
   router.push({
-    path: '/labs',
+    path: '/lab/labs',
     query: keyword ? { keyword } : {},
   });
 };
@@ -140,7 +140,7 @@ onMounted(() => {
           </ElButton>
         </div>
 
-        <div v-loading="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <LabCard v-for="lab in popularLabs" :key="lab.id" :lab="lab" @click="handleLabClick"
             @toggle-favorite="handleToggleFavorite" />
         </div>

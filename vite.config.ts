@@ -14,7 +14,7 @@ export default defineConfig({
   },
   server: {
     host: "0.0.0.0",
-    port: 8081,
+    port: 5867,
     proxy: {
       "/api": {
         changeOrigin: true,
