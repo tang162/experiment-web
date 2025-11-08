@@ -5,7 +5,7 @@ import {
   useAccessStore,
   useAuthStore,
 } from "@/stores";
-import { coreRouteNames, accessRoutes } from "./routers";
+import { coreRouteNames, accessRoutes } from "./routers/index";
 import { generateAccess } from "./access";
 
 function setupCommonGuard(router: Router) {
