@@ -1,13 +1,9 @@
-import {
-  filterTree,
-  mapTree
-} from "./tree";
+import { filterTree, mapTree } from "./tree";
 import {
   isFunction,
   isString,
-
-} from "@/types";
-
+} from "@/utils";
+import { defineComponent, h } from "vue";
 
 /**
  * 生成 路由
@@ -15,11 +11,7 @@ import {
  * @param options
  */
 async function generateRoutes(options) {
-  const {
-    forbiddenComponent,
-    roles,
-    routes
-  } = options;
+  const { forbiddenComponent, roles, routes } = options;
 
   let resultRoutes = routes;
   resultRoutes = await generateRoutesByFrontend(
@@ -46,14 +38,8 @@ async function generateRoutes(options) {
         if (!component.default) return component;
         return defineComponent({
           name: route.name,
-          setup(props, {
-            attrs,
-            slots
-          }) {
-            return () => h(component.default, {
-              ...props,
-              ...attrs
-            }, slots);
+          setup(props, { attrs, slots }) {
+            return () => h(component.default, { ...props, ...attrs }, slots);
           },
         });
       };
@@ -130,6 +116,4 @@ function menuHasVisibleWithForbidden(route) {
   );
 }
 
-export {
-  generateRoutes
-};
+export { generateRoutes };

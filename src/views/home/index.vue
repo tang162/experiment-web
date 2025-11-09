@@ -82,7 +82,6 @@ const handleLabClick = (lab) => {
 const handleToggleFavorite = async (lab) => {
   // TODO: Implement favorite toggle API
   lab.isFavorite = !lab.isFavorite;
-  console.log('Favorite toggled:', lab.isFavorite);
 };
 
 onMounted(() => {

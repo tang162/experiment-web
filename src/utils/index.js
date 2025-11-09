@@ -11,4 +11,5 @@ export * from "./directives";
 
 export * from "./message";
 
-export * from "./async";
+export * from "./method";
+

@@ -1,5 +1,4 @@
 export * from "./storage";
-export * from "./system";
 export * from "./user";
 export * from "./lab";
 export * from "./reservation";

@@ -48,13 +48,6 @@ export function setupRequestInterceptor(instance) {
       if (!navigator.onLine) {
         return Promise.reject(new Error("网络连接不可用，请检查网络设置"));
       }
-      // console.log(
-      //   `🚀 发起请求: ${config.method?.toUpperCase()} ${config.url}`,
-      //   {
-      //     params: config.params,
-      //     data: config.data,
-      //   },
-      // );
       return config;
     },
     (error) => {

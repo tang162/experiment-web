@@ -2,7 +2,7 @@
 import { coreRoutes, fallbackNotFoundRoute } from "./core";
 import { mergeRouteModules, traverseTreeValues } from "@/utils";
 
-const dynamicRouteFiles = import.meta.glob("./modules/**/*.ts", {
+const dynamicRouteFiles = import.meta.glob("./modules/**/*.js", {
   eager: true,
 });
 

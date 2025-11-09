@@ -1,8 +1,3 @@
-/**
- * HTTP 工具类 - Axios 二次封装
- * 提供统一的请求处理、错误处理、缓存、重试等功能
- * 支持环境变量配置和调试模式
- */
 
 import axios from "axios";
 import {
@@ -26,14 +21,6 @@ const isDebugMode =
   import.meta.env.VITE_ENABLE_HTTP_DEBUG === "true" ||
   import.meta.env.MODE === "development";
 
-/**
- * 调试日志工具
- */
-function _debugLog(message, ...args) {
-  if (isDebugMode) {
-    console.log(`🔧 [HTTP Debug] ${message}`, ...args);
-  }
-}
 
 /**
  * HTTP 客户端类
@@ -49,14 +36,6 @@ class HttpClient {
     // 合并环境配置和用户配置
     const envConfig = getEnvConfig();
     this.config = mergeConfig({ ...envConfig, ...config });
-
-    // debugLog("HTTP客户端初始化", {
-    //   baseURL: this.config.baseURL,
-    //   timeout: this.config.timeout,
-    //   enableCache: this.config.enableCache,
-    //   enableRetry: this.config.enableRetry,
-    // });
-
     this.instance = this.createInstance();
     this.setupInterceptors();
   }
@@ -91,9 +70,6 @@ class HttpClient {
 
     // 防止重复请求 - 如果已有相同请求在进行中，直接返回该 Promise
     if (this.requestPromises.has(cacheKey)) {
-      // console.log(
-      //   `⏳ 请求进行中，等待结果: ${mergedConfig.method} ${mergedConfig.url}`
-      // );
       return this.requestPromises.get(cacheKey);
     }
 
@@ -102,6 +78,7 @@ class HttpClient {
       mergedConfig,
       cacheKey
     );
+
     this.requestPromises.set(cacheKey, requestPromise);
     this.loadingRequests.add(cacheKey);
 
@@ -251,10 +228,11 @@ class HttpClient {
   // 缓存相关方法
   getCacheKey(config) {
     const { method, url, params, data, retryCount } = config;
+
     // 为重试请求添加重试次数标识，避免与原请求冲突
     const retryFlag =
       retryCount !== undefined &&
-        retryCount(this.config.defaultRetryCount || 3) ?
+        retryCount < (this.config.defaultRetryCount || 3) ?
         `_retry_${retryCount}`
         : "";
     const key = `${method}_${url}_${JSON.stringify(params)}_${JSON.stringify(
@@ -341,7 +319,6 @@ class HttpClient {
       if (retryCount > 0 && this.shouldRetry(error, retryConfig)) {
         return this.retryRequest(retryConfig, error);
       }
-
       // 处理错误 - 只有最后一次重试失败时才显示错误提示
       this.handleError(error, retryConfig);
       throw error;

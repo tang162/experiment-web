@@ -19,7 +19,7 @@ const props = defineProps({
 
 
 
-const tagType = computed < any > (() => {
+const tagType = computed(() => {
   switch (props.status) {
     case ReservationStatus.PENDING:
       return 'warning';

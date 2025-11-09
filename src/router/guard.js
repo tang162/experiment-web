@@ -82,6 +82,8 @@ function setupAccessGuard(router) {
       routes: accessRoutes,
     });
 
+
+
     accessStore.setAccessRoutes(accessibleRoutes);
     accessStore.setIsAccessChecked(true);
 

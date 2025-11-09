@@ -45,7 +45,6 @@ const loadLabs = async () => {
 
   if (result) {
     labs.value = result.list || [];
-    console.log(labs.value);
     total.value = result.total || 0;
   }
 };

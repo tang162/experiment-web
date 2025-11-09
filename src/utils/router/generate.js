@@ -1,9 +1,13 @@
+import { cloneDeep } from "@/utils";
 import { generateRoutes } from "./generate-routes";
 
 const generateAccessible = async (options) => {
   const { router } = options;
 
+
+
   options.routes = cloneDeep(options.routes);
+
   // 生成路由
   const accessibleRoutes = await generateRoutes(options);
 

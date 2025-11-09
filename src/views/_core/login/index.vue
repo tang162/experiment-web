@@ -41,7 +41,6 @@ const handleLogin = async () => {
       ElMessage.success('登录成功');
 
       const redirect = (route.query.redirect) || authStore.getDefaultHomePath;
-      console.log(redirect);
 
       router.push(redirect);
     } catch (error) {

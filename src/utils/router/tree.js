@@ -1,3 +1,4 @@
+
 /**
  * @zh_CN 遍历树形结构，并返回所有节点中指定的值。
  * @param tree 树形结构数组
@@ -8,12 +9,10 @@
 function traverseTreeValues(
   tree,
   getValue,
-  options = {}
+  options = {},
 ) {
   const result = [];
-  const {
-    childProps
-  } = options || {
+  const { childProps } = options || {
     childProps: "children",
   };
 
@@ -47,11 +46,9 @@ function traverseTreeValues(
 function filterTree(
   tree,
   filter,
-  options = {}
+  options = {},
 ) {
-  const {
-    childProps
-  } = options || {
+  const { childProps } = options || {
     childProps: "children",
   };
 
@@ -81,9 +78,7 @@ function mapTree(
   mapper,
   options = {},
 ) {
-  const {
-    childProps
-  } = options || {
+  const { childProps } = options || {
     childProps: "children",
   };
   return tree.map((node) => {
@@ -91,12 +86,8 @@ function mapTree(
     if (mapperNode[childProps]) {
       mapperNode[childProps] = mapTree(mapperNode[childProps], mapper, options);
     }
-    return mapperNode
+    return mapperNode;
   });
 }
 
-export {
-  filterTree,
-  mapTree,
-  traverseTreeValues
-};
+export { filterTree, mapTree, traverseTreeValues };
