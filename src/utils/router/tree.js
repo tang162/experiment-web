@@ -5,7 +5,7 @@
  * @param options 作为子节点数组的可选属性名称。
  * @returns 所有节点中指定的值的数组
  */
-function traverseTreeValue(
+function traverseTreeValues(
   tree,
   getValue,
   options = {}
@@ -17,7 +17,7 @@ function traverseTreeValue(
     childProps: "children",
   };
 
-  const dfs = (treeNode: T) => {
+  const dfs = (treeNode) => {
     const value = getValue(treeNode);
     result.push(value);
     const children = (treeNode)?.[childProps];
@@ -45,7 +45,7 @@ function traverseTreeValue(
  * @returns 包含所有匹配节点的数组。
  */
 function filterTree(
-  tree: ,
+  tree,
   filter,
   options = {}
 ) {
@@ -55,9 +55,9 @@ function filterTree(
     childProps: "children",
   };
 
-  const _filterTree = (nodes): => {
+  const _filterTree = (nodes) => {
     return nodes.filter((node) => {
-      if (filter(node as T)) {
+      if (filter(node)) {
         if (node[childProps]) {
           node[childProps] = _filterTree(node[childProps]);
         }
@@ -77,7 +77,7 @@ function filterTree(
  * @param options 作为子节点数组的可选属性名称。
  */
 function mapTree(
-  tree: ,
+  tree,
   mapper,
   options = {},
 ) {
@@ -91,7 +91,7 @@ function mapTree(
     if (mapperNode[childProps]) {
       mapperNode[childProps] = mapTree(mapperNode[childProps], mapper, options);
     }
-    return mapperNode as V;
+    return mapperNode
   });
 }
 

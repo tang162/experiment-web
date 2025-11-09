@@ -2,10 +2,9 @@
  * HTTP 配置文件
  */
 
-import type { HttpClientConfig } from "./types";
 
 // 默认配置
-export const DEFAULT_CONFIG: HttpClientConfig = {
+export const DEFAULT_CONFIG = {
   // 基础URL - 从环境变量或应用设置中获取
   baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
 
@@ -74,7 +73,7 @@ export const HEADERS = {
   // 自定义应用头部（替代User-Agent）
   X_APP_NAME: "X-App-Name",
   X_APP_VERSION: "X-App-Version",
-} as const;
+};
 
 // 内容类型常量
 export const CONTENT_TYPES = {
@@ -84,7 +83,7 @@ export const CONTENT_TYPES = {
   TEXT: "text/plain",
   HTML: "text/html",
   XML: "application/xml",
-} as const;
+};
 
 // 缓存键前缀
 export const CACHE_PREFIX = "http_cache_";
@@ -131,13 +130,13 @@ export const ENV_CONFIG = {
 // 获取当前环境配置
 export function getEnvConfig() {
   const env = import.meta.env.MODE || "development";
-  return ENV_CONFIG[env as keyof typeof ENV_CONFIG] || ENV_CONFIG.development;
+  return ENV_CONFIG[env] || ENV_CONFIG.development;
 }
 
 // 合并配置
 export function mergeConfig(
-  customConfig: Partial<HttpClientConfig> = {}
-): HttpClientConfig {
+  customConfig = {}
+) {
   const envConfig = getEnvConfig();
   return {
     ...DEFAULT_CONFIG,

@@ -5,31 +5,17 @@
 import {
   ElMessage,
   ElMessageBox,
-  type MessageOptions,
-  type MessageParams,
-  type ElMessageBoxOptions,
+
 } from "element-plus";
 
-type MessageType = "success" | "warning" | "info" | "error";
 
-interface MessageConfig extends Partial<MessageOptions> {
-  duration?;
-  showClose?;
-}
 
-interface ConfirmConfig extends Partial<ElMessageBoxOptions> {
-  title;
-  confirmButtonText;
-  cancelButtonText;
-  type?: MessageType;
-}
-
-const defaultMessageConfig: MessageConfig = {
+const defaultMessageConfig = {
   duration: 3000,
   showClose: false,
 };
 
-const defaultConfirmConfig: ConfirmConfig = {
+const defaultConfirmConfig = {
   title: "提示",
   confirmButtonText: "确定",
   cancelButtonText: "取消",
@@ -41,10 +27,10 @@ const defaultConfirmConfig: ConfirmConfig = {
  */
 export function showMessage(
   message,
-  type: MessageType = "info",
-  config: MessageConfig = {}
+  type = "info",
+  config = {}
 ) {
-  const options: MessageParams = {
+  const options = {
     ...defaultMessageConfig,
     ...config,
     message,
@@ -54,22 +40,22 @@ export function showMessage(
 }
 
 /** 成功消息 */
-export function showSuccess(message, config: MessageConfig = {}) {
+export function showSuccess(message, config = {}) {
   return showMessage(message, "success", config);
 }
 
 /** 错误消息 */
-export function showError(message, config: MessageConfig = {}) {
+export function showError(message, config = {}) {
   return showMessage(message, "error", config);
 }
 
 /** 警告消息 */
-export function showWarning(message, config: MessageConfig = {}) {
+export function showWarning(message, config = {}) {
   return showMessage(message, "warning", config);
 }
 
 /** 信息消息 */
-export function showInfo(message, config: MessageConfig = {}) {
+export function showInfo(message, config = {}) {
   return showMessage(message, "info", config);
 }
 
@@ -78,11 +64,11 @@ export function showInfo(message, config: MessageConfig = {}) {
  */
 export async function showConfirm(
   message,
-  config: ConfirmConfig = {}
-): Promise<boolean> {
+  config = {}
+) {
   try {
     const options = { ...defaultConfirmConfig, ...config };
-    await ElMessageBox.confirm(message, options.title!, options);
+    await ElMessageBox.confirm(message, options.title, options);
     return true;
   } catch {
     return false;
@@ -94,14 +80,14 @@ export async function showConfirm(
  */
 export async function showAlert(
   message,
-  config: Omit<ConfirmConfig, "showCancelButton"> = {}
-): Promise<void> {
+  config = {}
+) {
   const options = {
     ...defaultConfirmConfig,
     ...config,
     showCancelButton: false,
   };
-  await ElMessageBox.alert(message, options.title!, options);
+  await ElMessageBox.alert(message, options.title, options);
 }
 
 /**

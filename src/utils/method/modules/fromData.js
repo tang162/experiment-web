@@ -1,13 +1,12 @@
 import dayjs from "dayjs";
 
-type RangeType = "week" | "month" | "quarter" | "halfYear" | "year";
 
 // 薪资显示格式化
 export const formatSalary = (minSalary, maxSalary) => {
   return `${minSalary}K-${maxSalary}K`;
 };
 
-export function getRangeByType(type: RangeType) {
+export function getRangeByType(type) {
   const end = dayjs();
   let start = end;
 

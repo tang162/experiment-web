@@ -2,9 +2,7 @@
  * HTTP 拦截器
  */
 
-import type { AxiosInstance, AxiosResponse, AxiosError } from "axios";
 import { ERROR_CODE_MAP, SILENT_ERROR_CODES, HEADERS } from "./config";
-import type { BaseResponse, HttpError, HttpRequestConfig } from "./types";
 
 import { showMessage, showError } from "@/utils";
 import { useAuthStore } from "@/stores";
@@ -12,7 +10,7 @@ import { useAuthStore } from "@/stores";
 /**
  * 设置请求拦截器
  */
-export function setupRequestInterceptor(instance: AxiosInstance) {
+export function setupRequestInterceptor(instance) {
   instance.interceptors.request.use(
     async (config) => {
       // 添加时间戳防止缓存
@@ -69,9 +67,9 @@ export function setupRequestInterceptor(instance: AxiosInstance) {
 /**
  * 设置响应拦截器
  */
-export function setupResponseInterceptor(instance: AxiosInstance) {
+export function setupResponseInterceptor(instance) {
   instance.interceptors.response.use(
-    async (response: AxiosResponse<BaseResponse>) => {
+    async (response) => {
       const { data, config } = response;
       // console.log(
       //   `✅ 请求成功: ${config.method?.toUpperCase()} ${config.url}`,
@@ -97,7 +95,7 @@ export function setupResponseInterceptor(instance: AxiosInstance) {
               await userStore.logout();
 
               // 创建错误对象并标记为不重连
-              const error: HttpError = {
+              const error = {
                 code: data.code,
                 message: data.message,
                 data: data.data,
@@ -107,7 +105,7 @@ export function setupResponseInterceptor(instance: AxiosInstance) {
               // throw 出错误
               throw error;
             } else {
-              const error: HttpError = {
+              const error = {
                 code: data.code,
                 message: data.message,
                 data: data.data,
@@ -116,7 +114,7 @@ export function setupResponseInterceptor(instance: AxiosInstance) {
             }
           }
 
-          if ((config as HttpRequestConfig).isTotal) {
+          if ((config).isTotal) {
             return data.data !== undefined
               ? {
                 data: Array.isArray(data) ? [] : data.data,
@@ -131,7 +129,7 @@ export function setupResponseInterceptor(instance: AxiosInstance) {
 
       return data;
     },
-    async (error: AxiosError<BaseResponse>) => {
+    async (error) => {
       const { response, config } = error;
 
       console.error(
@@ -146,7 +144,7 @@ export function setupResponseInterceptor(instance: AxiosInstance) {
 
       // 处理网络错误
       if (!response) {
-        const networkError: HttpError = {
+        const networkError = {
           code: -1,
           message: "网络连接不可用，请检查网络设置",
         };
@@ -158,7 +156,7 @@ export function setupResponseInterceptor(instance: AxiosInstance) {
       // 处理认证错误
       if (status === 401) {
         await handleAuthError();
-        const authError: HttpError = {
+        const authError = {
           code: 401,
           message: data?.message || "认证失效，请重新登录",
           status,
@@ -167,7 +165,7 @@ export function setupResponseInterceptor(instance: AxiosInstance) {
       }
 
       // 构造错误对象
-      const httpError: HttpError = {
+      const httpError = {
         code: status,
         message: getErrorMessage(status, data),
         status,

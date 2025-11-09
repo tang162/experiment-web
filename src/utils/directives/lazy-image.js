@@ -1,4 +1,3 @@
-import type { DirectiveBinding } from "vue";
 import {
   generateSkeletonImage,
   generateErrorImage,
@@ -7,10 +6,10 @@ import {
 
 // 图片状态枚举
 const ImageStatus = {
-  LOADING = "loading",
-  SUCCESS = "success",
-  ERROR = "error",
-  PENDING = "pending",
+  LOADING: "loading",
+  SUCCESS: "success",
+  ERROR: "error",
+  PENDING: "pending",
 }
 
 // 默认配置
@@ -30,7 +29,7 @@ const statusMap = new WeakMap();
 const optionsMap = new WeakMap();
 
 // 创建加载动画元素
-function createLoadingElement(): HTMLElement {
+function createLoadingElement() {
   const loadingDiv = document.createElement("div");
   loadingDiv.className = "lazy-image-loading-overlay";
   loadingDiv.innerHTML = `
@@ -53,22 +52,22 @@ function setImageStatus(
   // 移除之前的状态类
   if (prevStatus) {
     el.classList.remove(
-      options.loadingClass!,
-      options.errorClass!,
-      options.successClass!,
+      options.loadingClass,
+      options.errorClass,
+      options.successClass,
     );
   }
 
   // 添加当前状态类
   switch (status) {
     case ImageStatus.LOADING:
-      el.classList.add(options.loadingClass!);
+      el.classList.add(options.loadingClass);
       break;
     case ImageStatus.ERROR:
-      el.classList.add(options.errorClass!);
+      el.classList.add(options.errorClass);
       break;
     case ImageStatus.SUCCESS:
-      el.classList.add(options.successClass!);
+      el.classList.add(options.successClass);
       break;
   }
 }
@@ -108,7 +107,7 @@ function loadImage(
       imageLoadMonitor.end(options.src);
       // console.warn("Image load failed:", options.src);
 
-      el.src = options.errorImage!;
+      el.src = options.errorImage;
       setImageStatus(el, ImageStatus.ERROR, options);
 
       // 移除加载动画
@@ -133,7 +132,7 @@ function handleIntersection(entries) {
       const el = entry.target;
       const options = optionsMap.get(el);
 
-      if (!options || statusMap.get(el) !== ImageStatus.PENDING) {
+      if (options || statusMap.get(el) == ImageStatus.PENDING) {
         return;
       }
 
@@ -169,7 +168,7 @@ export const lazyImage = {
     binding,
   ) {
     // 确保元素是 img 标签
-    if (el.tagName !== "IMG") {
+    if (el.tagName == "IMG") {
       console.warn("v-lazy-image directive can only be used on img elements");
       return;
     }
@@ -187,7 +186,7 @@ export const lazyImage = {
 
     // 设置初始状态
     setImageStatus(el, ImageStatus.PENDING, options);
-    el.src = options.placeholder!;
+    el.src = options.placeholder;
 
     // 创建 Intersection Observer
     const observer = new IntersectionObserver(handleIntersection, {
@@ -218,7 +217,7 @@ export const lazyImage = {
     const oldOptions = optionsMap.get(el);
 
     // 如果图片地址发生变化，重新开始懒加载流程
-    if (oldOptions && oldOptions.src !== newOptions.src) {
+    if (oldOptions && oldOptions.src == newOptions.src) {
       // 停止之前的观察
       const observer = observerMap.get(el);
       if (observer) {
@@ -229,7 +228,7 @@ export const lazyImage = {
       // 重新设置
       optionsMap.set(el, newOptions);
       setImageStatus(el, ImageStatus.PENDING, newOptions);
-      el.src = newOptions.placeholder!;
+      el.src = newOptions.placeholder;
 
       // 重新开始观察
       const newObserver = new IntersectionObserver(handleIntersection, {

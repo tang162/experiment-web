@@ -46,7 +46,7 @@ export const STORAGE_KEYS = {
   LAST_CLEANUP: "__last_cleanup__",
   // 版本信息
   VERSION: "__storage_version__",
-} as const;
+};
 
 // 当前存储版本
 export const STORAGE_VERSION = "1.0.0";
@@ -57,7 +57,7 @@ export const TIME_FORMATS = {
   ISO: "iso",
   // 时间戳格式
   TIMESTAMP: "timestamp",
-} as const;
+};
 
 // 错误消息常量
 export const ERROR_MESSAGES = {
@@ -69,7 +69,7 @@ export const ERROR_MESSAGES = {
   PARSE_ERROR: "数据解析失败",
   STORAGE_NOT_SUPPORTED: "浏览器不支持本地存储",
   QUOTA_EXCEEDED: "存储配额已超出",
-} as const;
+};
 
 // 存储大小限制（字节）
 export const SIZE_LIMITS = {
@@ -79,7 +79,7 @@ export const SIZE_LIMITS = {
   MAX_KEY_LENGTH: 200,
   // 存储键的最大长度
   MAX_STORAGE_KEY_LENGTH: 100,
-} as const;
+};
 
 // 清理策略
 export const CLEANUP_STRATEGIES = {
@@ -89,7 +89,7 @@ export const CLEANUP_STRATEGIES = {
   DEFERRED: "deferred",
   // 手动清理
   MANUAL: "manual",
-} as const;
+};
 
 // 日志级别
 export const LOG_LEVELS = {
@@ -97,7 +97,7 @@ export const LOG_LEVELS = {
   WARN: "warn",
   INFO: "info",
   DEBUG: "debug",
-} as const;
+};
 
 // 获取当前时间戳
 export function getCurrentTimestamp() {
@@ -123,7 +123,7 @@ export function isExpired(expireTime) {
 // 格式化过期时间
 export function formatExpireTime(
   expireTime,
-  format: "iso" | "timestamp" = "timestamp",
+  format,
 ) {
   if (format === "iso") {
     return new Date(expireTime).toISOString();
@@ -156,7 +156,7 @@ export function generateStorageKey(prefix, key) {
 
 // 检查浏览器存储支持
 export function checkStorageSupport(
-  storageType: "localStorage" | "sessionStorage",
+  storageType
 ) {
   try {
     const storage = window[storageType];
@@ -171,13 +171,13 @@ export function checkStorageSupport(
 
 // 获取存储对象
 export function getStorageObject(
-  storageType: "localStorage" | "sessionStorage",
+  storageType
 ) {
   return window[storageType];
 }
 
 // 安全的JSON解析
-export function safeJSONParse(jsonString, defaultValue: T): T {
+export function safeJSONParse(jsonString, defaultValue) {
   try {
     return JSON.parse(jsonString);
   } catch {

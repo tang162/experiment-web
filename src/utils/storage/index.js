@@ -23,11 +23,11 @@ import {
  * 自定义存储类
  */
 class CustomStorage {
-  private option;
-  private storage;
-  private listeners = new Set();
-  private cleanupTimer;
-  private readonly MAIN_STORAGE_KEY; // 统一的主存储键
+  option;
+  storage;
+  listeners = new Set();
+  cleanupTimer;
+  MAIN_STORAGE_KEY; // 统一的主存储键
 
   constructor(option = {}) {
     this.option = { ...DEFAULT_STORAGE_OPTIONS, ...option };
@@ -133,7 +133,7 @@ class CustomStorage {
   /**
    * 获取统一存储数据
    */
-  private getUnifiedStorageData() {
+  getUnifiedStorageData() {
     const rawData = this.storage.getItem(this.MAIN_STORAGE_KEY);
     if (!rawData) {
       return {
@@ -259,7 +259,7 @@ class CustomStorage {
   /**
    * 验证存储键
    */
-  private validateStorageKey(storageKey) {
+  validateStorageKey(storageKey) {
     return (
       typeof storageKey === "string" &&
       storageKey.length > 0 &&
@@ -271,7 +271,7 @@ class CustomStorage {
   /**
    * 触发事件
    */
-  private emitEvent(event) {
+  emitEvent(event) {
     this.listeners.forEach((listener) => {
       try {
         listener(event);
@@ -284,7 +284,7 @@ class CustomStorage {
   /**
    * 启动自动清理
    */
-  private startAutoCleanup() {
+  startAutoCleanup() {
     this.cleanupTimer = window.setInterval(() => {
       this.cleanup();
     }, this.option.cleanupInterval);
@@ -323,10 +323,10 @@ class CustomStorage {
    * 批量设置数据
    */
   async setBatch(
-    items: { storageKey; value; expireTime?}[],
+    items,
   ) {
     try {
-      const results[] = [];
+      const results = [];
 
       for (const item of items) {
         const result = await this.set(
@@ -353,10 +353,10 @@ class CustomStorage {
    * 批量获取数据
    */
   getBatch(storageKeys) {
-    const results[] = [];
+    const results = [];
 
     for (const storageKey of storageKeys) {
-      const result = this.get < T > (storageKey);
+      const result = this.get(storageKey);
       if (result.success && result.data !== undefined) {
         results.push(result.data);
       }

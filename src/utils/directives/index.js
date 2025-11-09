@@ -1,4 +1,3 @@
-import type { App } from "vue";
 import { lazyImage } from "./lazy-image";
 
 // 导入样式
@@ -12,7 +11,7 @@ const directives = {
 // 安装所有指令的函数
 export function setupDirectives(app) {
   Object.keys(directives).forEach((key) => {
-    app.directive(key, directives[key as keyof typeof directives]);
+    app.directive(key, directives[key]);
   });
 }
 
@@ -20,7 +19,6 @@ export function setupDirectives(app) {
 export { lazyImage };
 
 // 导出类型
-export type { LazyImageOptions } from "./lazy-image";
 export { ImageStatus } from "./lazy-image";
 
 // 默认导出

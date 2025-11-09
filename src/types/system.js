@@ -23,7 +23,7 @@ export const cloneDeep = (source) => {
 
   // 处理 Array
   if (Array.isArray(source)) {
-    return source.map((item) => cloneDeep(item)) const ;
+    return source.map((item) => cloneDeep(item))
   }
 
   // 处理普通对象

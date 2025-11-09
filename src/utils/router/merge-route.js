@@ -6,7 +6,7 @@
  * @returns 合并后的路由配置数组
  */
 function mergeRouteModules(
-  routeModules: Record<string, unknown>,
+  routeModules
 ) {
   const mergedRoutes = [];
 
@@ -22,4 +22,4 @@ function mergeRouteModules(
 
 export { mergeRouteModules };
 
-export type { RouteModuleType };
+;

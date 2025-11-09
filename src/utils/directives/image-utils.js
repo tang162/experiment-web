@@ -46,7 +46,7 @@ export function generateErrorImage(
 }
 
 // 预加载图片
-export function preloadImage(src): Promise<HTMLImageElement> {
+export function preloadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
@@ -56,7 +56,7 @@ export function preloadImage(src): Promise<HTMLImageElement> {
 }
 
 // 检查图片是否可访问
-export async function checkImageAccessibility(src): Promise<boolean> {
+export async function checkImageAccessibility(src) {
   try {
     await preloadImage(src);
     return true;
@@ -68,7 +68,7 @@ export async function checkImageAccessibility(src): Promise<boolean> {
 // 获取图片尺寸
 export function getImageDimensions(
   src
-): Promise<{ width; height }> {
+) {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -149,7 +149,7 @@ export function getImageFormat(src) {
 }
 
 // 检查浏览器是否支持 WebP
-export function supportsWebP(): Promise<boolean> {
+export function supportsWebP() {
   return new Promise((resolve) => {
     const webP = new Image();
     webP.onload = webP.onerror = () => {
@@ -161,7 +161,7 @@ export function supportsWebP(): Promise<boolean> {
 }
 
 // 检查浏览器是否支持 AVIF
-export function supportsAVIF(): Promise<boolean> {
+export function supportsAVIF() {
   return new Promise((resolve) => {
     const avif = new Image();
     avif.onload = avif.onerror = () => {
@@ -173,7 +173,7 @@ export function supportsAVIF(): Promise<boolean> {
 }
 
 // 获取最佳图片格式
-export async function getBestImageFormat(): Promise<"avif" | "webp" | "jpeg"> {
+export async function getBestImageFormat() {
   if (await supportsAVIF()) {
     return "avif";
   } else if (await supportsWebP()) {
@@ -184,7 +184,7 @@ export async function getBestImageFormat(): Promise<"avif" | "webp" | "jpeg"> {
 }
 
 // 图片URL转换为最佳格式 (适用于支持的图片服务)
-export async function convertToOptimalFormat(src): Promise<string> {
+export async function convertToOptimalFormat(src) {
   // const bestFormat = await getBestImageFormat()
 
   try {
@@ -201,8 +201,8 @@ export async function convertToOptimalFormat(src): Promise<string> {
 
 // 创建图片加载性能监控
 export function createImageLoadMonitor() {
-  const loadTimes = new Map < string, number> ();
-  const startTimes = new Map < string, number> ();
+  const loadTimes = new Map();
+  const startTimes = new Map();
 
   return {
     start(src) {

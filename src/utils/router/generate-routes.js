@@ -5,7 +5,7 @@ import {
 import {
   isFunction,
   isString,
-  type GenerateMenuAndRoutesOptions,
+
 } from "@/types";
 
 

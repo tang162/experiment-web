@@ -1,34 +1,34 @@
-=
+
 // 仪器状态枚举
 export const InstrumentStatus = {
-  NORMAL = 0, // 正常
-  DISABLED = 1, // 停用
-  MAINTENANCE = 2, // 维护中
-  FAULT = 3, // 故障
-  BORROWED = 4, // 借出
+  NORMAL: 0, // 正常
+  DISABLED: 1, // 停用
+  MAINTENANCE: 2, // 维护中
+  FAULT: 3, // 故障
+  BORROWED: 4, // 借出
 }
 
 // 故障类型枚举
 export const FaultType = {
-  HARDWARE = 0, // 硬件故障
-  SOFTWARE = 1, // 软件故障
-  OPERATION = 2, // 操作错误
-  OTHER = 3, // 其他
+  HARDWARE: 0, // 硬件故障
+  SOFTWARE: 1, // 软件故障
+  OPERATION: 2, // 操作错误
+  OTHER: 3, // 其他
 }
 
 // 紧急程度枚举
 export const UrgencyLevel = {
-  LOW = 0, // 低
-  MEDIUM = 1, // 中
-  HIGH = 2, // 高
-  URGENT = 3, // 紧急
+  LOW: 0, // 低
+  MEDIUM: 1, // 中
+  HIGH: 2, // 高
+  URGENT: 3, // 紧急
 }
 
 // 维修状态枚举
 export const RepairStatus = {
-  PENDING = 0, // 待处理
-  IN_PROGRESS = 1, // 维修中
-  COMPLETED = 3, // 已完成
+  PENDING: 0, // 待处理
+  IN_PROGRESS: 1, // 维修中
+  COMPLETED: 3, // 已完成
 }
 
 // 仪器状态标签映射
