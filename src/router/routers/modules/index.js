@@ -1,8 +1,8 @@
 import { Layout } from "@/layouts";
-import type { RouteRecordRaw } from "vue-router";
+
 
 // 实验室管理模块路由
-const labRoutes: RouteRecordRaw[] = [
+const labRoutes = [
   // 首页（作为实验室模块的一部分）
   {
     path: "/lab",

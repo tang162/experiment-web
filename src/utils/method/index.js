@@ -1,5 +1,5 @@
 /*** 复制方法 */
-export function copyText(text: string): Promise<void> {
+export function copyText(text): Promise<void> {
   return new Promise((resolve, reject) => {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {

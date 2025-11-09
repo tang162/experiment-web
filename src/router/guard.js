@@ -1,4 +1,3 @@
-import type { Router } from "vue-router";
 import {
   DEFAULT_HOME_PATH,
   LOGIN_PATH,
@@ -8,7 +7,7 @@ import {
 import { coreRouteNames, accessRoutes } from "./routers/index";
 import { generateAccess } from "./access";
 
-function setupCommonGuard(router: Router) {
+function setupCommonGuard(router) {
   router.beforeEach((to, _from, next) => {
     try {
       window.scrollTo(0, 0);
@@ -24,18 +23,18 @@ function setupCommonGuard(router: Router) {
   });
 }
 
-function setupAccessGuard(router: Router) {
+function setupAccessGuard(router) {
   router.beforeEach(async (to, from) => {
     const accessStore = useAccessStore();
     const authStore = useAuthStore();
 
     // 基本路由，这些路由不需要进入权限拦截
-    if (coreRouteNames.includes(to.name as string)) {
+    if (coreRouteNames.includes(to.name)) {
       if (to.path === LOGIN_PATH && accessStore.accessToken) {
         // 根据用户角色获取默认首页
         const defaultPath = authStore.getDefaultHomePath || DEFAULT_HOME_PATH;
         return decodeURIComponent(
-          (to.query?.redirect as string) || defaultPath
+          (to.query?.redirect) || defaultPath
         );
       }
       return true;
@@ -91,7 +90,7 @@ function setupAccessGuard(router: Router) {
     const redirectPath = (from.query.redirect ??
       (to.path === userDefaultHomePath
         ? userDefaultHomePath
-        : to.fullPath)) as string;
+        : to.fullPath));
 
     return {
       ...router.resolve(decodeURIComponent(redirectPath)),
@@ -104,7 +103,7 @@ function setupAccessGuard(router: Router) {
  * 项目守卫配置
  * @param router
  */
-function createRouterGuard(router: Router) {
+function createRouterGuard(router) {
   /** 通用 */
   setupCommonGuard(router);
   /** 权限访问 */

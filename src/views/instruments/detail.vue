@@ -1,10 +1,9 @@
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElButton, ElTag, ElDivider, ElCarousel, ElCarouselItem, ElImage } from 'element-plus';
 import { ArrowLeft, Tools } from '@element-plus/icons-vue';
 import { getInstrumentDetailApi } from '@/api/modules/instrument.api';
-import type { InstrumentApi } from '@/api';
 import { PageLayout } from '@/components';
 import { useApi } from '@/composables';
 import { INSTRUMENT_STATUS_MAP } from '@/types/instrument';
@@ -12,7 +11,7 @@ import { INSTRUMENT_STATUS_MAP } from '@/types/instrument';
 const route = useRoute();
 const router = useRouter();
 
-const { data: instrument, loading, execute: fetchInstrumentDetail } = useApi<InstrumentApi.InstrumentDetail>();
+const { data: instrument, loading, execute: fetchInstrumentDetail } = useApi();
 
 const loadInstrumentDetail = async () => {
   const result = await fetchInstrumentDetail(() =>
@@ -69,11 +68,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageLayout
-    :title="instrument?.name || '仪器详情'"
-    :description="instrument?.model"
-    :loading="loading"
-  >
+  <PageLayout :title="instrument?.name || '仪器详情'" :description="instrument?.model" :loading="loading">
     <div v-if="instrument" class="space-y-6">
       <!-- 返回按钮 -->
       <div class="mb-4">
@@ -81,7 +76,8 @@ onMounted(() => {
       </div>
 
       <!-- 仪器图片轮播 -->
-      <div v-if="instrument.images && instrument.images.length > 0" class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div v-if="instrument.images && instrument.images.length > 0"
+        class="bg-white rounded-lg shadow-md overflow-hidden">
         <ElCarousel height="400px" :interval="5000">
           <ElCarouselItem v-for="(image, index) in instrument.images" :key="index">
             <ElImage :src="image" fit="cover" class="w-full h-full" />
@@ -157,20 +153,10 @@ onMounted(() => {
 
         <!-- 操作按钮 -->
         <div class="flex items-center gap-4 mt-8">
-          <ElButton
-            type="primary"
-            size="large"
-            :disabled="!canApply"
-            @click="applyInstrument"
-          >
+          <ElButton type="primary" size="large" :disabled="!canApply" @click="applyInstrument">
             {{ canApply ? '申请使用' : '当前不可申请' }}
           </ElButton>
-          <ElButton
-            type="warning"
-            size="large"
-            :icon="Tools"
-            @click="reportRepair"
-          >
+          <ElButton type="warning" size="large" :icon="Tools" @click="reportRepair">
             报告故障
           </ElButton>
         </div>

@@ -1,18 +1,25 @@
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue';
 import { ReservationStatus } from '@/types';
 import { ElTag } from 'element-plus'
 
-interface Props {
-  status: number;
-  size?: 'small' | 'default' | 'large';
-}
 
-const props = withDefaults(defineProps<Props>(), {
-  size: 'default',
+
+
+const props = defineProps({
+  status: {
+    type: Number,
+    required: true,
+  },
+  size: {
+    type: String,
+    default: 'default',
+  },
 });
 
-const tagType = computed<any>(() => {
+
+
+const tagType = computed < any > (() => {
   switch (props.status) {
     case ReservationStatus.PENDING:
       return 'warning';

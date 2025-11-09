@@ -1,26 +1,21 @@
-import { ElMessage } from 'element-plus';
-
-export interface MessageOptions {
-  success?: string;
-  error?: string;
-  warning?: string;
-  info?: string;
-}
+import {
+  ElMessage
+} from 'element-plus';
 
 export function useMessage() {
-  const success = (message: string) => {
+  const success = (message) => {
     ElMessage.success(message);
   };
 
-  const error = (message: string) => {
+  const error = (message) => {
     ElMessage.error(message);
   };
 
-  const warning = (message: string) => {
+  const warning = (message) => {
     ElMessage.warning(message);
   };
 
-  const info = (message: string) => {
+  const info = (message) => {
     ElMessage.info(message);
   };
 
@@ -32,10 +27,10 @@ export function useMessage() {
   };
 }
 
-export function handleAsyncOperation<T>(
-  operation: () => Promise<T>,
-  options: MessageOptions = {}
-): Promise<T | null> {
+export function handleAsyncOperation(
+  operation,
+  options
+) {
   return operation()
     .then((result) => {
       if (options.success) {

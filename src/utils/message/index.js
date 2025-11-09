@@ -13,14 +13,14 @@ import {
 type MessageType = "success" | "warning" | "info" | "error";
 
 interface MessageConfig extends Partial<MessageOptions> {
-  duration?: number;
-  showClose?: boolean;
+  duration?;
+  showClose?;
 }
 
 interface ConfirmConfig extends Partial<ElMessageBoxOptions> {
-  title?: string;
-  confirmButtonText?: string;
-  cancelButtonText?: string;
+  title;
+  confirmButtonText;
+  cancelButtonText;
   type?: MessageType;
 }
 
@@ -40,7 +40,7 @@ const defaultConfirmConfig: ConfirmConfig = {
  * 通用消息提示
  */
 export function showMessage(
-  message: string,
+  message,
   type: MessageType = "info",
   config: MessageConfig = {}
 ) {
@@ -54,22 +54,22 @@ export function showMessage(
 }
 
 /** 成功消息 */
-export function showSuccess(message: string, config: MessageConfig = {}) {
+export function showSuccess(message, config: MessageConfig = {}) {
   return showMessage(message, "success", config);
 }
 
 /** 错误消息 */
-export function showError(message: string, config: MessageConfig = {}) {
+export function showError(message, config: MessageConfig = {}) {
   return showMessage(message, "error", config);
 }
 
 /** 警告消息 */
-export function showWarning(message: string, config: MessageConfig = {}) {
+export function showWarning(message, config: MessageConfig = {}) {
   return showMessage(message, "warning", config);
 }
 
 /** 信息消息 */
-export function showInfo(message: string, config: MessageConfig = {}) {
+export function showInfo(message, config: MessageConfig = {}) {
   return showMessage(message, "info", config);
 }
 
@@ -77,7 +77,7 @@ export function showInfo(message: string, config: MessageConfig = {}) {
  * 确认弹窗
  */
 export async function showConfirm(
-  message: string,
+  message,
   config: ConfirmConfig = {}
 ): Promise<boolean> {
   try {
@@ -93,7 +93,7 @@ export async function showConfirm(
  * 提示弹窗（仅确定按钮）
  */
 export async function showAlert(
-  message: string,
+  message,
   config: Omit<ConfirmConfig, "showCancelButton"> = {}
 ): Promise<void> {
   const options = {

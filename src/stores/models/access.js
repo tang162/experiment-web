@@ -1,57 +1,19 @@
-import type { RouteRecordRaw } from "vue-router";
 
-import type { MenuRecordRaw } from "@/types";
+
 import { acceptHMRUpdate, defineStore } from "pinia";
 
-type AccessToken = null | string;
 
-interface AccessState {
-  /**
-   * 权限码
-   */
-  accessCodes: string[];
-  /**
-   * 可访问的菜单列表
-   */
-  accessMenus: MenuRecordRaw[];
-  /**
-   * 可访问的路由列表
-   */
-  accessRoutes: RouteRecordRaw[];
-  /**
-   * 登录 accessToken
-   */
-  accessToken: AccessToken;
-
-  /**
-   * 加密管理员id
-   */
-  adminId: AccessToken;
-
-  /**
-   * 是否已经检查过权限
-   */
-  isAccessChecked: boolean;
-  /**
-   * 登录是否过期
-   */
-  loginExpired: boolean;
-  /**
-   * 登录 accessToken
-   */
-  refreshToken: AccessToken;
-}
 
 /**
  * @zh_CN 访问权限相关
  */
 export const useAccessStore = defineStore("core-access", {
   actions: {
-    getMenuByPath(path: string) {
+    getMenuByPath(path) {
       function findMenu(
-        menus: MenuRecordRaw[],
-        path: string
-      ): MenuRecordRaw | undefined {
+        menus,
+        path
+      ) {
         for (const menu of menus) {
           if (menu.path === path) {
             return menu;
@@ -66,28 +28,28 @@ export const useAccessStore = defineStore("core-access", {
       }
       return findMenu(this.accessMenus, path);
     },
-    setAccessCodes(codes: string[]) {
+    setAccessCodes(codes) {
       this.accessCodes = codes;
     },
-    setAccessMenus(menus: MenuRecordRaw[]) {
+    setAccessMenus(menus) {
       this.accessMenus = menus;
     },
-    setAccessRoutes(routes: RouteRecordRaw[]) {
+    setAccessRoutes(routes) {
       this.accessRoutes = routes;
     },
-    setAccessToken(token: AccessToken) {
+    setAccessToken(token) {
       this.accessToken = token;
     },
-    setAdminId(adminId: AccessToken) {
+    setAdminId(adminId) {
       this.adminId = adminId;
     },
-    setIsAccessChecked(isAccessChecked: boolean) {
+    setIsAccessChecked(isAccessChecked) {
       this.isAccessChecked = isAccessChecked;
     },
-    setLoginExpired(loginExpired: boolean) {
+    setLoginExpired(loginExpired) {
       this.loginExpired = loginExpired;
     },
-    setRefreshToken(token: AccessToken) {
+    setRefreshToken(token) {
       this.refreshToken = token;
     },
   },
@@ -95,7 +57,7 @@ export const useAccessStore = defineStore("core-access", {
     // 持久化
     pick: ["accessToken", "adminId", "refreshToken", "accessCodes"],
   },
-  state: (): AccessState => ({
+  state: () => ({
     accessCodes: [],
     accessMenus: [],
     accessRoutes: [],

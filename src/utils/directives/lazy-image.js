@@ -6,27 +6,15 @@ import {
 } from "./image-utils";
 
 // 图片状态枚举
-enum ImageStatus {
+const ImageStatus = {
   LOADING = "loading",
   SUCCESS = "success",
   ERROR = "error",
   PENDING = "pending",
 }
 
-// 指令配置接口
-interface LazyImageOptions {
-  src: string; // 真实图片地址
-  placeholder?: string; // 骨架图片地址
-  errorImage?: string; // 错误图片地址
-  loadingClass?: string; // 加载中的CSS类名
-  errorClass?: string; // 错误状态的CSS类名
-  successClass?: string; // 成功状态的CSS类名
-  threshold?: number; // 进入视口的阈值，默认0.1
-  rootMargin?: string; // 根边距，默认'0px'
-}
-
 // 默认配置
-const defaultOptions: Partial<LazyImageOptions> = {
+const defaultOptions = {
   placeholder: generateSkeletonImage(300, 200, "Loading..."),
   errorImage: generateErrorImage(300, 200, "Load Failed"),
   loadingClass: "lazy-image-loading",
@@ -37,9 +25,9 @@ const defaultOptions: Partial<LazyImageOptions> = {
 };
 
 // 存储每个元素的观察器和状态
-const observerMap = new WeakMap<HTMLElement, IntersectionObserver>();
-const statusMap = new WeakMap<HTMLElement, ImageStatus>();
-const optionsMap = new WeakMap<HTMLElement, LazyImageOptions>();
+const observerMap = new WeakMap();
+const statusMap = new WeakMap();
+const optionsMap = new WeakMap();
 
 // 创建加载动画元素
 function createLoadingElement(): HTMLElement {
@@ -55,9 +43,9 @@ function createLoadingElement(): HTMLElement {
 
 // 设置图片状态
 function setImageStatus(
-  el: HTMLImageElement,
-  status: ImageStatus,
-  options: LazyImageOptions,
+  el,
+  status,
+  options,
 ) {
   const prevStatus = statusMap.get(el);
   statusMap.set(el, status);
@@ -87,9 +75,9 @@ function setImageStatus(
 
 // 加载图片
 function loadImage(
-  el: HTMLImageElement,
-  options: LazyImageOptions,
-): Promise<void> {
+  el,
+  options,
+) {
   return new Promise((resolve, reject) => {
     const img = new Image();
 
@@ -139,10 +127,10 @@ function loadImage(
 }
 
 // 处理图片进入视口
-function handleIntersection(entries: IntersectionObserverEntry[]) {
+function handleIntersection(entries) {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
-      const el = entry.target as HTMLImageElement;
+      const el = entry.target;
       const options = optionsMap.get(el);
 
       if (!options || statusMap.get(el) !== ImageStatus.PENDING) {
@@ -177,8 +165,8 @@ function handleIntersection(entries: IntersectionObserverEntry[]) {
 // 自定义指令定义
 export const lazyImage = {
   mounted(
-    el: HTMLImageElement,
-    binding: DirectiveBinding<string | LazyImageOptions>,
+    el,
+    binding,
   ) {
     // 确保元素是 img 标签
     if (el.tagName !== "IMG") {
@@ -187,11 +175,11 @@ export const lazyImage = {
     }
 
     // 解析配置
-    let options: LazyImageOptions;
+    let options;
     if (typeof binding.value === "string") {
-      options = { ...defaultOptions, src: binding.value } as LazyImageOptions;
+      options = { ...defaultOptions, src: binding.value }
     } else {
-      options = { ...defaultOptions, ...binding.value } as LazyImageOptions;
+      options = { ...defaultOptions, ...binding.value }
     }
 
     // 存储配置
@@ -213,18 +201,18 @@ export const lazyImage = {
   },
 
   updated(
-    el: HTMLImageElement,
-    binding: DirectiveBinding<string | LazyImageOptions>,
+    el,
+    binding,
   ) {
     // 更新配置
-    let newOptions: LazyImageOptions;
+    let newOptions;
     if (typeof binding.value === "string") {
       newOptions = {
         ...defaultOptions,
         src: binding.value,
-      } as LazyImageOptions;
+      }
     } else {
-      newOptions = { ...defaultOptions, ...binding.value } as LazyImageOptions;
+      newOptions = { ...defaultOptions, ...binding.value }
     }
 
     const oldOptions = optionsMap.get(el);
@@ -256,7 +244,7 @@ export const lazyImage = {
     }
   },
 
-  unmounted(el: HTMLImageElement) {
+  unmounted(el) {
     // 清理观察器
     const observer = observerMap.get(el);
     if (observer) {
@@ -271,5 +259,4 @@ export const lazyImage = {
 };
 
 // 导出类型
-export type { LazyImageOptions };
 export { ImageStatus };

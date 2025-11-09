@@ -1,22 +1,20 @@
-<script setup lang="ts">
+<script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { cancelAppointmentApi, getAppointmentsApi } from '@/api';
-import type { ReservationApi } from '@/api';
 import { PageLayout, ReservationTable } from '@/components';
 import { useApi } from '@/composables';
-import type { Reservation } from '@/types';
 import { ReservationStatus } from '@/types';
 
 const router = useRouter();
 
-const appointments = ref<ReservationApi.AppointmentListItem[]>([]);
+const appointments = ref([]);
 
-const { loading, execute: fetchReservations } = useApi<{ list: ReservationApi.AppointmentListItem[]; total: number }>();
+const { loading, execute: fetchReservations } = useApi();
 
 // 将 API 数据格式转换为组件需要的格式
-const reservations = computed<Reservation[]>(() => {
+const reservations = computed(() => {
   return appointments.value.map(item => ({
     id: item.id,
     labId: item.lab.id,
@@ -34,8 +32,8 @@ const reservations = computed<Reservation[]>(() => {
 });
 
 // 将数字状态码映射为枚举
-const mapStatusToEnum = (status: number): ReservationStatus => {
-  const statusMap: Record<number, ReservationStatus> = {
+const mapStatusToEnum = (status) => {
+  const statusMap = {
     0: ReservationStatus.PENDING,
     1: ReservationStatus.APPROVED,
     2: ReservationStatus.REJECTED,
@@ -53,7 +51,7 @@ const loadReservations = async () => {
   }
 };
 
-const handleCancel = async (id: string | number) => {
+const handleCancel = async (id) => {
   try {
     await ElMessageBox.confirm('确定要取消此预约吗？', '提示', {
       confirmButtonText: '确定',
@@ -64,14 +62,14 @@ const handleCancel = async (id: string | number) => {
     await cancelAppointmentApi(Number(id));
     ElMessage.success('取消成功');
     loadReservations();
-  } catch (error: any) {
+  } catch (error) {
     if (error !== 'cancel') {
       ElMessage.error('取消失败');
     }
   }
 };
 
-const handleView = (reservation: Reservation) => {
+const handleView = (reservation) => {
   router.push(`/reservation/detail/${reservation.id}`);
 };
 

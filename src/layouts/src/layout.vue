@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
@@ -56,7 +56,7 @@ const handleLogout = async () => {
   router.push('/login');
 };
 
-const handleMenuClick = (path: string) => {
+const handleMenuClick = (path) => {
   router.push(path);
 };
 

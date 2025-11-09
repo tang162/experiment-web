@@ -1,21 +1,20 @@
-<script setup lang="ts">
+<script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElTable, ElTableColumn } from 'element-plus';
 import { useAuthStore } from '@/stores';
 import { userApi, reservationApi, equipmentApi, labApi } from '@/api';
 import { ReservationTable, LabCard } from '@/components';
 import { ApplicationStatus, RepairStatus } from '@/types';
-import type { User, Reservation, EquipmentApplication, RepairRequest, Lab } from '@/types';
 
 const authStore = useAuthStore();
 
 const activeTab = ref('info');
-const user = ref<User | null>(null);
+const user = ref(null);
 const editDialogVisible = ref(false);
-const reservations = ref<Reservation[]>([]);
-const applications = ref<EquipmentApplication[]>([]);
-const repairRequests = ref<RepairRequest[]>([]);
-const favorites = ref<Lab[]>([]);
+const reservations = ref([]);
+const applications = ref([]);
+const repairRequests = ref([]);
+const favorites = ref([]);
 const loading = ref(false);
 
 const editForm = reactive({
@@ -81,7 +80,7 @@ const fetchFavorites = async () => {
   }
 };
 
-const handleTabChange = (tabName: string) => {
+const handleTabChange = (tabName) => {
   switch (tabName) {
     case 'reservations':
       fetchReservations();
@@ -110,7 +109,7 @@ const handleSaveProfile = async () => {
   }
 };
 
-const handleCancelReservation = async (id: string | number) => {
+const handleCancelReservation = async (id) => {
   try {
     await ElMessageBox.confirm('确定要取消此预约吗？', '提示', {
       confirmButtonText: '确定',
@@ -121,14 +120,14 @@ const handleCancelReservation = async (id: string | number) => {
     await reservationApi.cancelReservation(id);
     ElMessage.success('取消成功');
     fetchReservations();
-  } catch (error: any) {
+  } catch (error) {
     if (error !== 'cancel') {
       ElMessage.error('取消失败');
     }
   }
 };
 
-const removeFavorite = async (lab: Lab) => {
+const removeFavorite = async (lab) => {
   try {
     await labApi.toggleFavorite(lab.id);
     ElMessage.success('已取消收藏');
@@ -138,7 +137,7 @@ const removeFavorite = async (lab: Lab) => {
   }
 };
 
-const getApplicationStatusType = (status: ApplicationStatus) => {
+const getApplicationStatusType = (status) => {
   switch (status) {
     case ApplicationStatus.PENDING:
       return 'warning';
@@ -151,7 +150,7 @@ const getApplicationStatusType = (status: ApplicationStatus) => {
   }
 };
 
-const getApplicationStatusText = (status: ApplicationStatus) => {
+const getApplicationStatusText = (status) => {
   switch (status) {
     case ApplicationStatus.PENDING:
       return '待审核';
@@ -164,7 +163,7 @@ const getApplicationStatusText = (status: ApplicationStatus) => {
   }
 };
 
-const getRepairStatusType = (status: RepairStatus) => {
+const getRepairStatusType = (status) => {
   switch (status) {
     case RepairStatus.PENDING:
       return 'warning';
@@ -177,7 +176,7 @@ const getRepairStatusType = (status: RepairStatus) => {
   }
 };
 
-const getRepairStatusText = (status: RepairStatus) => {
+const getRepairStatusText = (status) => {
   switch (status) {
     case RepairStatus.PENDING:
       return '待处理';

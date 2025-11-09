@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import {
@@ -14,7 +14,6 @@ import {
 } from 'element-plus';
 import { ArrowLeft } from '@element-plus/icons-vue';
 import { reportInstrumentRepairApi } from '@/api/modules/instrument.api';
-import type { InstrumentApi } from '@/api';
 import { PageLayout } from '@/components';
 import { FAULT_TYPE_MAP, URGENCY_LEVEL_MAP } from '@/types/instrument';
 
@@ -22,7 +21,7 @@ const router = useRouter();
 const route = useRoute();
 
 // 报修表单
-const repairForm = reactive<InstrumentApi.ReportInstrumentRepairParams>({
+const repairForm = reactive({
   faultType: 0,
   description: '',
   urgency: 1,
@@ -56,7 +55,7 @@ const submitRepair = async () => {
     await reportInstrumentRepairApi(Number(instrumentId), repairForm);
     ElMessage.success('报修成功');
     router.back();
-  } catch (error: any) {
+  } catch (error) {
     if (error?.message) {
       ElMessage.error(error.message);
     }
@@ -97,42 +96,22 @@ const urgencyOptions = Object.entries(URGENCY_LEVEL_MAP).map(([value, info]) => 
       </div>
 
       <!-- 报修表单 -->
-      <ElForm
-        ref="formRef"
-        :model="repairForm"
-        :rules="rules"
-        label-width="120px"
-        label-position="right"
-      >
+      <ElForm ref="formRef" :model="repairForm" :rules="rules" label-width="120px" label-position="right">
         <ElFormItem label="故障类型" prop="faultType">
           <ElSelect v-model="repairForm.faultType" placeholder="请选择故障类型" style="width: 100%">
-            <ElOption
-              v-for="option in faultTypeOptions"
-              :key="option.value"
-              :label="option.label"
-              :value="option.value"
-            />
+            <ElOption v-for="option in faultTypeOptions" :key="option.value" :label="option.label"
+              :value="option.value" />
           </ElSelect>
         </ElFormItem>
 
         <ElFormItem label="故障描述" prop="description">
-          <ElInput
-            v-model="repairForm.description"
-            type="textarea"
-            :rows="6"
-            placeholder="请详细描述故障情况，包括故障现象、发生时间等信息（至少10个字符）"
-            maxlength="500"
-            show-word-limit
-          />
+          <ElInput v-model="repairForm.description" type="textarea" :rows="6"
+            placeholder="请详细描述故障情况，包括故障现象、发生时间等信息（至少10个字符）" maxlength="500" show-word-limit />
         </ElFormItem>
 
         <ElFormItem label="紧急程度" prop="urgency">
           <ElRadioGroup v-model="repairForm.urgency">
-            <ElRadio
-              v-for="option in urgencyOptions"
-              :key="option.value"
-              :value="option.value"
-            >
+            <ElRadio v-for="option in urgencyOptions" :key="option.value" :value="option.value">
               {{ option.label }}
             </ElRadio>
           </ElRadioGroup>
@@ -140,11 +119,7 @@ const urgencyOptions = Object.entries(URGENCY_LEVEL_MAP).map(([value, info]) => 
 
         <ElFormItem>
           <div class="flex gap-4">
-            <ElButton
-              type="primary"
-              :loading="submitting"
-              @click="submitRepair"
-            >
+            <ElButton type="primary" :loading="submitting" @click="submitRepair">
               提交报修
             </ElButton>
             <ElButton @click="resetForm">重置</ElButton>

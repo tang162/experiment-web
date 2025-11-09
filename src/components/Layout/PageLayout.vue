@@ -1,30 +1,27 @@
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue';
 import { ArrowLeft } from '@element-plus/icons-vue';
 import { ElButton, ElIcon } from 'element-plus';
 import { PageHeader } from '@/components';
 
-interface Props {
-  title: string;
-  description?: string;
-  showBack?: boolean;
-  loading?: boolean;
-  containerClass?: string;
-  contentClass?: string;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
-}
 
-const props = withDefaults(defineProps<Props>(), {
-  showBack: false,
-  loading: false,
-  containerClass: '',
-  contentClass: '',
-  maxWidth: 'full',
+
+const props = defineProps({
+  title: { type: String, required: true },
+  description: { type: String, default: "" },
+  showBack: { type: Boolean, default: false },
+  loading: { type: Boolean, default: false },
+  containerClass: { type: String, default: "" },
+  contentClass: { type: String, default: "" },
+  maxWidth: { type: String, default: "full" },
 });
 
-const emit = defineEmits<{
-  back: [];
-}>();
+
+
+
+const emit = defineEmits({
+  back: () => { }
+});
 
 const maxWidthClass = computed(() => {
   const maxWidths = {

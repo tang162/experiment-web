@@ -1,16 +1,15 @@
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElCarousel, ElCarouselItem, ElButton, ElIcon } from 'element-plus';
 import { ArrowRight } from '@element-plus/icons-vue';
 import { bannerApi, getLabsApi } from '@/api';
 import { LabCard, SearchBar } from '@/components';
-import type { Banner, Lab } from '@/types';
 
 const router = useRouter();
 
-const banners = ref<Banner[]>([]);
-const popularLabs = ref<Lab[]>([]);
+const banners = ref([]);
+const popularLabs = ref([]);
 const searchKeyword = ref('');
 const loading = ref(false);
 
@@ -65,22 +64,22 @@ const fetchPopularLabs = async () => {
   }
 };
 
-const handleSearch = (keyword: string) => {
+const handleSearch = (keyword) => {
   router.push({
     path: '/lab/labs',
     query: keyword ? { keyword } : {},
   });
 };
 
-const goToFunction = (route: string) => {
+const goToFunction = (route) => {
   router.push(route);
 };
 
-const handleLabClick = (lab: Lab) => {
+const handleLabClick = (lab) => {
   router.push(`/lab/labs/${lab.id}`);
 };
 
-const handleToggleFavorite = async (lab: Lab) => {
+const handleToggleFavorite = async (lab) => {
   // TODO: Implement favorite toggle API
   lab.isFavorite = !lab.isFavorite;
   console.log('Favorite toggled:', lab.isFavorite);

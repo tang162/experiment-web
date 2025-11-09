@@ -78,7 +78,7 @@ export namespace InstrumentApi {
     /** 结束时间 */
     endTime: string;
     /** 申请状态 */
-    status: ApplicationStatus;
+    status;
     /** 拒绝原因 */
     rejectionReason: string;
     /** 创建时间 */
@@ -108,7 +108,7 @@ export namespace InstrumentApi {
     /** 紧急程度 */
     urgency: UrgencyLevel;
     /** 维修状态 */
-    status: RepairStatus;
+    status;
     /** 维修总结 */
     repairSummary: string;
     /** 完成时间 */
@@ -119,7 +119,7 @@ export namespace InstrumentApi {
 
   /** 仪器详情 */
   export interface InstrumentDetail
-    extends Omit<InstrumentListItem, 'labName'> {
+    extends Omit<InstrumentListItem, "labName"> {
     /** 仪器描述 */
     description: string;
     /** 仪器规格 */
@@ -133,32 +133,32 @@ export namespace InstrumentApi {
 
 enum Api {
   /** 获取仪器列表 */
-  GET_INSTRUMENTS = '/instruments',
+  GET_INSTRUMENTS = "/instruments",
   /** 获取仪器详情 */
-  GET_INSTRUMENT_DETAIL = '/instruments',
+  GET_INSTRUMENT_DETAIL = "/instruments",
   /** 创建仪器 */
-  CREATE_INSTRUMENT = '/instruments',
+  CREATE_INSTRUMENT = "/instruments",
   /** 更新仪器 */
-  UPDATE_INSTRUMENT = '/instruments',
+  UPDATE_INSTRUMENT = "/instruments",
   /** 删除仪器 */
-  DELETE_INSTRUMENT = '/instruments',
+  DELETE_INSTRUMENT = "/instruments",
   /** 获取仪器申请列表 */
-  GET_INSTRUMENT_APPLICATIONS = '/instruments/applications',
+  GET_INSTRUMENT_APPLICATIONS = "/instruments/applications",
   /** 创建仪器申请 */
-  CREATE_INSTRUMENT_APPLICATION = '/instruments/applications',
+  CREATE_INSTRUMENT_APPLICATION = "/instruments/applications",
   /** 审核仪器申请 */
-  REVIEW_INSTRUMENT_APPLICATION = '/instruments/applications',
+  REVIEW_INSTRUMENT_APPLICATION = "/instruments/applications",
   /** 获取仪器维修列表 */
-  GET_INSTRUMENT_REPAIRS = '/instruments/repairs',
+  GET_INSTRUMENT_REPAIRS = "/instruments/repairs",
   /** 报告仪器故障 */
-  REPORT_INSTRUMENT_REPAIR = '/instruments/repairs',
+  REPORT_INSTRUMENT_REPAIR = "/instruments/repairs",
   /** 更新维修状态 */
-  UPDATE_REPAIR_STATUS = '/instruments/repairs',
+  UPDATE_REPAIR_STATUS = "/instruments/repairs",
 }
 
 /** 获取仪器列表 */
 export async function getInstrumentsApi(
-  params: Partial<InstrumentApi.GetInstrumentsParams>,
+  params: Partial<InstrumentApi.GetInstrumentsParams>
 ) {}
 
 /** 获取仪器详情 */
@@ -166,13 +166,13 @@ export async function getInstrumentDetailApi(id: number) {}
 
 /** 创建仪器 */
 export async function createInstrumentApi(
-  params: InstrumentApi.CreateInstrumentParams,
+  params: InstrumentApi.CreateInstrumentParams
 ) {}
 
 /** 更新仪器 */
 export async function updateInstrumentApi(
   id: number,
-  params: InstrumentApi.CreateInstrumentParams,
+  params: InstrumentApi.CreateInstrumentParams
 ) {}
 
 /** 删除仪器 */
@@ -189,7 +189,7 @@ export async function createInstrumentApplicationApi(
     description: string;
     startTime: Date;
     endTime: Date;
-  },
+  }
 ) {}
 
 /** 审核仪器申请 */

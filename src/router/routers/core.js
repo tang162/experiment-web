@@ -1,11 +1,10 @@
 import { Layout } from "@/layouts";
 import { useAuthStore } from "@/stores";
-import type { RouteRecordRaw } from "vue-router";
 
 /** 基本路由，这些路由是必须存在的 */
 
 /** 全局404页面 */
-const fallbackNotFoundRoute: RouteRecordRaw = {
+const fallbackNotFoundRoute = {
   component: () => import("@/views/_core/fallback/not-found.vue"),
   meta: {
     hideInBreadcrumb: true,
@@ -17,7 +16,7 @@ const fallbackNotFoundRoute: RouteRecordRaw = {
   path: "/:path(.*)*",
 };
 
-const coreRoutes: RouteRecordRaw[] = [
+const coreRoutes = [
   {
     component: Layout,
     meta: {

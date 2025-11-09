@@ -1,9 +1,9 @@
 import { Layout } from '@/layouts';
-import type { RouteRecordRaw } from 'vue-router';
+
 import { UserRole } from '@/types';
 
 // 教师管理模块路由
-const teacherRoutes: RouteRecordRaw[] = [
+const teacherRoutes = [
   {
     path: '/teacher',
     component: Layout,

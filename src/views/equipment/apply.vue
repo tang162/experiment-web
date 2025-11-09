@@ -1,19 +1,18 @@
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted, } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElTable, ElTableColumn, ElTag, ElButton, ElPagination, } from 'element-plus';
 import { getMyInstrumentApplicationsApi } from '@/api/modules/instrument.api';
-import type { InstrumentApi, PaginationData } from '@/api';
 import { PageLayout } from '@/components';
 import { useApi, usePagination } from '@/composables';
 import { INSTRUMENT_STATUS_MAP } from '@/types/instrument';
 
 const router = useRouter();
 
-const applications = ref<InstrumentApi.InstrumentListItem[]>([]);
+const applications = ref([]);
 const total = ref(0);
 
-const { loading, execute: fetchApplications } = useApi<PaginationData<InstrumentApi.InstrumentListItem>>();
+const { loading, execute: fetchApplications } = useApi();
 const { pagination, handlePageChange, resetPage } = usePagination({
   initialPage: 1,
   initialPageSize: 10,
@@ -38,17 +37,17 @@ const loadApplications = async () => {
 };
 
 // 查看仪器详情
-const viewDetail = (row: InstrumentApi.InstrumentListItem) => {
+const viewDetail = (row) => {
   router.push(`/lab/instruments/${row.id}`);
 };
 
 // 获取状态信息
-const getStatusInfo = (status: number) => {
+const getStatusInfo = (status) => {
   return INSTRUMENT_STATUS_MAP[status];
 };
 
 // 格式化时间
-const formatDate = (dateString: string) => {
+const formatDate = (dateString) => {
   return new Date(dateString).toLocaleString('zh-CN');
 };
 
@@ -85,7 +84,7 @@ onMounted(() => {
         </ElTableColumn>
         <ElTableColumn prop="status" label="状态" width="100">
           <template #default="{ row }">
-            <ElTag :type="getStatusInfo(row.status).color as any" size="small">
+            <ElTag :type="getStatusInfo(row.status).color" size="small">
               {{ getStatusInfo(row.status).label }}
             </ElTag>
           </template>

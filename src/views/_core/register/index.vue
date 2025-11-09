@@ -1,21 +1,20 @@
-<script setup lang="ts">
+<script setup>
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElForm, ElFormItem, ElInput, ElRadioGroup, ElRadio, ElButton, ElIcon } from 'element-plus';
 import { Loading } from '@element-plus/icons-vue';
 import { useAuthStore } from '@/stores';
-import { UserRole, type RegisterForm } from '@/types';
-import type { FormInstance, FormRules } from 'element-plus';
+import { UserRole, } from '@/types';
 import { checkUsernameExistsApi } from '@/api';
 
 const router = useRouter();
 const authStore = useAuthStore();
 
-const formRef = ref<FormInstance>();
+const formRef = ref();
 const loading = ref(false);
 const checkingUsername = ref(false);
 
-const registerForm = reactive<RegisterForm>({
+const registerForm = reactive({
   username: 'auv1',
   password: '258956Li',
   confirmPassword: '258956Li',
@@ -24,7 +23,7 @@ const registerForm = reactive<RegisterForm>({
   phone: undefined,
 });
 
-const validatePassword = (rule: any, value: any, callback: any) => {
+const validatePassword = (rule, value, callback) => {
   if (value === '') {
     callback(new Error('请输入密码'));
   } else {
@@ -41,7 +40,7 @@ const validatePassword = (rule: any, value: any, callback: any) => {
   }
 };
 
-const validateConfirmPassword = (rule: any, value: any, callback: any) => {
+const validateConfirmPassword = (rule, value, callback) => {
   if (value === '') {
     callback(new Error('请再次输入密码'));
   } else if (value !== registerForm.password) {
@@ -51,7 +50,7 @@ const validateConfirmPassword = (rule: any, value: any, callback: any) => {
   }
 };
 
-const validateUsername = (rule: any, value: any, callback: any) => {
+const validateUsername = (rule, value, callback) => {
   if (value === '') {
     callback(new Error('请输入用户名'));
   } else {
@@ -64,7 +63,7 @@ const validateUsername = (rule: any, value: any, callback: any) => {
   }
 };
 
-const validateUsernameAvailability = (rule: any, value: any, callback: any) => {
+const validateUsernameAvailability = (rule, value, callback) => {
   if (value && usernameCheckResult[value]) {
     callback(new Error('该用户名已被注册'));
   } else {
@@ -72,8 +71,8 @@ const validateUsernameAvailability = (rule: any, value: any, callback: any) => {
   }
 };
 
-let usernameCheckResult: { [key: string]: boolean } = {};
-let usernameCheckTimer: NodeJS.Timeout | null = null;
+let usernameCheckResult = {};
+let usernameCheckTimer = null;
 
 const checkUsernameAvailability = async () => {
   if (!registerForm.username || registerForm.username.length < 4) return;
@@ -99,7 +98,7 @@ const checkUsernameAvailability = async () => {
   }, 500);
 };
 
-const rules: FormRules = {
+const rules = {
   username: [
     { required: true, validator: validateUsername, trigger: 'blur' },
     { min: 4, max: 20, message: '用户名长度为4-20个字符', trigger: 'blur' },
@@ -136,7 +135,7 @@ const handleRegister = async () => {
       ElMessage.success('注册成功');
 
       router.push(authStore.getDefaultHomePath);
-    } catch (error: any) {
+    } catch (error) {
       ElMessage.error(error.message || '注册失败');
     } finally {
       loading.value = false;

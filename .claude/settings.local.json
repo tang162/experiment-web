@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(for file in src/views/labs/detail.vue src/views/labs/reserve.vue src/views/notifications/index.vue)",
-      "Bash(do echo \"=== Checking $file ===\" head -10 \"$file\")"
+      "Bash(do echo \"=== Checking $file ===\" head -10 \"$file\")",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

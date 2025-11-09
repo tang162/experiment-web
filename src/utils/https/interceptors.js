@@ -119,9 +119,9 @@ export function setupResponseInterceptor(instance: AxiosInstance) {
           if ((config as HttpRequestConfig).isTotal) {
             return data.data !== undefined
               ? {
-                  data: Array.isArray(data) ? [] : data.data,
-                  total: data.total,
-                }
+                data: Array.isArray(data) ? [] : data.data,
+                total: data.total,
+              }
               : data;
           }
           // 返回业务数据
@@ -205,7 +205,7 @@ async function handleAuthError() {
 /**
  * 获取错误消息
  */
-function getErrorMessage(status: number, data: any): string {
+function getErrorMessage(status, data) {
   // 优先使用服务器返回的错误消息
   if (data && typeof data === "object") {
     if (data.message) return data.message;
@@ -219,6 +219,6 @@ function getErrorMessage(status: number, data: any): string {
 /**
  * 是否应该静默处理错误
  */
-export function shouldSilentError(status: number): boolean {
+export function shouldSilentError(status) {
   return SILENT_ERROR_CODES.includes(status);
 }

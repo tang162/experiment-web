@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 type RangeType = "week" | "month" | "quarter" | "halfYear" | "year";
 
 // 薪资显示格式化
-export const formatSalary = (minSalary: number, maxSalary: number): string => {
+export const formatSalary = (minSalary, maxSalary) => {
   return `${minSalary}K-${maxSalary}K`;
 };
 
@@ -40,12 +40,12 @@ export function getRangeByType(type: RangeType) {
  * @param date UTC时间字符串
  * @returns 本地时间字符串
  */
-export function convertToLocaleTime(date: string): string {
+export function convertToLocaleTime(date) {
   return new Date(date).toLocaleString();
 }
 
 /**将UTC时间转换 距现在多久 */
-export function convertToRelativeTime(timestamp: string): string {
+export function convertToRelativeTime(timestamp) {
   if (typeof timestamp === "string" && !timestamp.includes("T")) {
     return timestamp;
   }
@@ -79,7 +79,7 @@ export function convertToRelativeTime(timestamp: string): string {
  * @returns
  */
 
-export const formatTime = (timestamp: string) => {
+export const formatTime = (timestamp) => {
   return new Date(timestamp).toLocaleTimeString("zh-CN", {
     hour: "2-digit",
     minute: "2-digit",

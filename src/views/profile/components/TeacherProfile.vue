@@ -1,26 +1,25 @@
-<script setup lang="ts">
+<script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElSelect, ElOption } from 'element-plus';
 import { useAuthStore } from '@/stores';
 import { userApi, reservationApi, equipmentApi } from '@/api';
 import { ReservationTable } from '@/components';
 import { ApplicationStatus } from '@/types';
-import type { User, Reservation, EquipmentApplication } from '@/types';
 
 const authStore = useAuthStore();
 
 const activeTab = ref('info');
-const user = ref<User | null>(null);
+const user = ref(null);
 const editDialogVisible = ref(false);
-const pendingReservations = ref<Reservation[]>([]);
-const pendingApplications = ref<EquipmentApplication[]>([]);
+const pendingReservations = ref([]);
+const pendingApplications = ref([]);
 const loading = ref(false);
 
 const editForm = reactive({
   nickname: '',
   email: '',
   phone: '',
-  teachingTags: [] as string[],
+  teachingTags: [],
 });
 
 const fetchUserInfo = () => {
@@ -57,7 +56,7 @@ const fetchPendingApplications = async () => {
   }
 };
 
-const handleTabChange = (tabName: string) => {
+const handleTabChange = (tabName) => {
   switch (tabName) {
     case 'reservations':
       fetchPendingReservations();
@@ -80,7 +79,7 @@ const handleSaveProfile = async () => {
   }
 };
 
-const handleApproveReservation = async (id: string | number) => {
+const handleApproveReservation = async (id) => {
   try {
     await reservationApi.approveReservation(id);
     ElMessage.success('已通过');
@@ -90,7 +89,7 @@ const handleApproveReservation = async (id: string | number) => {
   }
 };
 
-const handleRejectReservation = async (id: string | number) => {
+const handleRejectReservation = async (id) => {
   try {
     const { value: reason } = await ElMessageBox.prompt('请输入驳回原因', '驳回预约', {
       confirmButtonText: '确定',
@@ -104,14 +103,14 @@ const handleRejectReservation = async (id: string | number) => {
       ElMessage.success('已驳回');
       fetchPendingReservations();
     }
-  } catch (error: any) {
+  } catch (error) {
     if (error !== 'cancel') {
       ElMessage.error('操作失败');
     }
   }
 };
 
-const approveApplication = async (id: string | number) => {
+const approveApplication = async (id) => {
   try {
     await equipmentApi.approveApplication(id);
     ElMessage.success('已通过');
@@ -121,7 +120,7 @@ const approveApplication = async (id: string | number) => {
   }
 };
 
-const rejectApplication = async (id: string | number) => {
+const rejectApplication = async (id) => {
   try {
     const { value: reason } = await ElMessageBox.prompt('请输入驳回原因', '驳回申请', {
       confirmButtonText: '确定',
@@ -135,14 +134,14 @@ const rejectApplication = async (id: string | number) => {
       ElMessage.success('已驳回');
       fetchPendingApplications();
     }
-  } catch (error: any) {
+  } catch (error) {
     if (error !== 'cancel') {
       ElMessage.error('操作失败');
     }
   }
 };
 
-const getApplicationStatusType = (status: ApplicationStatus) => {
+const getApplicationStatusType = (status) => {
   switch (status) {
     case ApplicationStatus.PENDING:
       return 'warning';
@@ -155,7 +154,7 @@ const getApplicationStatusType = (status: ApplicationStatus) => {
   }
 };
 
-const getApplicationStatusText = (status: ApplicationStatus) => {
+const getApplicationStatusText = (status) => {
   switch (status) {
     case ApplicationStatus.PENDING:
       return '待审核';
@@ -204,17 +203,17 @@ onMounted(() => {
             </div>
             <div class="flex items-center">
               <span class="text-gray-600 w-24">角色：</span>
-              <ElTag type="primary">教师</el-tag>
+              <ElTag type="primary">教师</ElTag>
             </div>
             <div class="flex items-start">
               <span class="text-gray-600 w-24">教学标签：</span>
               <div class="flex flex-wrap gap-2">
                 <ElTag v-for="tag in user?.teachingTags" :key="tag" type="success">
                   {{ tag }}
-                  </el-tag>
-                  <span v-if="!user?.teachingTags || user.teachingTags.length === 0" class="text-gray-400">
-                    未设置
-                  </span>
+                </ElTag>
+                <span v-if="!user?.teachingTags || user.teachingTags.length === 0" class="text-gray-400">
+                  未设置
+                </span>
               </div>
             </div>
           </div>

@@ -1,19 +1,18 @@
-<script setup lang="ts">
+<script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElButton, ElTable, ElTableColumn, ElTag, ElMessage, ElMessageBox, ElPagination } from 'element-plus';
 import { getLabsApi, deleteLabApi } from '@/api';
 import { PageLayout } from '@/components';
 import { useApi } from '@/composables';
-import type { LabApi } from '@/types';
 
 const router = useRouter();
-const labs = ref<LabApi.LabListItem[]>([]);
+const labs = ref([]);
 const total = ref(0);
 const currentPage = ref(1);
 const pageSize = ref(10);
 
-const { loading, execute: fetchLabs } = useApi<LabApi.LabListItem[]>();
+const { loading, execute: fetchLabs } = useApi();
 
 const loadLabs = async () => {
   const result = await fetchLabs(() =>
@@ -33,11 +32,11 @@ const handleCreate = () => {
   router.push('/lab/labs/admin/create');
 };
 
-const handleEdit = (lab: LabApi.LabListItem) => {
+const handleEdit = (lab) => {
   router.push(`/lab/labs/admin/edit/${lab.id}`);
 };
 
-const handleDelete = async (lab: LabApi.LabListItem) => {
+const handleDelete = async (lab) => {
   try {
     await ElMessageBox.confirm(
       `确定要删除实验室"${lab.name}"吗？此操作不可恢复。`,
@@ -52,25 +51,25 @@ const handleDelete = async (lab: LabApi.LabListItem) => {
     await deleteLabApi(lab.id);
     ElMessage.success('删除成功');
     loadLabs();
-  } catch (error: any) {
+  } catch (error) {
     if (error !== 'cancel') {
       ElMessage.error(error.message || '删除失败');
     }
   }
 };
 
-const handlePageChange = (page: number) => {
+const handlePageChange = (page) => {
   currentPage.value = page;
   loadLabs();
 };
 
-const getStatusTag = (status: number) => {
+const getStatusTag = (status) => {
   const statusMap = {
     0: { type: 'success', text: '正常' },
     1: { type: 'warning', text: '维护中' },
     2: { type: 'danger', text: '停用' },
   };
-  return statusMap[status as keyof typeof statusMap] || { type: 'info', text: '未知' };
+  return statusMap[status] || { type: 'info', text: '未知' };
 };
 
 onMounted(() => {
@@ -113,12 +112,7 @@ onMounted(() => {
         <ElTableColumn prop="tags" label="标签" min-width="150">
           <template #default="{ row }">
             <div class="flex flex-wrap gap-1">
-              <ElTag
-                v-for="tag in row.tags?.slice(0, 3)"
-                :key="tag"
-                size="small"
-                type="info"
-              >
+              <ElTag v-for="tag in row.tags?.slice(0, 3)" :key="tag" size="small" type="info">
                 {{ tag }}
               </ElTag>
               <span v-if="row.tags && row.tags.length > 3" class="text-gray-500 text-sm">
@@ -158,13 +152,8 @@ onMounted(() => {
       </ElTable>
 
       <div v-if="total > pageSize" class="flex justify-center mt-6">
-        <ElPagination
-          v-model:current-page="currentPage"
-          :page-size="pageSize"
-          :total="total"
-          layout="prev, pager, next, jumper, total"
-          @current-change="handlePageChange"
-        />
+        <ElPagination v-model:current-page="currentPage" :page-size="pageSize" :total="total"
+          layout="prev, pager, next, jumper, total" @current-change="handlePageChange" />
       </div>
     </div>
   </PageLayout>

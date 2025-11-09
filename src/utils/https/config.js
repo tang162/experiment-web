@@ -42,7 +42,7 @@ export const DEFAULT_CONFIG: HttpClientConfig = {
 };
 
 // 错误状态码映射（保持向后兼容）
-export const ERROR_CODE_MAP: Record<number, string> = {
+export const ERROR_CODE_MAP = {
   400: "请求错误",
   401: "未授权",
   403: "拒绝访问",

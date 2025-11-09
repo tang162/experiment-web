@@ -4,15 +4,6 @@
  * 存储格式：MAIN_KEY: { 存储键: { value: "存储值", expireTime: "过期时间" }, expireTime: "过期时间" }
  */
 
-import type {
-  StorageOptions,
-  StorageData,
-  StorageItemValue,
-  StorageResult,
-  StorageStats,
-  StorageEvent,
-  StorageListener,
-} from "./types";
 
 import {
   DEFAULT_STORAGE_OPTIONS,
@@ -32,27 +23,27 @@ import {
  * 自定义存储类
  */
 class CustomStorage {
-  private options: Required<StorageOptions>;
-  private storage: Storage;
-  private listeners: Set<StorageListener> = new Set();
-  private cleanupTimer?: number;
-  private readonly MAIN_STORAGE_KEY: string; // 统一的主存储键
+  private option;
+  private storage;
+  private listeners = new Set();
+  private cleanupTimer;
+  private readonly MAIN_STORAGE_KEY; // 统一的主存储键
 
-  constructor(options: Partial<StorageOptions> = {}) {
-    this.options = { ...DEFAULT_STORAGE_OPTIONS, ...options };
+  constructor(option = {}) {
+    this.option = { ...DEFAULT_STORAGE_OPTIONS, ...option };
 
     // 设置统一的主存储键（从环境变量读取）
-    this.MAIN_STORAGE_KEY = this.options.prefix + getMainStorageKey();
+    this.MAIN_STORAGE_KEY = this.option.prefix + getMainStorageKey();
 
     // 检查存储支持
-    if (!checkStorageSupport(this.options.storageType)) {
+    if (!checkStorageSupport(this.option.storageType)) {
       throw new Error(ERROR_MESSAGES.STORAGE_NOT_SUPPORTED);
     }
 
-    this.storage = getStorageObject(this.options.storageType);
+    this.storage = getStorageObject(this.option.storageType);
 
     // 启动自动清理
-    if (this.options.autoCleanup) {
+    if (this.option.autoCleanup) {
       this.startAutoCleanup();
     }
 
@@ -68,11 +59,11 @@ class CustomStorage {
    * @param value 存储值
    * @param expireTime 过期时间（毫秒时间戳）
    */
-  set<T = any>(
-    storageKey: string,
-    value: T,
-    expireTime?: number,
-  ): Promise<StorageResult<T>> {
+  set(
+    storageKey,
+    value,
+    expireTime,
+  ) {
     return new Promise((resolve) => {
       try {
         // 参数验证
@@ -86,13 +77,13 @@ class CustomStorage {
 
         // 计算过期时间
         const finalExpireTime =
-          expireTime || getCurrentTimestamp() + this.options.defaultExpireTime;
+          expireTime || getCurrentTimestamp() + this.option.defaultExpireTime;
 
         // 获取现有的统一存储数据
         const existingData = this.getUnifiedStorageData();
 
         // 构建新的存储结构
-        const storageData: StorageData = {
+        const storageData = {
           ...existingData,
           [storageKey]: {
             value,
@@ -128,11 +119,11 @@ class CustomStorage {
 
           console.log(`💾 存储成功: ${storageKey} -> 统一主键`);
           resolve({ success: true, data: value });
-        } catch (error: any) {
+        } catch (error) {
           console.error("❌ 存储失败:", error);
           resolve({ success: false, error: error.message });
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error("❌ 存储失败:", error);
         resolve({ success: false, error: error.message });
       }
@@ -142,16 +133,16 @@ class CustomStorage {
   /**
    * 获取统一存储数据
    */
-  private getUnifiedStorageData(): StorageData {
+  private getUnifiedStorageData() {
     const rawData = this.storage.getItem(this.MAIN_STORAGE_KEY);
     if (!rawData) {
       return {
-        expireTime: getCurrentTimestamp() + this.options.defaultExpireTime,
+        expireTime: getCurrentTimestamp() + this.option.defaultExpireTime,
       };
     }
 
-    return safeJSONParse<StorageData>(rawData, {
-      expireTime: getCurrentTimestamp() + this.options.defaultExpireTime,
+    return safeJSONParse(rawData, {
+      expireTime: getCurrentTimestamp() + this.option.defaultExpireTime,
     });
   }
 
@@ -159,7 +150,7 @@ class CustomStorage {
    * 获取存储数据
    * @param storageKey 存储键
    */
-  get<T = any>(storageKey: string): StorageResult<T> {
+  get(storageKey) {
     try {
       // 参数验证
       if (!this.validateStorageKey(storageKey)) {
@@ -181,7 +172,7 @@ class CustomStorage {
         return { success: false, error: "存储数据格式错误" };
       }
 
-      const storageItem = item as StorageItemValue<T>;
+      const storageItem = item;
 
       // 检查是否过期
       if (isExpired(storageItem.expireTime)) {
@@ -204,7 +195,7 @@ class CustomStorage {
       });
 
       return { success: true, data: storageItem.value };
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ 获取数据失败:", error);
       return { success: false, error: error.message };
     }
@@ -214,7 +205,7 @@ class CustomStorage {
    * 删除存储数据
    * @param storageKey 存储键（可选，不传则清空所有数据）
    */
-  remove(storageKey?: string): StorageResult<boolean> {
+  remove(storageKey) {
     try {
       if (!storageKey) {
         // 删除整个统一存储
@@ -259,7 +250,7 @@ class CustomStorage {
       }
 
       return { success: false, error: "存储键不存在" };
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ 删除数据失败:", error);
       return { success: false, error: error.message };
     }
@@ -268,7 +259,7 @@ class CustomStorage {
   /**
    * 验证存储键
    */
-  private validateStorageKey(storageKey: string): boolean {
+  private validateStorageKey(storageKey) {
     return (
       typeof storageKey === "string" &&
       storageKey.length > 0 &&
@@ -280,7 +271,7 @@ class CustomStorage {
   /**
    * 触发事件
    */
-  private emitEvent(event: StorageEvent): void {
+  private emitEvent(event) {
     this.listeners.forEach((listener) => {
       try {
         listener(event);
@@ -293,16 +284,16 @@ class CustomStorage {
   /**
    * 启动自动清理
    */
-  private startAutoCleanup(): void {
+  private startAutoCleanup() {
     this.cleanupTimer = window.setInterval(() => {
       this.cleanup();
-    }, this.options.cleanupInterval);
+    }, this.option.cleanupInterval);
   }
 
   /**
    * 检查存储键是否存在
    */
-  has(storageKey: string): boolean {
+  has(storageKey) {
     const result = this.get(storageKey);
     return result.success;
   }
@@ -310,7 +301,7 @@ class CustomStorage {
   /**
    * 获取所有存储键
    */
-  getKeys(): string[] {
+  getKeys() {
     try {
       const storageData = this.getUnifiedStorageData();
       return Object.keys(storageData).filter((k) => k !== "expireTime");
@@ -322,7 +313,7 @@ class CustomStorage {
   /**
    * 获取所有主键（现在只返回统一主键）
    */
-  getAllKeys(): string[] {
+  getAllKeys() {
     // 检查统一主键是否存在
     const exists = this.storage.getItem(this.MAIN_STORAGE_KEY);
     return exists ? [this.MAIN_STORAGE_KEY] : [];
@@ -332,10 +323,10 @@ class CustomStorage {
    * 批量设置数据
    */
   async setBatch(
-    items: { storageKey: string; value: any; expireTime?: number }[],
-  ): Promise<StorageResult<boolean>> {
+    items: { storageKey; value; expireTime?}[],
+  ) {
     try {
-      const results: boolean[] = [];
+      const results[] = [];
 
       for (const item of items) {
         const result = await this.set(
@@ -352,7 +343,7 @@ class CustomStorage {
         data: allSuccess,
         error: allSuccess ? undefined : "部分批量操作失败",
       };
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ 批量存储失败:", error);
       return { success: false, error: error.message };
     }
@@ -361,11 +352,11 @@ class CustomStorage {
   /**
    * 批量获取数据
    */
-  getBatch<T = any>(storageKeys: string[]): StorageResult<T[]> {
-    const results: T[] = [];
+  getBatch(storageKeys) {
+    const results[] = [];
 
     for (const storageKey of storageKeys) {
-      const result = this.get<T>(storageKey);
+      const result = this.get < T > (storageKey);
       if (result.success && result.data !== undefined) {
         results.push(result.data);
       }
@@ -377,7 +368,7 @@ class CustomStorage {
   /**
    * 清理过期数据
    */
-  cleanup(): StorageResult<number> {
+  cleanup() {
     let cleanedCount = 0;
 
     try {
@@ -400,7 +391,7 @@ class CustomStorage {
           typeof item === "object" &&
           item !== null &&
           "expireTime" in item &&
-          isExpired((item as StorageItemValue).expireTime)
+          isExpired((item).expireTime)
         ) {
           delete storageData[storageKey];
           hasChanges = true;
@@ -425,7 +416,7 @@ class CustomStorage {
 
       console.log(`🧹 清理完成，删除了 ${cleanedCount} 个过期项`);
       return { success: true, data: cleanedCount };
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ 清理失败:", error);
       return { success: false, error: error.message };
     }
@@ -434,7 +425,7 @@ class CustomStorage {
   /**
    * 清空所有数据
    */
-  clear(): StorageResult<boolean> {
+  clear() {
     try {
       // 删除统一存储
       this.storage.removeItem(this.MAIN_STORAGE_KEY);
@@ -446,7 +437,7 @@ class CustomStorage {
 
       console.log("🗑️ 已清空统一存储数据");
       return { success: true, data: true };
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ 清空失败:", error);
       return { success: false, error: error.message };
     }
@@ -455,7 +446,7 @@ class CustomStorage {
   /**
    * 获取存储统计信息
    */
-  getStats(): StorageStats {
+  getStats() {
     let totalKeys = 1; // 统一主键
     let totalStorageKeys = 0;
     let totalSize = 0;
@@ -467,7 +458,7 @@ class CustomStorage {
 
       if (rawData) {
         totalSize = rawData.length;
-        const storageData = safeJSONParse<StorageData>(rawData, {
+        const storageData = safeJSONParse(rawData, {
           expireTime: 0,
         });
 
@@ -504,21 +495,21 @@ class CustomStorage {
   /**
    * 添加事件监听器
    */
-  addEventListener(listener: StorageListener): void {
+  addEventListener(listener) {
     this.listeners.add(listener);
   }
 
   /**
    * 移除事件监听器
    */
-  removeEventListener(listener: StorageListener): void {
+  removeEventListener(listener) {
     this.listeners.delete(listener);
   }
 
   /**
    * 销毁存储实例
    */
-  destroy(): void {
+  destroy() {
     if (this.cleanupTimer) {
       clearInterval(this.cleanupTimer);
       this.cleanupTimer = undefined;
@@ -545,9 +536,6 @@ export const cleanupStorage = defaultStorage.cleanup.bind(defaultStorage);
 export const setBatchStorage = defaultStorage.setBatch.bind(defaultStorage);
 export const getBatchStorage = defaultStorage.getBatch.bind(defaultStorage);
 
-// 导出类和类型
-export { CustomStorage };
-export type * from "./types";
 
 // 默认导出
 export default defaultStorage;

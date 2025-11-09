@@ -1,25 +1,24 @@
-<script setup lang="ts">
+<script setup>
 import { ref, reactive } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { ElMessage, ElForm, ElFormItem, ElInput, ElCheckbox, ElButton } from 'element-plus';
 import { useAuthStore } from '@/stores';
-import type { LoginForm } from '@/types';
-import type { FormInstance, FormRules } from 'element-plus';
+
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 
-const formRef = ref<FormInstance>();
+const formRef = ref();
 const loading = ref(false);
 
-const loginForm = reactive<LoginForm>({
+const loginForm = reactive({
   username: 'student001',
   password: 'Password123',
   rememberPassword: false,
 });
 
-const rules: FormRules = {
+const rules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
     { min: 4, max: 20, message: '用户名长度为4-20个字符', trigger: 'blur' },
@@ -41,11 +40,11 @@ const handleLogin = async () => {
       await authStore.login(loginForm);
       ElMessage.success('登录成功');
 
-      const redirect = (route.query.redirect as string) || authStore.getDefaultHomePath;
+      const redirect = (route.query.redirect) || authStore.getDefaultHomePath;
       console.log(redirect);
 
       router.push(redirect);
-    } catch (error: any) {
+    } catch (error) {
       ElMessage.error(error.message || '登录失败');
     } finally {
       loading.value = false;

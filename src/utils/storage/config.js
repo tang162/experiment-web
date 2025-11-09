@@ -1,22 +1,18 @@
-/**
- * 自定义本地存储配置文件
- */
 
-import type { StorageOptions } from "./types";
 
 // 从环境变量读取配置
-const getStoragePrefix = (): string => {
+const getStoragePrefix = () => {
   // 优先使用环境变量，如果没有则使用默认值
   return import.meta.env.VITE_STORAGE_PREFIX || "custom_storage_";
 };
 
-const getMainStorageKey = (): string => {
+const getMainStorageKey = () => {
   // 优先使用环境变量，如果没有则使用默认值
   return import.meta.env.VITE_MAIN_STORAGE_KEY || "unified_storage";
 };
 
 // 默认配置
-export const DEFAULT_STORAGE_OPTIONS: Required<StorageOptions> = {
+export const DEFAULT_STORAGE_OPTIONS = {
   // 默认过期时间：7天
   defaultExpireTime: 7 * 24 * 60 * 60 * 1000,
 
@@ -104,17 +100,17 @@ export const LOG_LEVELS = {
 } as const;
 
 // 获取当前时间戳
-export function getCurrentTimestamp(): number {
+export function getCurrentTimestamp() {
   return Date.now();
 }
 
 // 获取当前ISO时间字符串
-export function getCurrentISOString(): string {
+export function getCurrentISOString() {
   return new Date().toISOString();
 }
 
 // 检查时间是否过期
-export function isExpired(expireTime: string | number): boolean {
+export function isExpired(expireTime) {
   const now = getCurrentTimestamp();
   const expire =
     typeof expireTime === "string"
@@ -126,9 +122,9 @@ export function isExpired(expireTime: string | number): boolean {
 
 // 格式化过期时间
 export function formatExpireTime(
-  expireTime: number,
+  expireTime,
   format: "iso" | "timestamp" = "timestamp",
-): string | number {
+) {
   if (format === "iso") {
     return new Date(expireTime).toISOString();
   }
@@ -136,7 +132,7 @@ export function formatExpireTime(
 }
 
 // 解析过期时间
-export function parseExpireTime(expireTime: string | number): number {
+export function parseExpireTime(expireTime) {
   if (typeof expireTime === "string") {
     return new Date(expireTime).getTime();
   }
@@ -144,7 +140,7 @@ export function parseExpireTime(expireTime: string | number): number {
 }
 
 // 计算数据大小（字节）
-export function calculateDataSize(data: any): number {
+export function calculateDataSize(data) {
   try {
     return new Blob([JSON.stringify(data)]).size;
   } catch {
@@ -154,14 +150,14 @@ export function calculateDataSize(data: any): number {
 }
 
 // 生成存储键
-export function generateStorageKey(prefix: string, key: string): string {
+export function generateStorageKey(prefix, key) {
   return `${prefix}${key}`;
 }
 
 // 检查浏览器存储支持
 export function checkStorageSupport(
   storageType: "localStorage" | "sessionStorage",
-): boolean {
+) {
   try {
     const storage = window[storageType];
     const testKey = "__storage_test__";
@@ -176,12 +172,12 @@ export function checkStorageSupport(
 // 获取存储对象
 export function getStorageObject(
   storageType: "localStorage" | "sessionStorage",
-): Storage {
+) {
   return window[storageType];
 }
 
 // 安全的JSON解析
-export function safeJSONParse<T = any>(jsonString: string, defaultValue: T): T {
+export function safeJSONParse(jsonString, defaultValue: T): T {
   try {
     return JSON.parse(jsonString);
   } catch {
@@ -190,7 +186,7 @@ export function safeJSONParse<T = any>(jsonString: string, defaultValue: T): T {
 }
 
 // 安全的JSON字符串化
-export function safeJSONStringify(data: any): string {
+export function safeJSONStringify(data) {
   try {
     return JSON.stringify(data);
   } catch {

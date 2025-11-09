@@ -1,21 +1,27 @@
-import type { RouteRecordRaw } from "vue-router";
-import { filterTree, mapTree } from "./tree";
+import {
+  filterTree,
+  mapTree
+} from "./tree";
 import {
   isFunction,
   isString,
   type GenerateMenuAndRoutesOptions,
 } from "@/types";
-import { type Component, type DefineComponent, defineComponent, h } from "vue";
+
 
 /**
  * 生成 路由
  * @param mode
  * @param options
  */
-async function generateRoutes(options: GenerateMenuAndRoutesOptions) {
-  const { forbiddenComponent, roles, routes } = options;
+async function generateRoutes(options) {
+  const {
+    forbiddenComponent,
+    roles,
+    routes
+  } = options;
 
-  let resultRoutes: RouteRecordRaw[] = routes;
+  let resultRoutes = routes;
   resultRoutes = await generateRoutesByFrontend(
     routes,
     roles || [],
@@ -34,16 +40,20 @@ async function generateRoutes(options: GenerateMenuAndRoutesOptions) {
       route.name &&
       isString(route.name)
     ) {
-      const originalComponent = route.component as () => Promise<{
-        default: Component | DefineComponent;
-      }>;
+      const originalComponent = route.component;
       route.component = async () => {
         const component = await originalComponent();
         if (!component.default) return component;
         return defineComponent({
-          name: route.name as string,
-          setup(props, { attrs, slots }) {
-            return () => h(component.default, { ...props, ...attrs }, slots);
+          name: route.name,
+          setup(props, {
+            attrs,
+            slots
+          }) {
+            return () => h(component.default, {
+              ...props,
+              ...attrs
+            }, slots);
           },
         });
       };
@@ -71,10 +81,10 @@ async function generateRoutes(options: GenerateMenuAndRoutesOptions) {
  * 动态生成路由
  */
 async function generateRoutesByFrontend(
-  routes: RouteRecordRaw[],
-  roles: string[],
-  forbiddenComponent?: RouteRecordRaw["component"],
-): Promise<RouteRecordRaw[]> {
+  routes,
+  roles,
+  forbiddenComponent,
+) {
   // 根据角色标识过滤路由表,判断当前用户是否拥有指定权限
   const finalRoutes = filterTree(routes, (route) => {
     return hasAuthority(route, roles);
@@ -98,7 +108,7 @@ async function generateRoutesByFrontend(
  * @param route
  * @param access
  */
-function hasAuthority(route: RouteRecordRaw, access: string[]) {
+function hasAuthority(route, access) {
   const authority = route.meta?.authority;
   if (!authority) {
     return true;
@@ -112,7 +122,7 @@ function hasAuthority(route: RouteRecordRaw, access: string[]) {
  * 判断路由是否在菜单中显示，但是访问会被重定向到403
  * @param route
  */
-function menuHasVisibleWithForbidden(route: RouteRecordRaw) {
+function menuHasVisibleWithForbidden(route) {
   return (
     !!route.meta?.authority &&
     Reflect.has(route.meta || {}, "menuVisibleWithForbidden") &&
@@ -120,4 +130,6 @@ function menuHasVisibleWithForbidden(route: RouteRecordRaw) {
   );
 }
 
-export { generateRoutes };
+export {
+  generateRoutes
+};

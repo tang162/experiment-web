@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import {
@@ -12,7 +12,6 @@ import {
 } from 'element-plus';
 import { ArrowLeft } from '@element-plus/icons-vue';
 import { getInstrumentDetailApi, createInstrumentApplicationApi } from '@/api/modules/instrument.api';
-import type { InstrumentApi } from '@/api';
 import { PageLayout } from '@/components';
 import { useApi } from '@/composables';
 
@@ -20,10 +19,10 @@ const router = useRouter();
 const route = useRoute();
 
 const instrumentId = computed(() => Number(route.params.id));
-const { data: instrument, loading, execute: fetchInstrument } = useApi<InstrumentApi.InstrumentDetail>();
+const { data: instrument, loading, execute: fetchInstrument } = useApi();
 
 // 申请表单
-const applicationForm = reactive<InstrumentApi.ApplyInstrumentParams>({
+const applicationForm = reactive({
   purpose: '',
   description: '',
   startTime: '',
@@ -34,7 +33,7 @@ const formRef = ref();
 const submitting = ref(false);
 
 // 时间范围 - 使用 Date 对象而不是字符串
-const timeRange = ref<[Date, Date]>();
+const timeRange = ref();
 
 // 表单验证规则
 const rules = {
@@ -92,7 +91,7 @@ const submitApplication = async () => {
     await createInstrumentApplicationApi(instrumentId.value, applicationForm);
     ElMessage.success('申请成功，请等待审核');
     router.push('/equipment/apply');
-  } catch (error: any) {
+  } catch (error) {
     if (error?.message) {
       ElMessage.error(error.message);
     }
@@ -114,7 +113,7 @@ const resetForm = () => {
 };
 
 // 快捷选择时间
-const selectTimeRange = (hours: number) => {
+const selectTimeRange = (hours) => {
   const now = new Date();
   const end = new Date(now.getTime() + hours * 60 * 60 * 1000);
   timeRange.value = [now, end];
@@ -173,7 +172,7 @@ onMounted(() => {
             <div class="w-full">
               <ElDatePicker v-model="timeRange" type="datetimerange" range-separator="至" start-placeholder="开始时间"
                 end-placeholder="结束时间" format="YYYY-MM-DD HH:mm"
-                :disabled-date="(time: Date) => time.getTime() < Date.now() - 86400000" style="width: 100%" />
+                :disabled-date="(time) => time.getTime() < Date.now() - 86400000" style="width: 100%" />
               <div class="mt-2 flex gap-2">
                 <ElButton size="small" @click="selectTimeRange(2)">2小时</ElButton>
                 <ElButton size="small" @click="selectTimeRange(4)">4小时</ElButton>

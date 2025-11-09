@@ -5,24 +5,9 @@ import { setStorage, getStorage, cleanupStorage } from "@/utils";
 import {
   STORAGE_KEY,
   UserRole,
-  type User,
-  type LoginForm,
-  type RegisterForm,
 } from "@/types";
 import { getUserInfoApi, loginApi, logoutApi, registerApi } from "@/api";
 
-interface AuthState {
-  /**是否登录 */
-  isLoggedIn: boolean;
-  // 是否处于请求中
-  isRequesting: boolean;
-  // 用户信息
-  userInfo: User | null;
-  /** token */
-  token: string | undefined;
-  // 用户角色
-  role: UserRole;
-}
 
 /**
  *  登录页面 url 地址
@@ -34,7 +19,7 @@ export const LOGIN_PATH = "/login";
  * @param role 用户角色
  * @returns 默认首页路径
  */
-export function getDefaultHomePath(role: UserRole = UserRole.STUDENT): string {
+export function getDefaultHomePath(role = UserRole.STUDENT) {
   switch (role) {
     case UserRole.TEACHER:
       return "/teacher/reservations";
@@ -51,7 +36,7 @@ export function getDefaultHomePath(role: UserRole = UserRole.STUDENT): string {
 export const DEFAULT_HOME_PATH = "/lab";
 
 export const useAuthStore = defineStore("auth", {
-  state: (): AuthState => ({
+  state: () => ({
     isLoggedIn: false,
     isRequesting: false,
     userInfo: null,
@@ -60,10 +45,10 @@ export const useAuthStore = defineStore("auth", {
   }),
   getters: {
     /** 是否已登录 */
-    getIsLoggedIn(state: AuthState) {
+    getIsLoggedIn(state) {
       // 如果 state 未初始化，则从存储中读取
       return (
-        state.isLoggedIn || !!getStorage<string>(STORAGE_KEY.USER_TOKEN).data
+        state.isLoggedIn || !!getStorage(STORAGE_KEY.USER_TOKEN).data
       );
     },
     /** 获取token */
@@ -72,21 +57,21 @@ export const useAuthStore = defineStore("auth", {
       return state.token ?? result?.data ?? null;
     },
     /** 获取用户信息 */
-    getUserInfo(state: AuthState) {
+    getUserInfo(state) {
       return state.userInfo;
     },
     /** 获取用户角色 */
-    getUserRole(state: AuthState) {
+    getUserRole(state) {
       return state.role;
     },
     /** 获取用户的默认首页路径 */
-    getDefaultHomePath(state: AuthState) {
+    getDefaultHomePath(state) {
       return getDefaultHomePath(state.role);
     },
   },
   actions: {
     /** 用户登录 */
-    async login(params: LoginForm) {
+    async login(params) {
       try {
         const { token } = await loginApi(params);
         this.setToken(token);
@@ -101,7 +86,7 @@ export const useAuthStore = defineStore("auth", {
     },
 
     /** 用户注册 */
-    async register(params: RegisterForm) {
+    async register(params) {
       try {
         const { token } = await registerApi(params);
         this.setToken(token);
@@ -125,19 +110,19 @@ export const useAuthStore = defineStore("auth", {
     },
 
     /** 修改用户信息*/
-    async updateUserInfo(userInfo: User) {
+    async updateUserInfo(userInfo) {
       this.userInfo = userInfo;
       await setStorage(STORAGE_KEY.USER_INFO, userInfo);
     },
 
     /**设置token */
-    async setToken(token: string) {
+    async setToken(token) {
       await setStorage(STORAGE_KEY.USER_TOKEN, token);
       this.token = token;
     },
 
     /** 设置用户信息 */
-    setUserInfo(userInfo: User | null) {
+    setUserInfo(userInfo) {
       this.userInfo = userInfo;
       this.setIsLoggedIn(true);
       if (userInfo?.role) {
@@ -158,7 +143,7 @@ export const useAuthStore = defineStore("auth", {
     },
 
     /** 设置登录状态 */
-    setIsLoggedIn(isLoggedIn: boolean) {
+    setIsLoggedIn(isLoggedIn) {
       this.isLoggedIn = isLoggedIn;
     },
 

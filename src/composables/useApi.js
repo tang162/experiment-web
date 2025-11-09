@@ -3,8 +3,8 @@ import { ref } from "vue";
 /**
  * 通用接口请求封装
  * @param {object} [options]
- * @param {(data: any) => void} [options.onSuccess]
- * @param {(error: any) => void} [options.onError]
+ * @param {(data) => void} [options.onSuccess]
+ * @param {(error) => void} [options.onError]
  * @param {boolean} [options.showLoading=true]
  * @param {boolean} [options.showError=true]
  */

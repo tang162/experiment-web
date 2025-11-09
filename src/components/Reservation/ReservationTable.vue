@@ -1,30 +1,33 @@
-<script setup lang="ts">
-import type { Reservation } from '@/types';
+<script setup>
 import { ReservationStatus } from '@/types';
 import ReservationStatusTag from './ReservationStatusTag.vue';
 import { ElTable, ElTableColumn, ElButton } from "element-plus";
 
-interface Props {
-  reservations: Reservation[];
-  loading?: boolean;
-  showActions?: boolean;
-  showUser?: boolean;
-}
 
-withDefaults(defineProps<Props>(), {
-  loading: false,
-  showActions: true,
-  showUser: false,
+
+const props = defineProps({
+  reservations: {
+    type: Array,
+    required: true,
+  },
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+  showActions: {
+    type: Boolean,
+    default: true,
+  },
+  showUser: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits<{
-  cancel: [id: string | number];
-  approve: [id: string | number];
-  reject: [id: string | number];
-  view: [reservation: Reservation];
-}>();
+const emit = defineEmits(["cancel", "approve", "reject", "view"]);
 
-const canCancel = (status: ReservationStatus) => {
+
+const canCancel = (status) => {
   return status === ReservationStatus.PENDING;
 };
 

@@ -7,7 +7,7 @@ export function generateSkeletonImage(
   width = 300,
   height = 200,
   text = "Loading..."
-): string {
+) {
   const svg = `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
       <defs>
@@ -30,18 +30,15 @@ export function generateErrorImage(
   width = 300,
   height = 200,
   text = "Load Failed"
-): string {
+) {
   const svg = `
     <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
       <rect width="100%" height="100%" fill="#f5f5f5"/>
-      <circle cx="${width / 2}" cy="${
-    height / 2
-  }" r="30" fill="none" stroke="#f56565" stroke-width="3"/>
-      <path d="M${width / 2 - 15} ${height / 2 - 15}L${width / 2 + 15} ${
-    height / 2 + 15
-  }M${width / 2 + 15} ${height / 2 - 15}L${width / 2 - 15} ${
-    height / 2 + 15
-  }" stroke="#f56565" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="${width / 2}" cy="${height / 2
+    }" r="30" fill="none" stroke="#f56565" stroke-width="3"/>
+      <path d="M${width / 2 - 15} ${height / 2 - 15}L${width / 2 + 15} ${height / 2 + 15
+    }M${width / 2 + 15} ${height / 2 - 15}L${width / 2 - 15} ${height / 2 + 15
+    }" stroke="#f56565" stroke-width="3" stroke-linecap="round"/>
       <text x="50%" y="70%" font-family="Arial, sans-serif" font-size="14" fill="#f56565" text-anchor="middle" dy=".3em">${text}</text>
     </svg>
   `;
@@ -49,7 +46,7 @@ export function generateErrorImage(
 }
 
 // 预加载图片
-export function preloadImage(src: string): Promise<HTMLImageElement> {
+export function preloadImage(src): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
@@ -59,7 +56,7 @@ export function preloadImage(src: string): Promise<HTMLImageElement> {
 }
 
 // 检查图片是否可访问
-export async function checkImageAccessibility(src: string): Promise<boolean> {
+export async function checkImageAccessibility(src): Promise<boolean> {
   try {
     await preloadImage(src);
     return true;
@@ -70,8 +67,8 @@ export async function checkImageAccessibility(src: string): Promise<boolean> {
 
 // 获取图片尺寸
 export function getImageDimensions(
-  src: string
-): Promise<{ width: number; height: number }> {
+  src
+): Promise<{ width; height }> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
@@ -86,7 +83,7 @@ export function getImageDimensions(
 }
 
 // 压缩图片质量 (通过添加质量参数，适用于支持的图片服务)
-export function compressImageUrl(src: string, quality = 80): string {
+export function compressImageUrl(src, quality = 80) {
   try {
     const url = new URL(src);
 
@@ -106,7 +103,7 @@ export function compressImageUrl(src: string, quality = 80): string {
 }
 
 // 生成响应式图片URL (根据设备像素比)
-export function getResponsiveImageUrl(src: string, baseWidth: number): string {
+export function getResponsiveImageUrl(src, baseWidth) {
   const pixelRatio = window.devicePixelRatio || 1;
   const targetWidth = Math.round(baseWidth * pixelRatio);
 
@@ -129,7 +126,7 @@ export function getResponsiveImageUrl(src: string, baseWidth: number): string {
 }
 
 // 图片格式检测
-export function getImageFormat(src: string): string {
+export function getImageFormat(src) {
   const extension = src.split(".").pop()?.toLowerCase();
 
   switch (extension) {
@@ -187,7 +184,7 @@ export async function getBestImageFormat(): Promise<"avif" | "webp" | "jpeg"> {
 }
 
 // 图片URL转换为最佳格式 (适用于支持的图片服务)
-export async function convertToOptimalFormat(src: string): Promise<string> {
+export async function convertToOptimalFormat(src): Promise<string> {
   // const bestFormat = await getBestImageFormat()
 
   try {
@@ -204,15 +201,15 @@ export async function convertToOptimalFormat(src: string): Promise<string> {
 
 // 创建图片加载性能监控
 export function createImageLoadMonitor() {
-  const loadTimes = new Map<string, number>();
-  const startTimes = new Map<string, number>();
+  const loadTimes = new Map < string, number> ();
+  const startTimes = new Map < string, number> ();
 
   return {
-    start(src: string) {
+    start(src) {
       startTimes.set(src, performance.now());
     },
 
-    end(src: string) {
+    end(src) {
       const startTime = startTimes.get(src);
       if (startTime) {
         const loadTime = performance.now() - startTime;
@@ -223,7 +220,7 @@ export function createImageLoadMonitor() {
       return 0;
     },
 
-    getLoadTime(src: string) {
+    getLoadTime(src) {
       return loadTimes.get(src) || 0;
     },
 

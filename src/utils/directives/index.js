@@ -10,7 +10,7 @@ const directives = {
 };
 
 // 安装所有指令的函数
-export function setupDirectives(app: App) {
+export function setupDirectives(app) {
   Object.keys(directives).forEach((key) => {
     app.directive(key, directives[key as keyof typeof directives]);
   });

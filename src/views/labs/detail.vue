@@ -1,17 +1,16 @@
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElButton, ElTag, ElDivider, ElRate, ElCarousel, ElCarouselItem, ElImage } from 'element-plus';
 import { ArrowLeft } from '@element-plus/icons-vue';
 import { getLabDetailApi } from '@/api';
-import type { LabApi } from '@/api';
 import { PageLayout } from '@/components';
 import { useApi } from '@/composables';
 
 const route = useRoute();
 const router = useRouter();
 
-const { data: lab, loading, execute: fetchLabDetail } = useApi<LabApi.LabDetail>();
+const { data: lab, loading, execute: fetchLabDetail } = useApi();
 
 const loadLabDetail = async () => {
   const result = await fetchLabDetail(() =>
@@ -72,11 +71,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageLayout
-    :title="lab?.name || '实验室详情'"
-    :description="lab?.department"
-    :loading="loading"
-  >
+  <PageLayout :title="lab?.name || '实验室详情'" :description="lab?.department" :loading="loading">
     <div v-if="lab" class="space-y-6">
       <!-- 返回按钮 -->
       <div class="mb-4">
@@ -104,12 +99,7 @@ onMounted(() => {
             </div>
           </div>
           <div>
-            <ElButton
-              type="primary"
-              size="large"
-              @click="goToReserve"
-              :disabled="lab.status !== 0"
-            >
+            <ElButton type="primary" size="large" @click="goToReserve" :disabled="lab.status !== 0">
               {{ lab.status === 0 ? '预约实验室' : '暂不可预约' }}
             </ElButton>
           </div>

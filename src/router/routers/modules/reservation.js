@@ -1,8 +1,8 @@
 import { Layout } from '@/layouts';
-import type { RouteRecordRaw } from 'vue-router';
+
 
 // 预约管理模块路由
-const reservationRoutes: RouteRecordRaw[] = [
+const reservationRoutes = [
   {
     path: '/reservation',
     component: Layout,

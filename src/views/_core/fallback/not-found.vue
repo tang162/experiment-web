@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup>
 import { useRouter } from "vue-router";
 import { ElButton } from "element-plus";
 import { House, Refresh, Search } from "@element-plus/icons-vue";

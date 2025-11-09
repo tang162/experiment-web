@@ -1,7 +1,6 @@
-import { type GenerateMenuAndRoutesOptions, cloneDeep } from "@/types";
 import { generateRoutes } from "./generate-routes";
 
-const generateAccessible = async (options: GenerateMenuAndRoutesOptions) => {
+const generateAccessible = async (options) => {
   const { router } = options;
 
   options.routes = cloneDeep(options.routes);

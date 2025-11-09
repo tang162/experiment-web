@@ -1,19 +1,12 @@
-import type { Pinia } from "pinia";
-
-import type { App } from "vue";
-
 import { createPinia } from "pinia";
 
-let pinia: Pinia;
+let pinia;
 
-export interface InitStoreOptions {
-  namespace: string;
-}
 
 /**
  * @zh_CN 初始化pinia
  */
-export async function initStores(app: App, options: InitStoreOptions) {
+export async function initStores(app, options) {
   const { createPersistedState } = await import("pinia-plugin-persistedstate");
   pinia = createPinia();
   const { namespace } = options;
@@ -33,7 +26,7 @@ export function resetAllStores() {
     console.error("Pinia is not installed");
     return;
   }
-  const allStores = (pinia as any)._s;
+  const allStores = pinia._s;
   for (const [_key, store] of allStores) {
     store.$reset();
   }

@@ -1,9 +1,4 @@
-import type { RouteRecordRaw } from "vue-router";
 
-// 定义模块类型
-interface RouteModuleType {
-  default: RouteRecordRaw[];
-}
 
 /**
  * 合并动态路由模块的默认导出
@@ -12,11 +7,11 @@ interface RouteModuleType {
  */
 function mergeRouteModules(
   routeModules: Record<string, unknown>,
-): RouteRecordRaw[] {
-  const mergedRoutes: RouteRecordRaw[] = [];
+) {
+  const mergedRoutes = [];
 
   for (const routeModule of Object.values(routeModules)) {
-    const moduleRoutes = (routeModule as RouteModuleType)?.default;
+    const moduleRoutes = (routeModule)?.default;
     if (Array.isArray(moduleRoutes)) {
       mergedRoutes.push(...moduleRoutes);
     }

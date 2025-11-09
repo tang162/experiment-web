@@ -1,8 +1,8 @@
 import { Layout } from '@/layouts';
-import type { RouteRecordRaw } from 'vue-router';
+
 
 // 消息通知模块路由
-const notificationRoutes: RouteRecordRaw[] = [
+const notificationRoutes = [
   {
     path: '/notification',
     component: Layout,

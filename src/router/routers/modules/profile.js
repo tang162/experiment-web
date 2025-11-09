@@ -1,8 +1,8 @@
 import { Layout } from '@/layouts';
-import type { RouteRecordRaw } from 'vue-router';
+
 
 // 用户个人中心模块路由
-const profileRoutes: RouteRecordRaw[] = [
+const profileRoutes = [
   {
     path: '/profile',
     component: Layout,

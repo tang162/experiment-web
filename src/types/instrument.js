@@ -1,8 +1,6 @@
-// Re-export from API module for consistency
-export type { InstrumentApi } from "@/api/modules/instrument.api";
-
+=
 // 仪器状态枚举
-export enum InstrumentStatus {
+export const InstrumentStatus = {
   NORMAL = 0, // 正常
   DISABLED = 1, // 停用
   MAINTENANCE = 2, // 维护中
@@ -11,7 +9,7 @@ export enum InstrumentStatus {
 }
 
 // 故障类型枚举
-export enum FaultType {
+export const FaultType = {
   HARDWARE = 0, // 硬件故障
   SOFTWARE = 1, // 软件故障
   OPERATION = 2, // 操作错误
@@ -19,7 +17,7 @@ export enum FaultType {
 }
 
 // 紧急程度枚举
-export enum UrgencyLevel {
+export const UrgencyLevel = {
   LOW = 0, // 低
   MEDIUM = 1, // 中
   HIGH = 2, // 高
@@ -27,14 +25,14 @@ export enum UrgencyLevel {
 }
 
 // 维修状态枚举
-export enum RepairStatus {
+export const RepairStatus = {
   PENDING = 0, // 待处理
   IN_PROGRESS = 1, // 维修中
   COMPLETED = 3, // 已完成
 }
 
 // 仪器状态标签映射
-export const INSTRUMENT_STATUS_MAP: Record<number, { label: string; color: string }> = {
+export const INSTRUMENT_STATUS_MAP = {
   [InstrumentStatus.NORMAL]: { label: "正常", color: "success" },
   [InstrumentStatus.DISABLED]: { label: "停用", color: "info" },
   [InstrumentStatus.MAINTENANCE]: { label: "维护中", color: "warning" },
@@ -43,7 +41,7 @@ export const INSTRUMENT_STATUS_MAP: Record<number, { label: string; color: strin
 };
 
 // 故障类型标签映射
-export const FAULT_TYPE_MAP: Record<number, { label: string; color: string }> = {
+export const FAULT_TYPE_MAP = {
   [FaultType.HARDWARE]: { label: "硬件故障", color: "danger" },
   [FaultType.SOFTWARE]: { label: "软件故障", color: "warning" },
   [FaultType.OPERATION]: { label: "操作错误", color: "info" },
@@ -51,7 +49,7 @@ export const FAULT_TYPE_MAP: Record<number, { label: string; color: string }> = 
 };
 
 // 紧急程度标签映射
-export const URGENCY_LEVEL_MAP: Record<number, { label: string; color: string }> = {
+export const URGENCY_LEVEL_MAP = {
   [UrgencyLevel.LOW]: { label: "低", color: "info" },
   [UrgencyLevel.MEDIUM]: { label: "中", color: "warning" },
   [UrgencyLevel.HIGH]: { label: "高", color: "danger" },
@@ -59,7 +57,7 @@ export const URGENCY_LEVEL_MAP: Record<number, { label: string; color: string }>
 };
 
 // 维修状态标签映射
-export const REPAIR_STATUS_MAP: Record<number, { label: string; color: string }> = {
+export const REPAIR_STATUS_MAP = {
   [RepairStatus.PENDING]: { label: "待处理", color: "warning" },
   [RepairStatus.IN_PROGRESS]: { label: "维修中", color: "primary" },
   [RepairStatus.COMPLETED]: { label: "已完成", color: "success" },

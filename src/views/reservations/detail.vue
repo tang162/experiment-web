@@ -1,10 +1,9 @@
-<script setup lang="ts">
+<script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox, ElButton, ElCard, ElDescriptions, ElDescriptionsItem, ElIcon } from 'element-plus';
 import { ArrowLeft, Calendar, Clock, User, Location, Document, InfoFilled } from '@element-plus/icons-vue';
 import { getAppointmentDetailApi, cancelAppointmentApi } from '@/api';
-import type { ReservationApi } from '@/api';
 import PageLayout from '@/components/Layout/PageLayout.vue';
 import ReservationStatusTag from '@/components/Reservation/ReservationStatusTag.vue';
 import { useApi } from '@/composables';
@@ -12,18 +11,18 @@ import { useApi } from '@/composables';
 const route = useRoute();
 const router = useRouter();
 
-const detail = ref<ReservationApi.AppointmentDetail | null>(null);
-const { loading, execute: fetchDetail } = useApi<ReservationApi.AppointmentDetail>();
+const detail = ref(null);
+const { loading, execute: fetchDetail } = useApi();
 
 // 时间段映射
-const timeSlotMap: Record<number, string> = {
+const timeSlotMap = {
   0: '上午',
   1: '下午',
   2: '晚上',
 };
 
 // 状态映射（根据接口文档：0-待审核,1-已通过,2-已拒绝,3-已取消,4-已完成）
-const statusMap: Record<number, string> = {
+const statusMap = {
   0: '待审核',
   1: '已通过',
   2: '已拒绝',
@@ -70,7 +69,7 @@ const handleCancel = async () => {
     await cancelAppointmentApi(Number(detail.value.id));
     ElMessage.success('取消成功');
     loadDetail(); // 重新加载详情
-  } catch (error: any) {
+  } catch (error) {
     if (error !== 'cancel') {
       ElMessage.error(error?.message || '取消失败');
     }

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { ref, reactive, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
@@ -18,21 +18,19 @@ import {
 } from 'element-plus';
 import { ArrowLeft } from '@element-plus/icons-vue';
 import { createAppointmentApi, getLabDetailApi } from '@/api';
-import type { ReservationApi, LabApi } from '@/api';
 import { PageLayout } from '@/components';
-import type { FormInstance, FormRules } from 'element-plus';
 import dayjs from 'dayjs';
 
 const route = useRoute();
 const router = useRouter();
 
 // 实验室信息
-const labDetail = ref<LabApi.LabDetail | null>(null);
+const labDetail = ref(null);
 const loadingLab = ref(false);
 
 // 表单引用和数据
-const formRef = ref<FormInstance>();
-const formData = reactive<ReservationApi.CreateAppointmentParams>({
+const formRef = ref();
+const formData = reactive({
   labId: Number(route.params.id),
   appointmentDate: '',
   timeSlot: '',
@@ -51,7 +49,7 @@ const timeSlotOptions = [
 ];
 
 // 禁用日期：只能预约今天及未来7天
-const disabledDate = (time: Date) => {
+const disabledDate = (time) => {
   const today = dayjs().startOf('day');
   const maxDate = dayjs().add(7, 'day').endOf('day');
   const current = dayjs(time);
@@ -59,7 +57,7 @@ const disabledDate = (time: Date) => {
 };
 
 // 表单验证规则
-const rules: FormRules = {
+const rules = {
   appointmentDate: [
     { required: true, message: '请选择预约日期', trigger: 'change' }
   ],
@@ -91,7 +89,7 @@ const loadLabDetail = async () => {
     if (result.status !== 0) {
       ElMessage.warning('该实验室当前不可预约');
     }
-  } catch (error: any) {
+  } catch (error) {
     ElMessage.error(error.message || '加载实验室信息失败');
   } finally {
     loadingLab.value = false;
@@ -121,7 +119,7 @@ const handleSubmit = async () => {
       await createAppointmentApi(formData);
       ElMessage.success('预约申请已提交，请等待审核');
       router.push('/reservation/list');
-    } catch (error: any) {
+    } catch (error) {
       ElMessage.error(error.message || '预约失败，请稍后重试');
     } finally {
       submitting.value = false;
@@ -135,7 +133,7 @@ const handleReset = () => {
 };
 
 // 获取状态文本
-const getStatusText = (status: number) => {
+const getStatusText = (status) => {
   switch (status) {
     case 0:
       return '正常';
@@ -149,7 +147,7 @@ const getStatusText = (status: number) => {
 };
 
 // 获取状态类型
-const getStatusType = (status: number) => {
+const getStatusType = (status) => {
   switch (status) {
     case 0:
       return 'success';
@@ -194,13 +192,7 @@ onMounted(() => {
             {{ labDetail.rating.toFixed(1) }} 分
           </ElDescriptionsItem>
           <ElDescriptionsItem label="实验室标签" :span="2">
-            <ElTag
-              v-for="tag in labDetail.tags"
-              :key="tag"
-              type="primary"
-              effect="plain"
-              class="mr-2"
-            >
+            <ElTag v-for="tag in labDetail.tags" :key="tag" type="primary" effect="plain" class="mr-2">
               {{ tag }}
             </ElTag>
           </ElDescriptionsItem>
@@ -212,86 +204,44 @@ onMounted(() => {
         <template #header>
           <span class="text-lg font-semibold">预约信息</span>
         </template>
-        <ElForm
-          ref="formRef"
-          :model="formData"
-          :rules="rules"
-          label-width="120px"
-          size="large"
-        >
+        <ElForm ref="formRef" :model="formData" :rules="rules" label-width="120px" size="large">
           <ElFormItem label="预约日期" prop="appointmentDate">
-            <ElDatePicker
-              v-model="formData.appointmentDate"
-              type="date"
-              placeholder="请选择预约日期"
-              :disabled-date="disabledDate"
-              format="YYYY-MM-DD"
-              value-format="YYYY-MM-DD"
-              style="width: 100%"
-              :disabled="labDetail?.status !== 0"
-            />
+            <ElDatePicker v-model="formData.appointmentDate" type="date" placeholder="请选择预约日期"
+              :disabled-date="disabledDate" format="YYYY-MM-DD" value-format="YYYY-MM-DD" style="width: 100%"
+              :disabled="labDetail?.status !== 0" />
             <div class="text-sm text-gray-500 mt-1">
               可预约今天及未来7天
             </div>
           </ElFormItem>
 
           <ElFormItem label="预约时段" prop="timeSlot">
-            <ElSelect
-              v-model="formData.timeSlot"
-              placeholder="请选择预约时段"
-              style="width: 100%"
-              :disabled="labDetail?.status !== 0"
-            >
-              <ElOption
-                v-for="option in timeSlotOptions"
-                :key="option.value"
-                :label="option.label"
-                :value="option.value"
-              />
+            <ElSelect v-model="formData.timeSlot" placeholder="请选择预约时段" style="width: 100%"
+              :disabled="labDetail?.status !== 0">
+              <ElOption v-for="option in timeSlotOptions" :key="option.value" :label="option.label"
+                :value="option.value" />
             </ElSelect>
           </ElFormItem>
 
           <ElFormItem label="预约目的" prop="purpose">
-            <ElInput
-              v-model="formData.purpose"
-              placeholder="请输入预约目的，如：课程实验、科研项目等"
-              maxlength="100"
-              show-word-limit
-              :disabled="labDetail?.status !== 0"
-            />
+            <ElInput v-model="formData.purpose" placeholder="请输入预约目的，如：课程实验、科研项目等" maxlength="100" show-word-limit
+              :disabled="labDetail?.status !== 0" />
           </ElFormItem>
 
           <ElFormItem label="详细说明" prop="description">
-            <ElInput
-              v-model="formData.description"
-              type="textarea"
-              :rows="5"
-              placeholder="请详细说明实验内容、所需设备等信息"
-              maxlength="500"
-              show-word-limit
-              :disabled="labDetail?.status !== 0"
-            />
+            <ElInput v-model="formData.description" type="textarea" :rows="5" placeholder="请详细说明实验内容、所需设备等信息"
+              maxlength="500" show-word-limit :disabled="labDetail?.status !== 0" />
           </ElFormItem>
 
           <ElFormItem label="参与人数" prop="participantCount">
-            <ElInputNumber
-              v-model="formData.participantCount"
-              :min="1"
-              :max="labDetail?.capacity || 100"
-              :disabled="labDetail?.status !== 0"
-            />
+            <ElInputNumber v-model="formData.participantCount" :min="1" :max="labDetail?.capacity || 100"
+              :disabled="labDetail?.status !== 0" />
             <span v-if="labDetail" class="ml-3 text-sm text-gray-500">
               实验室容量：{{ labDetail.capacity }} 人
             </span>
           </ElFormItem>
 
           <ElFormItem>
-            <ElButton
-              type="primary"
-              :loading="submitting"
-              :disabled="labDetail?.status !== 0"
-              @click="handleSubmit"
-            >
+            <ElButton type="primary" :loading="submitting" :disabled="labDetail?.status !== 0" @click="handleSubmit">
               {{ labDetail?.status !== 0 ? '实验室不可预约' : '提交预约申请' }}
             </ElButton>
             <ElButton @click="handleReset" :disabled="submitting">

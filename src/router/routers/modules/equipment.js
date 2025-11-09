@@ -1,8 +1,8 @@
 import { Layout } from '@/layouts';
-import type { RouteRecordRaw } from 'vue-router';
+
 
 // 设备管理模块路由
-const equipmentRoutes: RouteRecordRaw[] = [
+const equipmentRoutes = [
   {
     path: '/equipment',
     component: Layout,

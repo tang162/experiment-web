@@ -1,9 +1,8 @@
-<script setup lang="ts">
+<script setup>
 import { ref, reactive, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { ElPagination } from 'element-plus';
 import { getLabsApi } from '@/api';
-import type { PaginationData, LabApi } from '@/api';
 import PageLayout from '@/components/Layout/PageLayout.vue';
 import LabCard from '@/components/Lab/LabCard.vue';
 import LabFilter from '@/components/Lab/LabFilter.vue';
@@ -13,18 +12,18 @@ import { useApi, usePagination } from '@/composables';
 const router = useRouter();
 const route = useRoute();
 
-const labs = ref<LabApi.LabListItem[]>([]);
+const labs = ref([]);
 
 // 筛选条件 - 完全按照 API 定义
-const filters = reactive<Partial<LabApi.GetLabsParams>>({
-  keyword: (route.query.keyword as string) || '',
-  department: (route.query.department as string) || '',
+const filters = reactive({
+  keyword: (route.query.keyword) || '',
+  department: (route.query.department) || '',
   status: route.query.status ? Number(route.query.status) : undefined,
-  tags: (route.query.tags as string) || ''
+  tags: (route.query.tags) || ''
 });
 
 const total = ref(0);
-const { loading, execute: fetchLabs } = useApi<PaginationData<LabApi.LabListItem>>();
+const { loading, execute: fetchLabs } = useApi();
 const { pagination, handlePageChange, resetPage } = usePagination({
   initialPage: 1,
   initialPageSize: 8,
@@ -52,7 +51,7 @@ const loadLabs = async () => {
 };
 
 // 更新筛选条件
-const handleFilterUpdate = (newFilters: Partial<LabApi.GetLabsParams>) => {
+const handleFilterUpdate = (newFilters) => {
   Object.assign(filters, newFilters);
 };
 
@@ -86,7 +85,7 @@ const handleReset = () => {
 };
 
 // 点击实验室卡片
-const handleLabClick = (lab: LabApi.LabListItem) => {
+const handleLabClick = (lab) => {
   router.push(`/lab/labs/${lab.id}`);
 };
 

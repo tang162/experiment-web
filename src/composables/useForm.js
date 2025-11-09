@@ -7,7 +7,7 @@ import { reactive, ref } from "vue";
  * @param {import("element-plus").FormRules} [options.rules]
  * @param {(values: Record<string, any>) => (Promise<void> | void)} [options.onSubmit]
  * @param {() => void} [options.onSuccess]
- * @param {(error: any) => void} [options.onError]
+ * @param {(error) => void} [options.onError]
  */
 export function useForm(options) {
   const { initialValues, onSubmit, onSuccess, onError } = options;
