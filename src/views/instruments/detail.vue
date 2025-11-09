@@ -2,9 +2,9 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElButton, ElTag, ElDivider, ElCarousel, ElCarouselItem, ElImage } from 'element-plus';
-import { ArrowLeft, Tools } from '@element-plus/icons-vue';
-import { getInstrumentDetailApi } from '@/api/modules/instrument.api';
 import { PageLayout } from '@/components';
+import { ArrowLeft, Tools } from '@element-plus/icons-vue';
+import { getInstrumentDetailApi } from '@/api';
 import { useApi } from '@/composables';
 import { INSTRUMENT_STATUS_MAP } from '@/types/instrument';
 

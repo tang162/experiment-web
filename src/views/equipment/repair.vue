@@ -13,7 +13,7 @@ import {
   ElRadio,
 } from 'element-plus';
 import { ArrowLeft } from '@element-plus/icons-vue';
-import { reportInstrumentRepairApi } from '@/api/modules/instrument.api';
+import { reportInstrumentRepairApi } from '@/api';
 import { PageLayout } from '@/components';
 import { FAULT_TYPE_MAP, URGENCY_LEVEL_MAP } from '@/types/instrument';
 

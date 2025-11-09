@@ -2,11 +2,8 @@
 import { ref, reactive, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { ElPagination } from 'element-plus';
-import { getInstrumentsApi } from '@/api/modules/instrument.api';
-import PageLayout from '@/components/Layout/PageLayout.vue';
-import InstrumentCard from '@/components/Instrument/InstrumentCard.vue';
-import InstrumentFilter from '@/components/Instrument/InstrumentFilter.vue';
-import EmptyState from '@/components/Common/EmptyState.vue';
+import { PageLayout, InstrumentCard, InstrumentFilter, EmptyState } from '@/components';
+import { getInstrumentsApi } from '@/api';
 import { useApi, usePagination } from '@/composables';
 
 const router = useRouter();

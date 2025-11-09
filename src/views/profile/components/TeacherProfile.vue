@@ -2,7 +2,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElSelect, ElOption } from 'element-plus';
 import { useAuthStore } from '@/stores';
-import { userApi, reservationApi, equipmentApi } from '@/api';
+import { equipmentApi } from '@/api';
 import { ReservationTable } from '@/components';
 import { ApplicationStatus } from '@/types';
 
@@ -35,7 +35,7 @@ const fetchUserInfo = () => {
 const fetchPendingReservations = async () => {
   loading.value = true;
   try {
-    const response = await reservationApi.getPendingReviews({ page: 1, pageSize: 20 });
+    // const response = await reservationApi.getPendingReviews({ page: 1, pageSize: 20 });
     pendingReservations.value = response.list;
   } catch (error) {
     console.error('获取待审核预约失败:', error);
@@ -69,7 +69,7 @@ const handleTabChange = (tabName) => {
 
 const handleSaveProfile = async () => {
   try {
-    await userApi.updateProfile(editForm);
+    // await userApi.updateProfile(editForm);
     await authStore.fetchUserInfo();
     fetchUserInfo();
     editDialogVisible.value = false;
@@ -81,7 +81,7 @@ const handleSaveProfile = async () => {
 
 const handleApproveReservation = async (id) => {
   try {
-    await reservationApi.approveReservation(id);
+    // await reservationApi.approveReservation(id);
     ElMessage.success('已通过');
     fetchPendingReservations();
   } catch (error) {
@@ -99,7 +99,7 @@ const handleRejectReservation = async (id) => {
     });
 
     if (reason) {
-      await reservationApi.rejectReservation(id, reason);
+      // await reservationApi.rejectReservation(id, reason);
       ElMessage.success('已驳回');
       fetchPendingReservations();
     }

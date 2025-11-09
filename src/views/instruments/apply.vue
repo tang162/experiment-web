@@ -11,7 +11,7 @@ import {
   ElCard,
 } from 'element-plus';
 import { ArrowLeft } from '@element-plus/icons-vue';
-import { getInstrumentDetailApi, createInstrumentApplicationApi } from '@/api/modules/instrument.api';
+import { getInstrumentDetailApi, createInstrumentApplicationApi } from '@/api';
 import { PageLayout } from '@/components';
 import { useApi } from '@/composables';
 

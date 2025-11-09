@@ -2,10 +2,10 @@
 import { ref, onMounted, } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElTable, ElTableColumn, ElTag, ElButton, ElPagination, } from 'element-plus';
-import { getMyInstrumentApplicationsApi } from '@/api/modules/instrument.api';
+import { getMyInstrumentApplicationsApi } from '@/api';
 import { PageLayout } from '@/components';
 import { useApi, usePagination } from '@/composables';
-import { INSTRUMENT_STATUS_MAP } from '@/types/instrument';
+import { INSTRUMENT_STATUS_MAP } from '@/types';
 
 const router = useRouter();
 
@@ -38,7 +38,7 @@ const loadApplications = async () => {
 
 // 查看仪器详情
 const viewDetail = (row) => {
-  router.push(`/lab/instruments/${row.id}`);
+  router.push(`/lab/instruments/${row.instrument.id}`);
 };
 
 // 获取状态信息

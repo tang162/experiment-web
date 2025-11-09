@@ -2,7 +2,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElTable, ElTableColumn } from 'element-plus';
 import { useAuthStore } from '@/stores';
-import { userApi, reservationApi, equipmentApi, labApi } from '@/api';
+import { equipmentApi, labApi } from '@/api';
 import { ReservationTable, LabCard } from '@/components';
 import { ApplicationStatus, RepairStatus } from '@/types';
 
@@ -35,8 +35,8 @@ const fetchUserInfo = () => {
 const fetchReservations = async () => {
   loading.value = true;
   try {
-    const response = await reservationApi.getMyReservations({ page: 1, pageSize: 10 });
-    reservations.value = response.list;
+    // const response = await reservationApi.getMyReservations({ page: 1, pageSize: 10 });
+    // reservations.value = response.list;
   } catch (error) {
     console.error('获取预约记录失败:', error);
   } finally {
@@ -99,7 +99,7 @@ const handleTabChange = (tabName) => {
 
 const handleSaveProfile = async () => {
   try {
-    await userApi.updateProfile(editForm);
+    // await userApi.updateProfile(editForm);
     await authStore.fetchUserInfo();
     fetchUserInfo();
     editDialogVisible.value = false;
@@ -117,7 +117,7 @@ const handleCancelReservation = async (id) => {
       type: 'warning',
     });
 
-    await reservationApi.cancelReservation(id);
+    // await reservationApi.cancelReservation(id);
     ElMessage.success('取消成功');
     fetchReservations();
   } catch (error) {
