@@ -1,6 +1,6 @@
 <script setup>
 
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElBadge, ElButton, ElIcon, ElDropdown, ElAvatar, ElDropdownMenu, ElDropdownItem } from 'element-plus'
 import { User, SwitchButton, Bell } from '@element-plus/icons-vue';
@@ -22,7 +22,6 @@ const menuItems = computed(() => {
     { title: '实验室', path: '/lab/labs', icon: 'School' },
     { title: '仪器列表', path: '/lab/instruments', icon: 'Monitor' },
     { title: '我的申请', path: '/equipment/apply', icon: 'Tools' },
-    { title: '设备报修', path: '/equipment/repair', icon: 'Warning' },
   ];
 
   if (isStudent.value) {
@@ -60,10 +59,13 @@ const handleMenuClick = (path) => {
   router.push(path);
 };
 
-if (authStore.getIsLoggedIn) {
-  fetchUnreadCount();
-  setInterval(fetchUnreadCount, 60000);
-}
+onMounted(() => {
+  if (authStore.getIsLoggedIn) {
+    fetchUnreadCount();
+  }
+})
+
+
 </script>
 
 <template>

@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { Monitor, Location, Calendar } from "@element-plus/icons-vue";
 import { ElIcon, ElTag } from "element-plus";
-import { INSTRUMENT_STATUS_MAP } from "@/types/instrument";
+import { INSTRUMENT_STATUS_MAP } from "@/types";
 
 const props = defineProps({
   instrument: {
@@ -28,8 +28,7 @@ const handleClick = () => {
 <template>
   <div
     class="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-    @click="handleClick"
-  >
+    @click="handleClick">
     <div class="h-48 bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center relative">
       <ElIcon :size="64" color="white">
         <Monitor />

@@ -151,6 +151,8 @@ export const useAuthStore = defineStore("auth", {
     clear() {
       try {
         cleanupStorage();
+        // 清除未读消息数初始化标记
+        sessionStorage.removeItem('unreadCountInitialized');
         this.setIsLoggedIn(false);
         this.userInfo = null;
         this.role = UserRole.STUDENT;

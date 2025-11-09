@@ -108,7 +108,7 @@ onMounted(() => {
     <div class="min-h-[400px]">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
         <template v-for="instrument in instruments" :key="instrument.id">
-          <InstrumentCard :instrument="instrument" @click="handleInstrumentClick" />
+          <!-- <InstrumentCard :instrument="instrument" @click="handleInstrumentClick" /> -->
         </template>
       </div>
 

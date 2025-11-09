@@ -3,10 +3,7 @@ import { ref, reactive, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { ElPagination } from 'element-plus';
 import { getLabsApi } from '@/api';
-import PageLayout from '@/components/Layout/PageLayout.vue';
-import LabCard from '@/components/Lab/LabCard.vue';
-import LabFilter from '@/components/Lab/LabFilter.vue';
-import EmptyState from '@/components/Common/EmptyState.vue';
+import { PageLayout, LabCard, LabFilter, EmptyState } from '@/components';
 import { useApi, usePagination } from '@/composables';
 
 const router = useRouter();
