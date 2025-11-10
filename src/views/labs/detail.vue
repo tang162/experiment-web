@@ -27,7 +27,7 @@ const goBack = () => {
 };
 
 const goToReserve = () => {
-  router.push(`/lab/labs/${route.params.id}/reserve`);
+  router.push(`/lab/labs/reserve/${route.params.id}`);
 };
 
 // 状态相关的计算属性
@@ -135,7 +135,7 @@ onMounted(() => {
               <div class="flex items-start">
                 <span class="text-gray-600 w-28 flex-shrink-0">综合评分：</span>
                 <div class="flex items-center">
-                  <ElRate :model-value="lab.rating" disabled show-score text-color="#ff9900" />
+                  <ElRate :value="lab.rating" disabled show-score text-color="#ff9900" />
                 </div>
               </div>
             </div>

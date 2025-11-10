@@ -11,23 +11,6 @@ export const ApplicationStatus = {
   REJECTED: 'REJECTED',
 }
 
-export const RepairStatus = {
-  PENDING: 'PENDING',
-  IN_PROGRESS: 'IN_PROGRESS',
-  COMPLETED: 'COMPLETED',
-}
-
-export const FaultType = {
-  HARDWARE: 'HARDWARE',
-  SOFTWARE: 'SOFTWARE',
-  OPERATION: 'OPERATION',
-  OTHER: 'OTHER',
-}
-
-export const UrgencyLevel = {
-  LOW: 'LOW',
-  MEDIUM: 'MEDIUM',
-  HIGH: 'HIGH',
-  CRITICAL: 'CRITICAL',
-}
+// RepairStatus, FaultType, and UrgencyLevel are exported from instrument.js
+// to avoid naming conflicts and maintain a single source of truth
 

@@ -189,7 +189,7 @@ onMounted(() => {
           <ElDescriptionsItem label="实验室位置">{{ labDetail.location }}</ElDescriptionsItem>
           <ElDescriptionsItem label="容纳人数">{{ labDetail.capacity }} 人</ElDescriptionsItem>
           <ElDescriptionsItem label="实验室评分">
-            {{ labDetail.rating.toFixed(1) }} 分
+            {{ labDetail.rating }} 分
           </ElDescriptionsItem>
           <ElDescriptionsItem label="实验室标签" :span="2">
             <ElTag v-for="tag in labDetail.tags" :key="tag" type="primary" effect="plain" class="mr-2">

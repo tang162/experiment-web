@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox, ElButton, ElCard, ElDescriptions, ElDescriptionsItem, ElIcon } from 'element-plus';
 import { ArrowLeft, Calendar, Clock, User, Location, Document, InfoFilled } from '@element-plus/icons-vue';
 import { getAppointmentDetailApi, cancelAppointmentApi } from '@/api';
-import { PageLayout, ReservationStatusTag } from '@/components ';
+import { PageLayout, ReservationStatusTag } from '@/components';
 import { useApi } from '@/composables';
 
 const route = useRoute();

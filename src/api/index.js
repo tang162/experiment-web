@@ -1,10 +1,11 @@
 export * from "./type";
 
+export * from "./modules/appointments";
 export * from "./modules/auth";
 export * from "./modules/user";
 export * from "./modules/lab";
-export * from "./modules/reservation";
 export * from "./modules/equipment";
+export * from "./modules/favorites";
 export * from "./modules/instrument.api";
 export * from "./modules/notification";
 export * from "./modules/news";

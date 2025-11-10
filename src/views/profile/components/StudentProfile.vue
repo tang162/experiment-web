@@ -1,17 +1,20 @@
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElTable, ElTableColumn } from 'element-plus';
 import { useAuthStore } from '@/stores';
-import { equipmentApi, labApi } from '@/api';
+import { equipmentApi, getAppointmentsApi, getMyInstrumentApplicationsApi, getFavoritesApi, toggleFavorite } from '@/api';
 import { ReservationTable, LabCard } from '@/components';
-import { ApplicationStatus, RepairStatus } from '@/types';
-
+import { ApplicationStatus, RepairStatus, ReservationStatus, INSTRUMENT_STATUS_MAP } from '@/types';
 const authStore = useAuthStore();
+
+
+const router = useRouter();
 
 const activeTab = ref('info');
 const user = ref(null);
 const editDialogVisible = ref(false);
-const reservations = ref([]);
+const appointments = ref([]);
 const applications = ref([]);
 const repairRequests = ref([]);
 const favorites = ref([]);
@@ -22,6 +25,37 @@ const editForm = reactive({
   email: '',
   phone: '',
 });
+
+// 将 API 数据格式转换为组件需要的格式
+const reservations = computed(() => {
+  return appointments.value.map(item => ({
+    id: item.id,
+    labId: item.lab.id,
+    labName: item.lab.name,
+    userId: item.user.id,
+    userName: item.user.username,
+    date: item.appointmentDate,
+    timeSlot: item.timeSlot,
+    purpose: item.purpose,
+    description: item.description,
+    participantCount: item.participantCount,
+    status: mapStatusToEnum(item.status),
+    createdAt: item.createdAt,
+  }));
+});
+
+// 将数字状态码映射为枚举
+const mapStatusToEnum = (status) => {
+  const statusMap = {
+    0: ReservationStatus.PENDING,
+    1: ReservationStatus.APPROVED,
+    2: ReservationStatus.REJECTED,
+    3: ReservationStatus.COMPLETED,
+    4: ReservationStatus.CANCELLED,
+  };
+  return statusMap[status] || ReservationStatus.PENDING;
+};
+
 
 const fetchUserInfo = () => {
   user.value = authStore.getUserInfo;
@@ -35,10 +69,11 @@ const fetchUserInfo = () => {
 const fetchReservations = async () => {
   loading.value = true;
   try {
-    // const response = await reservationApi.getMyReservations({ page: 1, pageSize: 10 });
-    // reservations.value = response.list;
+    const response = await getAppointmentsApi({ page: 1, pageSize: 10 });
+    appointments.value = response.list || response.data || [];
   } catch (error) {
     console.error('获取预约记录失败:', error);
+    ElMessage.error('获取预约记录失败');
   } finally {
     loading.value = false;
   }
@@ -47,10 +82,11 @@ const fetchReservations = async () => {
 const fetchApplications = async () => {
   loading.value = true;
   try {
-    const response = await equipmentApi.getMyApplications({ page: 1, pageSize: 10 });
-    applications.value = response.list;
+    const response = await getMyInstrumentApplicationsApi({ page: 1, pageSize: 10 });
+    applications.value = response.list || response.data || [];
   } catch (error) {
     console.error('获取申请记录失败:', error);
+    ElMessage.error('获取申请记录失败');
   } finally {
     loading.value = false;
   }
@@ -71,10 +107,11 @@ const fetchRepairRequests = async () => {
 const fetchFavorites = async () => {
   loading.value = true;
   try {
-    const response = await labApi.getFavoriteLabs({ page: 1, pageSize: 10 });
-    favorites.value = response.list;
+    const response = await getFavoritesApi({ page: 1, pageSize: 10 });
+    favorites.value = response.list || response.data || [];
   } catch (error) {
     console.error('获取收藏失败:', error);
+    ElMessage.error('获取收藏失败');
   } finally {
     loading.value = false;
   }
@@ -129,12 +166,22 @@ const handleCancelReservation = async (id) => {
 
 const removeFavorite = async (lab) => {
   try {
-    await labApi.toggleFavorite(lab.id);
+    await toggleFavorite(lab.id);
     ElMessage.success('已取消收藏');
     fetchFavorites();
   } catch (error) {
     ElMessage.error('操作失败');
   }
+};
+
+// 获取状态信息
+const getStatusInfo = (status) => {
+  return INSTRUMENT_STATUS_MAP[status];
+};
+
+// 格式化时间
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleString('zh-CN');
 };
 
 const getApplicationStatusType = (status) => {
@@ -189,6 +236,11 @@ const getRepairStatusText = (status) => {
   }
 };
 
+// 查看仪器详情
+const viewDetail = (row) => {
+  router.push(`/lab/instruments/${row.instrument.id}`);
+};
+
 onMounted(() => {
   fetchUserInfo();
 });
@@ -239,53 +291,66 @@ onMounted(() => {
 
       <ElTabPane label="仪器申请" name="applications">
         <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
-          <ElTable :data="applications" stripe>
-            <ElTableColumn prop="equipmentName" label="仪器名称" />
-            <ElTableColumn prop="purpose" label="用途" />
-            <ElTableColumn prop="timeSlot" label="使用时段" />
-            <ElTableColumn prop="status" label="状态">
+          <!-- 表格 -->
+          <ElTable :data="applications" stripe style="width: 100%">
+            <ElTableColumn prop="id" label="申请ID" width="80" />
+            <ElTableColumn prop="name" label="仪器名称" min-width="150">
               <template #default="{ row }">
-                <ElTag :type="getApplicationStatusType(row.status)">
-                  {{ getApplicationStatusText(row.status) }}
+                {{ row.instrument.name || '未设置' }}
+              </template>
+            </ElTableColumn>
+            <ElTableColumn prop="model" label="型号" min-width="120">
+              <template #default="{ row }">
+                {{ row.instrument.model || '未设置' }}
+              </template>
+            </ElTableColumn>
+            <ElTableColumn prop="serialNumber" label="序列号" min-width="120">
+              <template #default="{ row }">
+                {{ row.instrument.serialNumber || '未设置' }}
+              </template>
+            </ElTableColumn>
+            <ElTableColumn prop="lab" label="所属实验室" min-width="150">
+              <template #default="{ row }">
+                {{ row.lab.name }}- {{ row.lab.location }}
+              </template>
+            </ElTableColumn>
+            <ElTableColumn prop="status" label="状态" width="100">
+              <template #default="{ row }">
+                <ElTag :type="getStatusInfo(row.status).color" size="small">
+                  {{ getStatusInfo(row.status).label }}
                 </ElTag>
               </template>
             </ElTableColumn>
-            <ElTableColumn prop="createdAt" label="申请时间" />
+            <ElTableColumn prop="createdAt" label="申请时间" width="180">
+              <template #default="{ row }">
+                {{ formatDate(row.createdAt) }}
+              </template>
+            </ElTableColumn>
+            <ElTableColumn label="操作" width="120" fixed="right">
+              <template #default="{ row }">
+                <ElButton link type="primary" size="small" @click="viewDetail(row)">
+                  查看详情
+                </ElButton>
+              </template>
+            </ElTableColumn>
           </ElTable>
         </div>
       </ElTabPane>
 
-      <ElTabPane label="报修记录" name="repairs">
-        <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
-          <ElTable :data="repairRequests" stripe>
-            <ElTableColumn prop="repairNumber" label="报修单号" />
-            <ElTableColumn prop="equipmentName" label="设备名称" />
-            <ElTableColumn prop="faultType" label="故障类型" />
-            <ElTableColumn prop="status" label="状态">
-              <template #default="{ row }">
-                <ElTag :type="getRepairStatusType(row.status)">
-                  {{ getRepairStatusText(row.status) }}
-                </ElTag>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn prop="createdAt" label="报修时间" />
-          </ElTable>
-        </div>
-      </ElTabPane>
 
       <ElTabPane label="我的收藏" name="favorites">
         <div v-loading="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div v-for="lab in favorites" :key="lab.id" class="bg-white rounded-lg shadow-md p-6">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-bold">{{ lab.name }}</h3>
-              <ElButton type="danger" size="small" text @click="removeFavorite(lab)">
+              <h3 class="text-lg font-bold">{{ lab.lab.name }}</h3>
+              <ElButton type="danger" size="small" text @click="removeFavorite(lab.lab)">
                 取消收藏
               </ElButton>
             </div>
             <p class="text-gray-600 mb-2">{{ lab.department }}</p>
             <div class="flex items-center justify-between text-sm text-gray-500">
-              <span>容量：{{ lab.capacity }}人</span>
-              <span>评分：{{ lab.rating?.toFixed(1) || '暂无' }}</span>
+              <span>容量：{{ lab.lab.capacity }}人</span>
+              <span>评分：{{ lab.lab.rating || '暂无' }}</span>
             </div>
           </div>
         </div>

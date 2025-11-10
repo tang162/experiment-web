@@ -69,7 +69,7 @@ const labRoutes = [
         },
       },
       {
-        path: "labs/:id/reserve",
+        path: "labs/reserve/:id",
         name: "LabReserve",
         component: () => import("@/views/labs/reserve.vue"),
         meta: {
