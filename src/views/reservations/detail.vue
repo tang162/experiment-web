@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ElMessage, ElMessageBox, ElButton, ElCard, ElDescriptions, ElDescriptionsItem, ElIcon } from 'element-plus';
+import { ElMessage, ElMessageBox, ElButton, ElCard, ElDescriptions, ElDescriptionsItem, ElIcon, ElAlert, ElRate } from 'element-plus';
 import { ArrowLeft, Calendar, Clock, User, Location, Document, InfoFilled } from '@element-plus/icons-vue';
 import { getAppointmentDetailApi, cancelAppointmentApi } from '@/api';
 import { PageLayout, ReservationStatusTag } from '@/components';
@@ -220,7 +220,7 @@ onMounted(() => {
           </ElDescriptionsItem>
 
           <ElDescriptionsItem label="实验室评分">
-            <el-rate :model-value="detail.lab.rating" disabled show-score text-color="#ff9900" />
+            <ElRate :model-value="Number(detail.lab.rating)" disabled show-score text-color="#ff9900" />
           </ElDescriptionsItem>
 
           <ElDescriptionsItem label="实验室描述" :span="2">

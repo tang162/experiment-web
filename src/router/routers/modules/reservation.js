@@ -4,11 +4,11 @@ import { Layout } from '@/layouts';
 // 预约管理模块路由
 const reservationRoutes = [
   {
-    path: '/reservation',
+    path: '/reservations',
     component: Layout,
     children: [
       {
-        path: 'list',
+        path: '',
         name: 'Reservations',
         component: () => import('@/views/reservations/index.vue'),
         meta: {
@@ -17,7 +17,7 @@ const reservationRoutes = [
         },
       },
       {
-        path: 'detail/:id',
+        path: ':id',
         name: 'ReservationDetail',
         component: () => import('@/views/reservations/detail.vue'),
         meta: {

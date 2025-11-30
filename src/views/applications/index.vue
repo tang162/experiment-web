@@ -1,24 +1,25 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { ElMessage, ElMessageBox, ElPagination } from 'element-plus';
-import { PageLayout, DataTable, FilterBar, ReservationCard, StatusTag } from '@/components';
-import { getAppointmentsApi, reviewAppointmentApi } from '@/api/modules/appointments';
+import { ElMessage, ElPagination } from 'element-plus';
+import { PageLayout, DataTable, FilterBar, ApplicationCard } from '@/components';
+import { equipmentApi } from '@/api';
 import { useApi, usePagination } from '@/composables';
 
 const router = useRouter();
 const route = useRoute();
 
-const reservations = ref([]);
+const applications = ref([]);
 const total = ref(0);
 
 // 筛选条件
 const filters = reactive({
+  type: route.query.type || '',
   status: route.query.status ? Number(route.query.status) : undefined,
   keyword: route.query.keyword || '',
 });
 
-const { loading, execute: fetchReservations } = useApi();
+const { loading, execute: fetchApplications } = useApi();
 const { pagination, handlePageChange, resetPage } = usePagination({
   initialPage: 1,
   initialPageSize: 10,
@@ -27,18 +28,26 @@ const { pagination, handlePageChange, resetPage } = usePagination({
 
 // 表格列定义
 const columns = [
-  { prop: 'id', label: '预约ID', width: 80 },
-  { prop: 'lab.name', label: '实验室', minWidth: 150 },
-  { prop: 'user.username', label: '申请人', width: 120 },
-  { prop: 'appointmentDate', label: '预约日期', width: 120, formatter: (value) => new Date(value).toLocaleDateString('zh-CN') },
-  { prop: 'timeSlot', label: '时间段', width: 150 },
-  { prop: 'purpose', label: '预约目的', minWidth: 150, showOverflowTooltip: true },
-  { prop: 'participantCount', label: '人数', width: 80 },
+  { prop: 'id', label: '申请ID', width: 80 },
+  { prop: 'type', label: '申请类型', width: 100, formatter: (value) => value === 'equipment' ? '设备申请' : '仪器申请' },
+  { prop: 'itemName', label: '申请项目', minWidth: 150 },
+  { prop: 'userName', label: '申请人', width: 120 },
+  { prop: 'purpose', label: '用途', minWidth: 150, showOverflowTooltip: true },
+  { prop: 'timeSlot', label: '使用时段', width: 150 },
   { prop: 'status', label: '状态', width: 100 },
 ];
 
 // 筛选选项
 const filterOptions = [
+  {
+    key: 'type',
+    label: '申请类型',
+    type: 'select',
+    options: [
+      { label: '设备申请', value: 'equipment' },
+      { label: '仪器申请', value: 'instrument' },
+    ],
+  },
   {
     key: 'status',
     label: '状态',
@@ -47,33 +56,36 @@ const filterOptions = [
       { label: '待审核', value: 0 },
       { label: '已通过', value: 1 },
       { label: '已拒绝', value: 2 },
-      { label: '已完成', value: 3 },
-      { label: '已取消', value: 4 },
     ],
   },
 ];
 
-// 加载预约列表
-const loadReservations = async () => {
-  const result = await fetchReservations(() =>
-    getAppointmentsApi({
-      page: pagination.page,
-      pageSize: pagination.pageSize,
-      status: filters.status,
-      keyword: filters.keyword,
-    })
-  );
+// 加载申请列表
+const loadApplications = async () => {
+  try {
+    const result = await fetchApplications(() =>
+      equipmentApi.getApplications({
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        type: filters.type,
+        status: filters.status,
+        keyword: filters.keyword,
+      })
+    );
 
-  if (result) {
-    reservations.value = result.list || [];
-    total.value = result.total || 0;
+    if (result) {
+      applications.value = result.list || [];
+      total.value = result.total || 0;
+    }
+  } catch (error) {
+    ElMessage.error('加载申请列表失败');
   }
 };
 
 // 处理筛选
 const handleFilter = () => {
   resetPage();
-  loadReservations();
+  loadApplications();
 
   // 更新 URL 查询参数
   router.replace({
@@ -87,10 +99,11 @@ const handleFilter = () => {
 
 // 处理重置
 const handleReset = () => {
+  filters.type = '';
   filters.status = undefined;
   filters.keyword = '';
   resetPage();
-  loadReservations();
+  loadApplications();
 
   // 清除 URL 查询参数
   router.replace({ query: {} });
@@ -98,16 +111,13 @@ const handleReset = () => {
 
 // 处理行点击
 const handleRowClick = (row) => {
-  router.push({
-    name: 'ReservationDetail',
-    params: { id: row.id },
-  });
+  router.push(`/applications/${row.id}`);
 };
 
 // 处理分页变化
 const handlePageChangeEvent = (newPage) => {
   handlePageChange(newPage);
-  loadReservations();
+  loadApplications();
 
   // 更新 URL 查询参数
   router.replace({
@@ -120,16 +130,16 @@ const handlePageChangeEvent = (newPage) => {
 
 // 监听分页变化
 watch(() => pagination.page, () => {
-  loadReservations();
+  loadApplications();
 });
 
 onMounted(() => {
-  loadReservations();
+  loadApplications();
 });
 </script>
 
 <template>
-  <PageLayout title="预约管理" description="查看和管理所有实验室预约" :loading="loading">
+  <PageLayout title="申请管理" description="查看和管理所有仪器和设备申请" :loading="loading">
     <!-- 筛选栏 -->
     <div class="mb-6">
       <FilterBar
@@ -140,20 +150,20 @@ onMounted(() => {
       />
     </div>
 
-    <!-- 预约列表 -->
+    <!-- 申请列表 -->
     <div class="grid grid-cols-1 gap-4">
-      <ReservationCard
-        v-for="reservation in reservations"
-        :key="reservation.id"
-        :reservation="reservation"
+      <ApplicationCard
+        v-for="application in applications"
+        :key="application.id"
+        :application="application"
         :show-actions="false"
         @click="handleRowClick"
       />
     </div>
 
     <!-- 空状态 -->
-    <div v-if="reservations.length === 0 && !loading" class="text-center py-12">
-      <p class="text-gray-500 text-lg">暂无预约记录</p>
+    <div v-if="applications.length === 0 && !loading" class="text-center py-12">
+      <p class="text-gray-500 text-lg">暂无申请记录</p>
     </div>
 
     <!-- 分页 -->

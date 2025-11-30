@@ -91,8 +91,8 @@ const fetchBanners = async () => {
 const fetchPopularLabs = async () => {
   try {
     loading.value = true;
-    // const result = await getLabsApi({ pageSize: 6 });
-    // popularLabs.value = result || [];
+    const result = await getLabsApi({ pageSize: 6 });
+    popularLabs.value = result.list || result || [];
   } catch (error) {
     console.error('获取热门实验室失败:', error);
   } finally {

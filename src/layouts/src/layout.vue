@@ -25,7 +25,7 @@ const menuItems = computed(() => {
   ];
 
   if (isStudent.value) {
-    baseMenus.push({ title: '我的预约', path: '/reservation/list', icon: 'Calendar' });
+    baseMenus.push({ title: '我的预约', path: '/reservations', icon: 'Calendar' });
   } else {
     baseMenus.push({ title: '审核管理', path: '/teacher/reservations', icon: 'Document' });
   }
