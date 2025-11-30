@@ -71,7 +71,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageLayout :title="lab?.name || '实验室详情'" :description="lab?.department" :loading="loading">
+  <PageLayout :title="lab?.name || '实验室详情'" :description="lab?.department || ''" :loading="loading">
     <div v-if="lab" class="space-y-6">
       <!-- 返回按钮 -->
       <div class="mb-4">

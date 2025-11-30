@@ -13,7 +13,7 @@ import {
   ElRadio,
 } from 'element-plus';
 import { ArrowLeft } from '@element-plus/icons-vue';
-import { reportInstrumentRepairApi } from '@/api';
+import { reportInstrumentFaultApi } from '@/api';
 import { PageLayout } from '@/components';
 import { FAULT_TYPE_MAP, URGENCY_LEVEL_MAP } from '@/types/instrument';
 
@@ -52,7 +52,7 @@ const submitRepair = async () => {
     }
 
     submitting.value = true;
-    await reportInstrumentRepairApi(Number(instrumentId), repairForm);
+    await reportInstrumentFaultApi(Number(instrumentId), repairForm);
     ElMessage.success('报修成功');
     router.back();
   } catch (error) {

@@ -47,12 +47,12 @@ const goToNotifications = () => {
 };
 
 const goToProfile = () => {
-  router.push('/profile/index');
+  router.push('/profile');
 };
 
 const handleLogout = async () => {
   await authStore.logout();
-  router.push('/login');
+  router.push('/welcome');
 };
 
 const handleMenuClick = (path) => {
@@ -99,7 +99,7 @@ onMounted(() => {
 
             <ElDropdown trigger="click">
               <div class="flex items-center space-x-2 cursor-pointer">
-                <ElAvatar :size="32">
+                <ElAvatar :size="32" :src="userInfo?.avatar" :alt="userInfo?.username">
                   {{ userInfo?.nickname?.[0] || userInfo?.username?.[0] || 'U' }}
                 </ElAvatar>
                 <span class="text-sm font-medium">{{ userInfo?.nickname || userInfo?.username }}</span>
@@ -129,12 +129,6 @@ onMounted(() => {
     <main class="flex-1">
       <router-view />
     </main>
-
-    <footer v-if="authStore.getIsLoggedIn" class="bg-gray-800 text-white py-6">
-      <div class="container mx-auto px-4 text-center">
-        <p>&copy; 2024 实验室预约系统. All rights reserved.</p>
-      </div>
-    </footer>
   </div>
 </template>
 

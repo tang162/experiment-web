@@ -1,38 +1,74 @@
 import { request } from "@/utils";
 
+const Api = Object.freeze({
+  /** 新闻 */
+  NEWS: "/news",
+  /** 点赞新闻 */
+  LIKE_NEWS: "/news/like",
+  /** 审核新闻 */
+  REVIEW_NEWS: "/news/review",
+});
+
+/**
+ * 获取新闻列表
+ * @param {object} params
+ * @returns {Promise<any>}
+ */
+export function getNewsListApi(params = {}) {
+  return request.get(Api.NEWS, params);
+}
+
+/**
+ * 获取新闻详情
+ * @param {number|string} id
+ * @returns {Promise<any>}
+ */
+export function getNewsDetailApi(id) {
+  return request.get(`${Api.NEWS}/${id}`);
+}
+
+/**
+ * 创建新闻（教师权限）
+ * @param {FormData} formData
+ * @returns {Promise<any>}
+ */
+export function createNewsApi(formData) {
+  return request.post(Api.NEWS, formData);
+}
+
+/**
+ * 更新新闻
+ * @param {number|string} id
+ * @param {FormData} formData
+ * @returns {Promise<any>}
+ */
+export function updateNewsApi(id, formData) {
+  return request.post(`${Api.NEWS}/${id}`, formData);
+}
+
+/**
+ * 删除新闻
+ * @param {number|string} id
+ * @returns {Promise<any>}
+ */
+export function deleteNewsApi(id) {
+  return request.delete(`${Api.NEWS}/${id}`);
+}
+
+/**
+ * 点赞新闻
+ * @param {number|string} id
+ * @returns {Promise<any>}
+ */
+export function likeNewsApi(id) {
+  return request.post(`${Api.LIKE_NEWS}/${id}`);
+}
+
+// 兼容旧的导出方式
 export const newsApi = {
-  /**
-   * 获取资讯列表
-   * @param {object} params
-   * @returns {Promise<any>}
-   */
-  getNewsList(params = {}) {
-    return request.get("/api/news", params);
-  },
-
-  /**
-   * 获取资讯详情
-   * @param {number|string} id
-   * @returns {Promise<any>}
-   */
-  getNewsDetail(id) {
-    return request.get(`/api/news/${id}`);
-  },
-
-  /**
-   * 切换资讯点赞
-   * @param {number|string} id
-   * @returns {Promise<any>}
-   */
-  toggleLike(id) {
-    return request.post(`/api/news/${id}/like`);
-  },
-
-  /**
-   * 切换资讯收藏
-   * @param {number|string} id
-   * @returns {Promise<any>}
-   */
+  getNewsList: getNewsListApi,
+  getNewsDetail: getNewsDetailApi,
+  toggleLike: likeNewsApi,
   toggleFavorite(id) {
     return request.post(`/api/news/${id}/favorite`);
   },

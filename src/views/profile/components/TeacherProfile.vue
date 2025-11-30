@@ -1,8 +1,9 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
-import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElSelect, ElOption } from 'element-plus';
+import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElSelect, ElOption, ElTable, ElTableColumn } from 'element-plus';
 import { useAuthStore } from '@/stores';
 import { equipmentApi } from '@/api';
+import { getMyAppointmentsApi, getPendingAppointmentsApi, reviewAppointmentApi } from '@/api/modules/appointments';
 import { ReservationTable } from '@/components';
 import { ApplicationStatus } from '@/types';
 
@@ -13,6 +14,8 @@ const user = ref(null);
 const editDialogVisible = ref(false);
 const pendingReservations = ref([]);
 const pendingApplications = ref([]);
+const myAppointments = ref([]);
+const pendingAppointments = ref([]);
 const loading = ref(false);
 
 const editForm = reactive({
@@ -36,7 +39,8 @@ const fetchPendingReservations = async () => {
   loading.value = true;
   try {
     // const response = await reservationApi.getPendingReviews({ page: 1, pageSize: 20 });
-    pendingReservations.value = response.list;
+    // pendingReservations.value = response.list;
+    pendingReservations.value = [];
   } catch (error) {
     console.error('获取待审核预约失败:', error);
   } finally {
@@ -56,6 +60,30 @@ const fetchPendingApplications = async () => {
   }
 };
 
+const fetchMyAppointments = async () => {
+  loading.value = true;
+  try {
+    const response = await getMyAppointmentsApi({ page: 1, pageSize: 20 });
+    myAppointments.value = response.list || response;
+  } catch (error) {
+    console.error('获取我的预约失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchPendingAppointments = async () => {
+  loading.value = true;
+  try {
+    const response = await getPendingAppointmentsApi({ page: 1, pageSize: 20 });
+    pendingAppointments.value = response.list || response;
+  } catch (error) {
+    console.error('获取待审核预约失败:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
 const handleTabChange = (tabName) => {
   switch (tabName) {
     case 'reservations':
@@ -63,6 +91,12 @@ const handleTabChange = (tabName) => {
       break;
     case 'applications':
       fetchPendingApplications();
+      break;
+    case 'myAppointments':
+      fetchMyAppointments();
+      break;
+    case 'appointmentReview':
+      fetchPendingAppointments();
       break;
   }
 };
@@ -141,6 +175,37 @@ const rejectApplication = async (id) => {
   }
 };
 
+const approvePendingAppointment = async (id) => {
+  try {
+    await reviewAppointmentApi(id, { status: 1 });
+    ElMessage.success('已通过');
+    fetchPendingAppointments();
+  } catch (error) {
+    ElMessage.error('操作失败');
+  }
+};
+
+const rejectPendingAppointment = async (id) => {
+  try {
+    const { value: reason } = await ElMessageBox.prompt('请输入驳回原因', '驳回预约', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputPattern: /.+/,
+      inputErrorMessage: '请输入驳回原因',
+    });
+
+    if (reason) {
+      await reviewAppointmentApi(id, { status: 2, reason });
+      ElMessage.success('已驳回');
+      fetchPendingAppointments();
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error('操作失败');
+    }
+  }
+};
+
 const getApplicationStatusType = (status) => {
   switch (status) {
     case ApplicationStatus.PENDING:
@@ -179,9 +244,14 @@ onMounted(() => {
         <div class="bg-white rounded-lg shadow-md p-6">
           <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-bold">个人信息</h2>
-            <ElButton type="primary" @click="editDialogVisible = true">
-              编辑
-            </ElButton>
+            <div class="flex gap-2">
+              <ElButton type="primary" @click="$router.push('/profile/edit')">
+                编辑信息
+              </ElButton>
+              <ElButton @click="$router.push('/profile/password')">
+                修改密码
+              </ElButton>
+            </div>
           </div>
 
           <div class="space-y-4">
@@ -220,12 +290,6 @@ onMounted(() => {
         </div>
       </ElTabPane>
 
-      <ElTabPane label="预约审核" name="reservations">
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <ReservationTable :reservations="pendingReservations" :loading="loading" :show-user="true"
-            @approve="handleApproveReservation" @reject="handleRejectReservation" />
-        </div>
-      </ElTabPane>
 
       <ElTabPane label="申请审核" name="applications">
         <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
@@ -241,6 +305,46 @@ onMounted(() => {
                   通过
                 </ElButton>
                 <ElButton type="danger" size="small" @click="rejectApplication(row.id)">
+                  驳回
+                </ElButton>
+              </template>
+            </ElTableColumn>
+          </ElTable>
+        </div>
+      </ElTabPane>
+
+      <ElTabPane label="我的预约" name="myAppointments">
+        <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
+          <ElTable :data="myAppointments" stripe>
+            <ElTableColumn prop="lab.name" label="实验室名称" />
+            <ElTableColumn prop="appointmentDate" label="预约日期" />
+            <ElTableColumn prop="timeSlot" label="时间段" />
+            <ElTableColumn label="状态" width="100">
+              <template #default="{ row }">
+                <ElTag :type="row.status === 1 ? 'success' : row.status === 2 ? 'danger' : 'warning'">
+                  {{ row.status === 0 ? '待审核' : row.status === 1 ? '已通过' : '已拒绝' }}
+                </ElTag>
+              </template>
+            </ElTableColumn>
+            <ElTableColumn prop="reason" label="预约原因" show-overflow-tooltip />
+          </ElTable>
+        </div>
+      </ElTabPane>
+
+      <ElTabPane label="预约审核" name="appointmentReview">
+        <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
+          <ElTable :data="pendingAppointments" stripe>
+            <ElTableColumn prop="user.username" label="申请人" />
+            <ElTableColumn prop="lab.name" label="实验室名称" />
+            <ElTableColumn prop="appointmentDate" label="预约日期" />
+            <ElTableColumn prop="timeSlot" label="时间段" />
+            <ElTableColumn prop="reason" label="预约原因" show-overflow-tooltip />
+            <ElTableColumn label="操作" width="180">
+              <template #default="{ row }">
+                <ElButton type="success" size="small" @click="approvePendingAppointment(row.id)">
+                  通过
+                </ElButton>
+                <ElButton type="danger" size="small" @click="rejectPendingAppointment(row.id)">
                   驳回
                 </ElButton>
               </template>

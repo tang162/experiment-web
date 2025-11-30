@@ -13,8 +13,8 @@ const formRef = ref();
 const loading = ref(false);
 
 const loginForm = reactive({
-  username: 'student001',
-  password: 'Password123',
+  username: 'auv1',
+  password: '258956Li',
   rememberPassword: false,
 });
 
@@ -32,23 +32,26 @@ const rules = {
 const handleLogin = async () => {
   if (!formRef.value) return;
 
-  await formRef.value.validate(async (valid) => {
-    if (!valid) return;
+  try {
+    // 验证表单
+    await formRef.value.validate();
 
     loading.value = true;
-    try {
-      await authStore.login(loginForm);
-      ElMessage.success('登录成功');
+    
+    // 执行登录
+    await authStore.login(loginForm);
+    ElMessage.success('登录成功');
 
-      const redirect = (route.query.redirect) || authStore.getDefaultHomePath;
+    // 获取重定向地址
+    const redirect = route.query.redirect || authStore.getDefaultHomePath;
 
-      router.push(redirect);
-    } catch (error) {
-      ElMessage.error(error.message || '登录失败');
-    } finally {
-      loading.value = false;
-    }
-  });
+    // 跳转到首页或重定向地址
+    await router.push(redirect);
+  } catch (error) {
+    ElMessage.error(error.message || '登录失败');
+  } finally {
+    loading.value = false;
+  }
 };
 
 const goToRegister = () => {

@@ -42,5 +42,14 @@ export function markAllAsReadApi() {
  * @returns {Promise<any>}
  */
 export function markAsReadApi(id) {
-  return request.patch(`${Api.MARK_AS_READ}/${id}`);
+  return request.put(`${Api.MARK_AS_READ}/${id}`);
+}
+
+/**
+ * 删除通知
+ * @param {number|string} id
+ * @returns {Promise<any>}
+ */
+export function deleteNotificationApi(id) {
+  return request.delete(`${Api.GET_NOTIFICATIONS}/${id}`);
 }

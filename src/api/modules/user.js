@@ -5,6 +5,10 @@ const Api = Object.freeze({
   GET_USERS: "/user",
   /** 获取用户信息 */
   GET_USER_INFO: "/user/info",
+  /** 更新个人信息 */
+  UPDATE_PROFILE: "/user/profile",
+  /** 修改密码 */
+  CHANGE_PASSWORD: "/user/change-password",
   /** 检查用户名是否存在 */
   CHECK_USERNAME_EXISTS: "/user/check-existence",
 });
@@ -43,7 +47,6 @@ export function getUserDetailApi(id) {
 
 /**
  * 创建用户
- * @param {object} params
  * @returns {Promise<any>}
  */
 export function createUserApi(params) {
@@ -53,40 +56,30 @@ export function createUserApi(params) {
 /**
  * 更新用户
  * @param {number|string} id
- * @param {object} params
  * @returns {Promise<any>}
  */
 export function updateUserApi(id, params) {
-  return request.put(`${Api.GET_USERS}/${id}`, params);
+  return request.post(`${Api.GET_USERS}/${id}`, params);
 }
 
 /**
- * 删除用户
- * @param {number|string} id
+ * 更新个人信息
  * @returns {Promise<any>}
  */
-export function deleteUserApi(id) {
-  return request.delete(`${Api.GET_USERS}/${id}`);
+export function updateProfileApi(params) {
+  return request.upload(Api.UPDATE_PROFILE, params);
 }
 
 /**
- * 更新用户状态
- * @param {number|string} id
- * @param {string|number} status
+ * 修改密码
+ * @param {object} params
+ * @param {string} params.oldPassword 原密码
+ * @param {string} params.newPassword 新密码
+ * @param {string} params.confirmPassword 确认密码
  * @returns {Promise<any>}
  */
-export function updateUserStatusApi(id, status) {
-  return request.put(`${Api.GET_USERS}/${id}/status`, { status });
-}
-
-/**
- * 更新用户教学标签
- * @param {number|string} id
- * @param {string[]} teachingTags
- * @returns {Promise<any>}
- */
-export function updateUserTagsApi(id, teachingTags) {
-  return request.put(`${Api.GET_USERS}/${id}/tags`, { teachingTags });
+export function changePasswordApi(params) {
+  return request.post(Api.CHANGE_PASSWORD, params);
 }
 
 /**

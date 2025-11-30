@@ -3,16 +3,16 @@ import { request } from "@/utils";
 const Api = Object.freeze({
   /** 获取仪器列表 */
   GET_INSTRUMENTS: "/instruments",
+  /** 获取仪器下拉列表 */
+  GET_INSTRUMENTS_OPTIONS: "/instruments/options",
   /** 获取我的申请 */
   GET_MY_INSTRUMENT_APPLICATIONS: "/instruments/applications/my",
   /** 申请列表 */
   GET_INSTRUMENT_APPLICATIONS: "/instruments/applications",
-  /** 报告仪器故障 */
-  REPORT_INSTRUMENT_REPAIR: "/instruments/repairs",
   /** 申请使用仪器 */
   APPLY_INSTRUMENT: "/instruments/apply",
   /** 审核申请 */
-  AUDIT_INSTRUMENT_REPAIR: "/instruments/applications/review",
+  REVIEW_INSTRUMENT_APPLICATION: "/instruments/applications/review",
 });
 
 /**
@@ -34,26 +34,44 @@ export function getInstrumentDetailApi(id) {
 }
 
 /**
- * 创建仪器（老师权限）
- * @param {object} params
+ * 获取仪器下拉列表（仅返回 id 和 name）
+ * @param {object} [params]
  * @returns {Promise<any>}
  */
-export function createInstrumentApi(params) {
-  return request.post(Api.GET_INSTRUMENTS, params);
+export function getInstrumentsOptionsApi(params = {}) {
+  return request.get(Api.GET_INSTRUMENTS_OPTIONS, params);
 }
 
 /**
- * 修改仪器（老师权限）
+ * 创建仪器（教师权限）
+ * @param {FormData} formData
+ * @returns {Promise<any>}
+ */
+export function createInstrumentApi(formData) {
+  return request.post(Api.GET_INSTRUMENTS, formData);
+}
+
+/**
+ * 更新仪器（教师权限）
  * @param {number|string} id
- * @param {object} params
+ * @param {FormData} formData
  * @returns {Promise<any>}
  */
-export function updateInstrumentApi(id, params) {
-  return request.patch(`${Api.GET_INSTRUMENTS}/${id}`, params);
+export function updateInstrumentApi(id, formData) {
+  return request.post(`${Api.GET_INSTRUMENTS}/${id}`, formData);
 }
 
 /**
- * 获取仪器申请列表（老师权限）
+ * 删除仪器（教师权限）
+ * @param {number|string} id
+ * @returns {Promise<any>}
+ */
+export function deleteInstrumentApi(id) {
+  return request.delete(`${Api.GET_INSTRUMENTS}/${id}`);
+}
+
+/**
+ * 获取仪器申请列表（教师权限）
  * @param {object} [params]
  * @returns {Promise<any>}
  */
@@ -62,7 +80,7 @@ export function getInstrumentApplicationsApi(params = {}) {
 }
 
 /**
- * 获取我的仪器申请列表（学生权限）
+ * 获取我的仪器申请列表
  * @param {object} [params]
  * @returns {Promise<any>}
  */
@@ -71,31 +89,21 @@ export function getMyInstrumentApplicationsApi(params = {}) {
 }
 
 /**
- * 创建仪器申请
+ * 申请使用仪器
  * @param {number|string} id
  * @param {object} params
  * @returns {Promise<any>}
  */
-export function createInstrumentApplicationApi(id, params) {
+export function applyInstrumentApi(id, params) {
   return request.post(`${Api.APPLY_INSTRUMENT}/${id}`, params);
 }
 
 /**
- * 报告仪器故障
+ * 审核仪器申请（教师权限）
  * @param {number|string} id
  * @param {object} params
  * @returns {Promise<any>}
  */
-export function reportInstrumentRepairApi(id, params) {
-  return request.post(`${Api.REPORT_INSTRUMENT_REPAIR}/${id}`, params);
-}
-
-/**
- * 审核仪器申请（老师权限）
- * @param {number|string} id
- * @param {object} params
- * @returns {Promise<any>}
- */
-export function auditInstrumentRepairApi(id, params) {
-  return request.post(`${Api.AUDIT_INSTRUMENT_REPAIR}/${id}`, params);
+export function reviewInstrumentApplicationApi(id, params) {
+  return request.post(`${Api.REVIEW_INSTRUMENT_APPLICATION}/${id}`, params);
 }

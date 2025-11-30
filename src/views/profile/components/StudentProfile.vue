@@ -3,7 +3,7 @@ import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElTable, ElTableColumn } from 'element-plus';
 import { useAuthStore } from '@/stores';
-import { equipmentApi, getAppointmentsApi, getMyInstrumentApplicationsApi, getFavoritesApi, toggleFavorite } from '@/api';
+import { equipmentApi, getAppointmentsApi, getMyInstrumentApplicationsApi, getMyFavoritesApi, toggleFavoriteApi } from '@/api';
 import { ReservationTable, LabCard } from '@/components';
 import { ApplicationStatus, RepairStatus, ReservationStatus, INSTRUMENT_STATUS_MAP } from '@/types';
 const authStore = useAuthStore();
@@ -107,7 +107,7 @@ const fetchRepairRequests = async () => {
 const fetchFavorites = async () => {
   loading.value = true;
   try {
-    const response = await getFavoritesApi({ page: 1, pageSize: 10 });
+    const response = await getMyFavoritesApi({ page: 1, pageSize: 10 });
     favorites.value = response.list || response.data || [];
   } catch (error) {
     console.error('获取收藏失败:', error);
@@ -166,7 +166,7 @@ const handleCancelReservation = async (id) => {
 
 const removeFavorite = async (lab) => {
   try {
-    await toggleFavorite(lab.id);
+    await toggleFavoriteApi(lab.id);
     ElMessage.success('已取消收藏');
     fetchFavorites();
   } catch (error) {
@@ -253,9 +253,14 @@ onMounted(() => {
         <div class="bg-white rounded-lg shadow-md p-6">
           <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-bold">个人信息</h2>
-            <ElButton type="primary" @click="editDialogVisible = true">
-              编辑
-            </ElButton>
+            <div class="flex gap-2">
+              <ElButton type="primary" @click="$router.push('/profile/edit')">
+                编辑信息
+              </ElButton>
+              <ElButton @click="$router.push('/profile/password')">
+                修改密码
+              </ElButton>
+            </div>
           </div>
 
           <div class="space-y-4">

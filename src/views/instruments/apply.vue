@@ -11,7 +11,7 @@ import {
   ElCard,
 } from 'element-plus';
 import { ArrowLeft } from '@element-plus/icons-vue';
-import { getInstrumentDetailApi, createInstrumentApplicationApi } from '@/api';
+import { getInstrumentDetailApi, applyInstrumentApi } from '@/api';
 import { PageLayout } from '@/components';
 import { useApi } from '@/composables';
 
@@ -88,7 +88,7 @@ const submitApplication = async () => {
     }
 
     submitting.value = true;
-    await createInstrumentApplicationApi(instrumentId.value, applicationForm);
+    await applyInstrumentApi(instrumentId.value, applicationForm);
     ElMessage.success('申请成功，请等待审核');
     router.push('/equipment/apply');
   } catch (error) {
@@ -152,11 +152,11 @@ onMounted(() => {
           </div>
           <div>
             <span class="text-gray-600">所属实验室：</span>
-            <span class="font-medium">{{ instrument.lab.name }}</span>
+            <span class="font-medium">{{ instrument.lab?.name }}</span>
           </div>
           <div>
             <span class="text-gray-600">所属院系：</span>
-            <span class="font-medium">{{ instrument.lab.department }}</span>
+            <span class="font-medium">{{ instrument.lab?.department }}</span>
           </div>
         </div>
       </ElCard>

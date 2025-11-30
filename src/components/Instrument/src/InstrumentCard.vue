@@ -44,7 +44,7 @@ const handleClick = () => {
       <p class="text-sm text-gray-600 mb-1 truncate">型号: {{ instrument.model }}</p>
       <p class="text-sm text-gray-500 mb-3 truncate">序列号: {{ instrument.serialNumber || "未设置" }}</p>
       <div class="space-y-1 text-sm text-gray-500">
-        <div class="flex items-center">
+        <div v-if="instrument.lab" class="flex items-center">
           <ElIcon class="mr-1">
             <Location />
           </ElIcon>

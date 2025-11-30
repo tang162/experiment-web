@@ -4,17 +4,10 @@ const Api = Object.freeze({
   /** 获取实验室列表 */
   GET_LABS: "/labs",
   /** 获取实验室下拉列表 */
-  GET_LABS_DROPDOWN: "/labs/dropdown",
+  GET_LABS_OPTIONS: "/labs/options",
+  /** 获取热门实验室 */
+  GET_POPULAR_LABS: "/labs/popular",
 });
-
-/**
- * 获取实验室下拉列表
- * @param {object} params
- * @returns {Promise<any>}
- */
-export function getLabsDropdownApi(params) {
-  return request.get(Api.GET_LABS_DROPDOWN, params);
-}
 
 /**
  * 获取实验室列表
@@ -35,26 +28,44 @@ export function getLabDetailApi(id) {
 }
 
 /**
- * 创建实验室
+ * 获取热门实验室
  * @param {object} params
  * @returns {Promise<any>}
  */
-export function createLabApi(params) {
-  return request.post(Api.GET_LABS, params);
+export function getPopularLabsApi(params) {
+  return request.get(Api.GET_POPULAR_LABS, params);
 }
 
 /**
- * 更新实验室
+ * 获取实验室下拉列表（仅返回 id 和 name）
+ * @param {object} params
+ * @returns {Promise<any>}
+ */
+export function getLabsOptionsApi(params) {
+  return request.get(Api.GET_LABS_OPTIONS, params);
+}
+
+/**
+ * 创建实验室（教师权限）
+ * @param {FormData} formData
+ * @returns {Promise<any>}
+ */
+export function createLabApi(formData) {
+  return request.post(Api.GET_LABS, formData);
+}
+
+/**
+ * 更新实验室（教师权限）
  * @param {number|string} id
- * @param {object} params
+ * @param {FormData} formData
  * @returns {Promise<any>}
  */
-export function updateLabApi(id, params) {
-  return request.put(`${Api.GET_LABS}/${id}`, params);
+export function updateLabApi(id, formData) {
+  return request.post(`${Api.GET_LABS}/${id}`, formData);
 }
 
 /**
- * 删除实验室
+ * 删除实验室（教师权限）
  * @param {number|string} id
  * @returns {Promise<any>}
  */

@@ -75,6 +75,10 @@ export const useAuthStore = defineStore("auth", {
       try {
         const { token } = await loginApi(params);
         this.setToken(token);
+
+        // 登录成功后立即获取用户信息
+        await this.fetchUserInfo();
+
         if (params.rememberPassword) {
           await setStorage(STORAGE_KEY.USER_LOGIN_INFO, params);
         }

@@ -28,9 +28,19 @@ const coreRoutes = [
     redirect: () => {
       // 动态获取用户角色对应的默认首页
       const authStore = useAuthStore();
-      return authStore.getDefaultHomePath;
+      // 如果已登录，跳转到用户首页；否则跳转到欢迎页
+      return authStore.getIsLoggedIn ? authStore.getDefaultHomePath : "/welcome";
     },
     children: [],
+  },
+  {
+    path: "/welcome",
+    name: "Welcome",
+    meta: {
+      title: "欢迎",
+      requiresAuth: false,
+    },
+    component: () => import("@/views/_core/welcome/index.vue"),
   },
   {
     path: "/login",

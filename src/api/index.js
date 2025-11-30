@@ -1,5 +1,3 @@
-export * from "./type";
-
 export * from "./modules/appointments";
 export * from "./modules/auth";
 export * from "./modules/user";
@@ -10,3 +8,5 @@ export * from "./modules/instrument.api";
 export * from "./modules/notification";
 export * from "./modules/news";
 export * from "./modules/banner";
+export * from "./modules/repair";
+export * from "./modules/evaluation";

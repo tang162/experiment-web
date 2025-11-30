@@ -3,7 +3,9 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElCarousel, ElCarouselItem, ElButton, ElIcon } from 'element-plus';
 import { ArrowRight } from '@element-plus/icons-vue';
-import { bannerApi, getLabsApi } from '@/api';
+import { getLabsApi, toggleFavoriteApi } from '@/api';
+import { getBannersApi } from '@/api/modules/banner';
+import { ElMessage } from 'element-plus';
 import { LabCard, SearchBar } from '@/components';
 
 const router = useRouter();
@@ -42,11 +44,45 @@ const functionCards = [
     route: '/reservation/list',
     color: 'from-purple-400 to-purple-600',
   },
+  {
+    title: '新闻公告',
+    icon: 'Bell',
+    description: '查看最新公告',
+    route: '/news',
+    color: 'from-pink-400 to-pink-600',
+  },
+  {
+    title: '我的收藏',
+    icon: 'Star',
+    description: '查看收藏的实验室',
+    route: '/favorites',
+    color: 'from-yellow-400 to-yellow-600',
+  },
+  {
+    title: '消息通知',
+    icon: 'Message',
+    description: '查看系统通知',
+    route: '/notifications',
+    color: 'from-indigo-400 to-indigo-600',
+  },
+  {
+    title: '维修记录',
+    icon: 'Setting',
+    description: '查看维修记录',
+    route: '/repairs/my',
+    color: 'from-red-400 to-red-600',
+  },
 ];
 
 const fetchBanners = async () => {
   try {
-    // banners.value = await bannerApi.getBanners(5);
+    const { list } = await getBannersApi({ typeId: 1, limit: 5 });
+
+    banners.value = list.map(item => {
+      return [...item.images]
+    })
+    console.log(banners.value);
+
   } catch (error) {
     console.error('获取轮播图失败:', error);
   }
@@ -80,8 +116,13 @@ const handleLabClick = (lab) => {
 };
 
 const handleToggleFavorite = async (lab) => {
-  // TODO: Implement favorite toggle API
-  lab.isFavorite = !lab.isFavorite;
+  try {
+    await toggleFavoriteApi(lab.id);
+    lab.isFavorite = !lab.isFavorite;
+    ElMessage.success(lab.isFavorite ? '已收藏' : '已取消收藏');
+  } catch (error) {
+    ElMessage.error('操作失败');
+  }
 };
 
 onMounted(() => {
@@ -95,9 +136,9 @@ onMounted(() => {
     <div class="container mx-auto px-4 py-8">
       <div class="mb-8">
         <ElCarousel height="400px" :interval="5000" arrow="always">
-          <ElCarouselItem v-for="banner in banners" :key="banner.id">
+          <ElCarouselItem v-for="banner in banners[0]" :key="banner.id">
             <div class="h-full w-full cursor-pointer" @click="banner.link && router.push(banner.link)">
-              <img :src="banner.image" :alt="banner.title" class="w-full h-full object-cover rounded-lg" />
+              <img :src="banner" :alt="banner.title" class="w-full h-full object-contain rounded-lg" />
             </div>
           </ElCarouselItem>
         </ElCarousel>
@@ -140,7 +181,7 @@ onMounted(() => {
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <LabCard v-for="lab in popularLabs" :key="lab.id" :lab="lab" @click="handleLabClick"
-            @toggle-favorite="handleToggleFavorite" />
+            @toggleFavorite="handleToggleFavorite" />
         </div>
       </div>
     </div>

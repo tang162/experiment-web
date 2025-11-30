@@ -155,76 +155,6 @@ class HttpClient {
     };
   }
 
-  /**
-   * GET 请求
-   */
-  get(
-    url,
-    params,
-    config
-  ) {
-    return this.request({
-      ...config,
-      method: "GET",
-      url,
-      params, // GET 请求通常用 params 传 query 参数
-    });
-  }
-
-  /**
-   * POST 请求
-   */
-  post(
-    url,
-    data,
-    config
-  ) {
-    return this.request({ ...config, method: "POST", url, data });
-  }
-
-  /**
-   * PUT 请求
-   */
-  put(
-    url,
-    data,
-    config
-  ) {
-    return this.request({ ...config, method: "PUT", url, data });
-  }
-
-  /**
-   * DELETE 请求
-   */
-  delete(url, config) {
-    return this.request({ ...config, method: "DELETE", url });
-  }
-
-  /**
-   * PATCH 请求
-   */
-  patch(
-    url,
-    data,
-    config
-  ) {
-    return this.request({ ...config, method: "PATCH", url, data });
-  }
-
-  /**
-   * 分页请求
-   */
-  async paginate(
-    url,
-    params = {
-      page: 1,
-      pageSize: 10,
-    },
-    config
-  ) {
-    return this.get(url, { ...config, params });
-  }
-
   // 缓存相关方法
   getCacheKey(config) {
     const { method, url, params, data, retryCount } = config;
@@ -348,6 +278,78 @@ class HttpClient {
     }
   }
 
+
+  /**
+   * GET 请求
+   */
+  get(
+    url,
+    params,
+    config
+  ) {
+    return this.request({
+      ...config,
+      method: "GET",
+      url,
+      params, // GET 请求通常用 params 传 query 参数
+    });
+  }
+
+  /**
+   * POST 请求
+   */
+  post(
+    url,
+    data,
+    config
+  ) {
+    return this.request({ ...config, method: "POST", url, data });
+  }
+
+  /**
+   * PUT 请求
+   */
+  put(
+    url,
+    data,
+    config
+  ) {
+    return this.request({ ...config, method: "PUT", url, data });
+  }
+
+  /**
+   * DELETE 请求
+   */
+  delete(url, config) {
+    return this.request({ ...config, method: "DELETE", url });
+  }
+
+  /**
+   * PATCH 请求
+   */
+  patch(
+    url,
+    data,
+    config
+  ) {
+    return this.request({ ...config, method: "PATCH", url, data });
+  }
+
+  /**
+   * 分页请求
+   */
+  async paginate(
+    url,
+    params = {
+      page: 1,
+      pageSize: 10,
+    },
+    config
+  ) {
+    return this.get(url, { ...config, params });
+  }
+
+
   /**
    * 文件上传
    * @param url 上传地址
@@ -380,7 +382,7 @@ class HttpClient {
       ...config,
       headers: {
         "Content-Type": "multipart/form-data",
-        ...config.headers,
+        ...config?.headers,
       },
     };
 

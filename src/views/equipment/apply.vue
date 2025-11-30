@@ -79,7 +79,7 @@ onMounted(() => {
         </ElTableColumn>
         <ElTableColumn prop="lab" label="所属实验室" min-width="150">
           <template #default="{ row }">
-            {{ row.lab.name }}- {{ row.lab.location }}
+            {{ row.instrument?.lab?.name }}- {{ row.instrument?.lab?.location }}
           </template>
         </ElTableColumn>
         <ElTableColumn prop="status" label="状态" width="100">

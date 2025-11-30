@@ -68,7 +68,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageLayout :title="instrument?.name || '仪器详情'" :description="instrument?.model" :loading="loading">
+  <PageLayout :title="instrument?.name || '仪器详情'" :description="instrument?.model || ''" :loading="loading">
     <div v-if="instrument" class="space-y-6">
       <!-- 返回按钮 -->
       <div class="mb-4">
@@ -109,11 +109,11 @@ onMounted(() => {
             <div class="space-y-2">
               <div class="flex items-center">
                 <span class="text-gray-600 w-24">所属实验室:</span>
-                <span class="text-gray-900 font-medium">{{ instrument.lab.name }}</span>
+                <span class="text-gray-900 font-medium">{{ instrument.lab?.name }}</span>
               </div>
               <div class="flex items-center">
                 <span class="text-gray-600 w-24">所属院系:</span>
-                <span class="text-gray-900">{{ instrument.lab.department }}</span>
+                <span class="text-gray-900">{{ instrument.lab?.department }}</span>
               </div>
               <div class="flex items-center">
                 <span class="text-gray-600 w-24">设备状态:</span>
