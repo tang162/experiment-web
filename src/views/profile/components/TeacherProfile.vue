@@ -1,22 +1,13 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
-import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElSelect, ElOption, ElTable, ElTableColumn } from 'element-plus';
+import { ElMessage, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElSelect, ElOption } from 'element-plus';
 import { useAuthStore } from '@/stores';
-import { equipmentApi } from '@/api';
-import { getMyAppointmentsApi, getPendingAppointmentsApi, reviewAppointmentApi } from '@/api/modules/appointments';
-import { ReservationTable } from '@/components';
-import { ApplicationStatus } from '@/types';
 
 const authStore = useAuthStore();
 
 const activeTab = ref('info');
 const user = ref(null);
 const editDialogVisible = ref(false);
-const pendingReservations = ref([]);
-const pendingApplications = ref([]);
-const myAppointments = ref([]);
-const pendingAppointments = ref([]);
-const loading = ref(false);
 
 const editForm = reactive({
   nickname: '',
@@ -32,72 +23,6 @@ const fetchUserInfo = () => {
     editForm.email = user.value.email || '';
     editForm.phone = user.value.phone || '';
     editForm.teachingTags = user.value.teachingTags || [];
-  }
-};
-
-const fetchPendingReservations = async () => {
-  loading.value = true;
-  try {
-    // const response = await reservationApi.getPendingReviews({ page: 1, pageSize: 20 });
-    // pendingReservations.value = response.list;
-    pendingReservations.value = [];
-  } catch (error) {
-    console.error('获取待审核预约失败:', error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const fetchPendingApplications = async () => {
-  loading.value = true;
-  try {
-    const response = await equipmentApi.getPendingApplications({ page: 1, pageSize: 20 });
-    pendingApplications.value = response.list;
-  } catch (error) {
-    console.error('获取待审核申请失败:', error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const fetchMyAppointments = async () => {
-  loading.value = true;
-  try {
-    const response = await getMyAppointmentsApi({ page: 1, pageSize: 20 });
-    myAppointments.value = response.list || response;
-  } catch (error) {
-    console.error('获取我的预约失败:', error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const fetchPendingAppointments = async () => {
-  loading.value = true;
-  try {
-    const response = await getPendingAppointmentsApi({ page: 1, pageSize: 20 });
-    pendingAppointments.value = response.list || response;
-  } catch (error) {
-    console.error('获取待审核预约失败:', error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const handleTabChange = (tabName) => {
-  switch (tabName) {
-    case 'reservations':
-      fetchPendingReservations();
-      break;
-    case 'applications':
-      fetchPendingApplications();
-      break;
-    case 'myAppointments':
-      fetchMyAppointments();
-      break;
-    case 'appointmentReview':
-      fetchPendingAppointments();
-      break;
   }
 };
 

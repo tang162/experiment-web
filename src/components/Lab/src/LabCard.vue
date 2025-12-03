@@ -13,6 +13,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  favoriteLoading: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["click", "toggleFavorite"]);
@@ -49,6 +53,10 @@ const handleClick = () => {
 
 const handleFavoriteClick = (event) => {
   event.stopPropagation();
+  // Prevent action if loading
+  if (props.favoriteLoading) {
+    return;
+  }
   emit("toggleFavorite", props.lab);
 };
 </script>
@@ -62,7 +70,12 @@ const handleFavoriteClick = (event) => {
       <ElIcon :size="64" color="white">
         <School />
       </ElIcon>
-      <div v-if="showFavorite" class="absolute top-3 right-3 cursor-pointer" @click="handleFavoriteClick">
+      <div 
+        v-if="showFavorite" 
+        class="absolute top-3 right-3 cursor-pointer transition-opacity" 
+        :class="{ 'opacity-50 cursor-not-allowed': favoriteLoading }"
+        @click="handleFavoriteClick"
+      >
         <ElIcon :size="24" :color="lab.isFavorite ? '#f56c6c' : 'white'">
           <Star :filled="lab.isFavorite" />
         </ElIcon>

@@ -1,33 +1,46 @@
 import { Layout } from "@/layouts";
 
-
-// 实验室管理模块路由
+/**
+ * 实验室相关模块路由
+ * 包含：首页、实验室浏览、实验室管理、实验室预约
+ * 
+ * 参考后端接口：
+ * - GET /api/labs - 公开（支持可选认证）
+ * - GET /api/labs/popular - 公开（支持可选认证）
+ * - GET /api/labs/:id - 公开（支持可选认证）
+ * - POST /api/labs - 需要教师及以上权限
+ * - POST /api/labs/:id - 需要教师及以上权限
+ * - DELETE /api/labs/:id - 需要管理员权限
+ * - POST /api/appointments - 需要登录
+ * - GET /api/appointments/my - 需要登录
+ */
 const labRoutes = [
-  // 首页（作为实验室模块的一部分）
   {
-    path: "/lab",
+    path: "/",
     component: Layout,
-    redirect: "/lab/home",
+    redirect: "/home",
     children: [
+      // 首页 - 公开访问
       {
         path: "home",
-        name: "LabHome",
+        name: "Home",
         component: () => import("@/views/home/index.vue"),
         meta: {
           title: "首页",
-          requiresAuth: true,
+          requiresAuth: false,
         },
       },
+      // 实验室列表 - 公开访问
       {
         path: "labs",
         name: "Labs",
         component: () => import("@/views/labs/index.vue"),
         meta: {
           title: "实验室列表",
-          requiresAuth: true,
+          requiresAuth: false,
         },
       },
-      // 管理员路由 - 必须在动态路由之前定义
+      // 实验室管理（教师功能）- 需要教师权限
       {
         path: "labs/admin",
         name: "LabAdmin",
@@ -35,9 +48,10 @@ const labRoutes = [
         meta: {
           title: "实验室管理",
           requiresAuth: true,
-          roles: ["admin"],
+          roles: ["teacher"],
         },
       },
+      // 创建实验室 - 需要教师权限
       {
         path: "labs/admin/create",
         name: "LabCreate",
@@ -45,9 +59,10 @@ const labRoutes = [
         meta: {
           title: "新建实验室",
           requiresAuth: true,
-          roles: ["admin"],
+          roles: ["teacher"],
         },
       },
+      // 编辑实验室 - 需要教师权限
       {
         path: "labs/admin/edit/:id",
         name: "LabEdit",
@@ -55,53 +70,26 @@ const labRoutes = [
         meta: {
           title: "编辑实验室",
           requiresAuth: true,
-          roles: ["admin"],
+          roles: ["teacher"],
         },
       },
-      // 动态路由 - 必须在静态路由之后定义
+      // 实验室详情 - 公开访问
       {
         path: "labs/:id",
         name: "LabDetail",
         component: () => import("@/views/labs/detail.vue"),
         meta: {
           title: "实验室详情",
-          requiresAuth: true,
+          requiresAuth: false,
         },
       },
+      // 预约实验室 - 需要登录
       {
         path: "labs/reserve/:id",
         name: "LabReserve",
         component: () => import("@/views/labs/reserve.vue"),
         meta: {
           title: "预约实验室",
-          requiresAuth: true,
-        },
-      },
-      // 仪器管理路由
-      {
-        path: "instruments",
-        name: "Instruments",
-        component: () => import("@/views/instruments/index.vue"),
-        meta: {
-          title: "仪器列表",
-          requiresAuth: true,
-        },
-      },
-      {
-        path: "instruments/:id",
-        name: "InstrumentDetail",
-        component: () => import("@/views/instruments/detail.vue"),
-        meta: {
-          title: "仪器详情",
-          requiresAuth: true,
-        },
-      },
-      {
-        path: "instruments/:id/apply",
-        name: "InstrumentApply",
-        component: () => import("@/views/instruments/apply.vue"),
-        meta: {
-          title: "申请使用仪器",
           requiresAuth: true,
         },
       },

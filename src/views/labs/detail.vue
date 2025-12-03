@@ -1,9 +1,9 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ElButton, ElTag, ElDivider, ElRate, ElCarousel, ElCarouselItem, ElImage } from 'element-plus';
-import { ArrowLeft } from '@element-plus/icons-vue';
-import { getLabDetailApi } from '@/api';
+import { ElButton, ElTag, ElDivider, ElRate, ElCarousel, ElCarouselItem, ElImage, ElMessage, ElIcon } from 'element-plus';
+import { ArrowLeft, Star } from '@element-plus/icons-vue';
+import { getLabDetailApi, toggleFavoriteApi } from '@/api';
 import { PageLayout } from '@/components';
 import { useApi } from '@/composables';
 
@@ -11,6 +11,7 @@ const route = useRoute();
 const router = useRouter();
 
 const { data: lab, loading, execute: fetchLabDetail } = useApi();
+const favoriteLoading = ref(false); // Track loading state for favorite button
 
 const loadLabDetail = async () => {
   const result = await fetchLabDetail(() =>
@@ -28,6 +29,59 @@ const goBack = () => {
 
 const goToReserve = () => {
   router.push(`/lab/labs/reserve/${route.params.id}`);
+};
+
+// 收藏相关的计算属性
+const isFavorited = computed(() => {
+  return lab.value?.isFavorite || false;
+});
+
+const favoriteButtonText = computed(() => {
+  return isFavorited.value ? '已收藏' : '收藏';
+});
+
+const favoriteButtonIcon = computed(() => {
+  return Star;
+});
+
+// 切换收藏状态
+const handleToggleFavorite = async () => {
+  // 防止重复点击
+  if (favoriteLoading.value) {
+    return;
+  }
+
+  // 添加loading状态
+  favoriteLoading.value = true;
+
+  // 保存原始状态用于回滚
+  const originalFavoriteState = lab.value?.isFavorite || false;
+
+  try {
+    // 乐观更新：立即更新UI状态
+    if (lab.value) {
+      lab.value.isFavorite = !lab.value.isFavorite;
+    }
+
+    // 调用API
+    const result = await toggleFavoriteApi(route.params.id);
+    
+    if (result) {
+      // 显示成功提示
+      ElMessage.success(result.data?.message || '操作成功');
+    }
+  } catch (error) {
+    // API调用失败，回滚UI状态
+    if (lab.value) {
+      lab.value.isFavorite = originalFavoriteState;
+    }
+
+    // 显示错误提示
+    ElMessage.error(error.message || '操作失败，请稍后重试');
+  } finally {
+    // 移除loading状态
+    favoriteLoading.value = false;
+  }
 };
 
 // 状态相关的计算属性
@@ -98,7 +152,20 @@ onMounted(() => {
               <span class="text-sm text-gray-500">更新于 {{ formattedUpdateTime }}</span>
             </div>
           </div>
-          <div>
+          <div class="flex items-center space-x-3">
+            <ElButton 
+              size="large" 
+              @click="handleToggleFavorite"
+              :type="isFavorited ? 'danger' : 'default'"
+              :plain="!isFavorited"
+              :loading="favoriteLoading"
+              :disabled="favoriteLoading"
+            >
+              <ElIcon class="mr-1" v-if="!favoriteLoading">
+                <component :is="favoriteButtonIcon" :filled="isFavorited" />
+              </ElIcon>
+              {{ favoriteButtonText }}
+            </ElButton>
             <ElButton type="primary" size="large" @click="goToReserve" :disabled="lab.status !== 0">
               {{ lab.status === 0 ? '预约实验室' : '暂不可预约' }}
             </ElButton>

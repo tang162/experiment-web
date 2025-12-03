@@ -18,16 +18,16 @@ const isStudent = computed(() => authStore.getUserRole === UserRole.STUDENT);
 
 const menuItems = computed(() => {
   const baseMenus = [
-    { title: '首页', path: '/lab/home', icon: 'House' },
-    { title: '实验室', path: '/lab/labs', icon: 'School' },
-    { title: '仪器列表', path: '/lab/instruments', icon: 'Monitor' },
-    { title: '我的申请', path: '/equipment/apply', icon: 'Tools' },
+    { title: '首页', path: '/home', icon: 'House' },
+    { title: '实验室', path: '/labs', icon: 'School' },
+    { title: '仪器列表', path: '/instruments', icon: 'Monitor' },
   ];
 
-  if (isStudent.value) {
-    baseMenus.push({ title: '我的预约', path: '/reservations', icon: 'Calendar' });
-  } else {
-    baseMenus.push({ title: '审核管理', path: '/teacher/reservations', icon: 'Document' });
+  if (!isStudent.value) {
+    baseMenus.push(
+      { title: '预约审核', path: '/teacher/appointments', icon: 'Document' },
+      { title: '申请审核', path: '/teacher/applications', icon: 'DocumentChecked' }
+    );
   }
 
   return baseMenus;
@@ -74,7 +74,7 @@ onMounted(() => {
       <div class="container mx-auto px-4">
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center space-x-8">
-            <div class="text-xl font-bold text-indigo-600 cursor-pointer" @click="router.push('/lab/home')">
+            <div class="text-xl font-bold text-indigo-600 cursor-pointer" @click="router.push('/home')">
               实验室预约系统
             </div>
 

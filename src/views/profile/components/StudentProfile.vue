@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElTable, ElTableColumn } from 'element-plus';
 import { useAuthStore } from '@/stores';
 import { equipmentApi, getAppointmentsApi, getMyInstrumentApplicationsApi, getMyFavoritesApi, toggleFavoriteApi } from '@/api';
-import { ReservationTable, LabCard } from '@/components';
+import { ReservationTable, LabCard, EmptyState } from '@/components';
 import { ApplicationStatus, RepairStatus, ReservationStatus, INSTRUMENT_STATUS_MAP } from '@/types';
 const authStore = useAuthStore();
 
@@ -344,20 +344,31 @@ onMounted(() => {
 
 
       <ElTabPane label="我的收藏" name="favorites">
-        <div v-loading="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="lab in favorites" :key="lab.id" class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-bold">{{ lab.lab.name }}</h3>
-              <ElButton type="danger" size="small" text @click="removeFavorite(lab.lab)">
-                取消收藏
-              </ElButton>
-            </div>
-            <p class="text-gray-600 mb-2">{{ lab.department }}</p>
-            <div class="flex items-center justify-between text-sm text-gray-500">
-              <span>容量：{{ lab.lab.capacity }}人</span>
-              <span>评分：{{ lab.lab.rating || '暂无' }}</span>
+        <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6 min-h-[400px]">
+          <div v-if="favorites.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="lab in favorites" :key="lab.id" class="bg-white rounded-lg border border-gray-200 p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold">{{ lab.lab.name }}</h3>
+                <ElButton type="danger" size="small" text @click="removeFavorite(lab.lab)">
+                  取消收藏
+                </ElButton>
+              </div>
+              <p class="text-gray-600 mb-2">{{ lab.department }}</p>
+              <div class="flex items-center justify-between text-sm text-gray-500">
+                <span>容量：{{ lab.lab.capacity }}人</span>
+                <span>评分：{{ lab.lab.rating || '暂无' }}</span>
+              </div>
             </div>
           </div>
+          
+          <EmptyState 
+            v-if="favorites.length === 0 && !loading"
+            icon="Star"
+            description="还没有收藏任何实验室"
+            :show-action="true"
+            action-text="去浏览实验室"
+            @action="$router.push('/lab/labs')"
+          />
         </div>
       </ElTabPane>
     </ElTabs>

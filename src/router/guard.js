@@ -7,6 +7,8 @@ import {
 import { coreRouteNames, accessRoutes } from "./routers/index";
 import { generateAccess } from "./access";
 
+const WELCOME_PATH = "/welcome";
+
 function setupCommonGuard(router) {
   router.beforeEach((to, _from, next) => {
     try {
@@ -70,7 +72,18 @@ function setupAccessGuard(router) {
       return true;
     }
 
-    const userInfo = authStore.getUserInfo || (await authStore.fetchUserInfo());
+    let userInfo;
+    try {
+      userInfo = authStore.getUserInfo || (await authStore.fetchUserInfo());
+    } catch (error) {
+      // 获取用户信息失败（如 token 过期），清除认证状态并重定向到欢迎页
+      console.error("获取用户信息失败:", error);
+      await authStore.clear();
+      return {
+        path: WELCOME_PATH,
+        replace: true,
+      };
+    }
 
     const userRoles = userInfo.role;
 

@@ -37,8 +37,24 @@ const handleRegister = () => {
     <header class="bg-white shadow-sm sticky top-0 z-50">
       <div class="container mx-auto px-4">
         <div class="flex items-center justify-between h-16">
-          <div class="text-2xl font-bold text-indigo-600">
-            实验室预约系统
+          <div class="flex items-center gap-8">
+            <div class="text-2xl font-bold text-indigo-600">
+              实验室预约系统
+            </div>
+            <nav class="hidden md:flex items-center gap-6 text-gray-600">
+              <a href="#reservation" class="hover:text-indigo-600 transition-colors">
+                实验室预约
+              </a>
+              <a href="#application" class="hover:text-indigo-600 transition-colors">
+                仪器申请
+              </a>
+              <a href="#features" class="hover:text-indigo-600 transition-colors">
+                功能特性
+              </a>
+              <a href="#roles" class="hover:text-indigo-600 transition-colors">
+                用户角色
+              </a>
+            </nav>
           </div>
           <div class="flex gap-4">
             <ElButton type="primary" @click="handleLogin">
@@ -57,16 +73,13 @@ const handleRegister = () => {
       <!-- 英雄区域 -->
       <section class="text-center mb-20">
         <h1 class="text-5xl font-bold text-gray-900 mb-6">
-          欢迎来到实验室预约系统
+          实验室预约与仪器申请平台
         </h1>
         <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          一个高效、便捷的实验室资源管理平台。学生可以轻松预约实验室和申请仪器，教师可以管理实验室资源和审核申请。
+          一站式实验室资源管理平台。轻松完成实验室预约、仪器申请，实时查看审核状态，让科研工作更高效。
         </p>
         <div class="flex gap-4 justify-center">
           <ElButton type="primary" size="large" @click="handleLogin">
-            <ElIcon class="mr-2">
-              <Login />
-            </ElIcon>
             立即登录
           </ElButton>
           <ElButton size="large" @click="handleRegister">
@@ -75,8 +88,97 @@ const handleRegister = () => {
         </div>
       </section>
 
+      <!-- 预约和申请流程 -->
+      <section id="reservation" class="mb-20">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-4">
+          实验室预约流程
+        </h2>
+        <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+          简单三步，快速完成实验室预约
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 text-2xl font-bold mb-4">
+              1
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+              浏览实验室
+            </h3>
+            <p class="text-gray-600">
+              查看实验室详情、设备配置和实时可用状态
+            </p>
+          </div>
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 text-2xl font-bold mb-4">
+              2
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+              提交预约
+            </h3>
+            <p class="text-gray-600">
+              选择时间段，填写预约信息并提交申请
+            </p>
+          </div>
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 text-2xl font-bold mb-4">
+              3
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+              等待审核
+            </h3>
+            <p class="text-gray-600">
+              教师审核通过后即可使用实验室
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="application" class="mb-20">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-4">
+          仪器申请流程
+        </h2>
+        <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+          便捷申请，高效使用实验仪器
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 text-2xl font-bold mb-4">
+              1
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+              选择仪器
+            </h3>
+            <p class="text-gray-600">
+              浏览仪器列表，查看仪器参数和使用说明
+            </p>
+          </div>
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 text-2xl font-bold mb-4">
+              2
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+              填写申请
+            </h3>
+            <p class="text-gray-600">
+              说明使用目的、时间和实验方案
+            </p>
+          </div>
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-600 text-2xl font-bold mb-4">
+              3
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">
+              获得批准
+            </h3>
+            <p class="text-gray-600">
+              审核通过后按预约时间使用仪器
+            </p>
+          </div>
+        </div>
+      </section>
+
       <!-- 功能特性 -->
-      <section class="mb-20">
+      <section id="features" class="mb-20">
         <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">
           核心功能
         </h2>
@@ -173,7 +275,7 @@ const handleRegister = () => {
       </section>
 
       <!-- 用户角色说明 -->
-      <section class="mb-20">
+      <section id="roles" class="mb-20">
         <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">
           用户角色
         </h2>

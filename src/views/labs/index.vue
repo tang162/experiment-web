@@ -1,8 +1,8 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { ElPagination } from 'element-plus';
-import { getLabsApi } from '@/api';
+import { ElPagination, ElMessage } from 'element-plus';
+import { getLabsApi, toggleFavoriteApi } from '@/api';
 import { PageLayout, LabCard, LabFilter, EmptyState } from '@/components';
 import { useApi, usePagination } from '@/composables';
 
@@ -10,6 +10,7 @@ const router = useRouter();
 const route = useRoute();
 
 const labs = ref([]);
+const favoriteLoading = ref(new Set()); // Track loading state for each lab
 
 // 筛选条件 - 完全按照 API 定义
 const filters = reactive({
@@ -85,6 +86,48 @@ const handleLabClick = (lab) => {
   router.push(`/lab/labs/${lab.id}`);
 };
 
+// 切换收藏状态
+const handleToggleFavorite = async (lab) => {
+  // 防止重复点击
+  if (favoriteLoading.value.has(lab.id)) {
+    return;
+  }
+
+  // 添加loading状态
+  favoriteLoading.value.add(lab.id);
+
+  // 保存原始状态用于回滚
+  const originalFavoriteState = lab.isFavorite;
+
+  try {
+    // 乐观更新：立即更新UI状态
+    const labIndex = labs.value.findIndex(l => l.id === lab.id);
+    if (labIndex !== -1) {
+      labs.value[labIndex].isFavorite = !labs.value[labIndex].isFavorite;
+    }
+
+    // 调用API
+    const result = await toggleFavoriteApi(lab.id);
+    
+    if (result) {
+      // 显示成功提示
+      ElMessage.success(result.data?.message || '操作成功');
+    }
+  } catch (error) {
+    // API调用失败，回滚UI状态
+    const labIndex = labs.value.findIndex(l => l.id === lab.id);
+    if (labIndex !== -1) {
+      labs.value[labIndex].isFavorite = originalFavoriteState;
+    }
+
+    // 显示错误提示
+    ElMessage.error(error.message || '操作失败，请稍后重试');
+  } finally {
+    // 移除loading状态
+    favoriteLoading.value.delete(lab.id);
+  }
+};
+
 // 监听分页变化
 watch(() => pagination.page, () => {
   loadLabs();
@@ -113,7 +156,12 @@ onMounted(() => {
     <div class="min-h-[400px]">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
         <template v-for="lab in labs" :key="lab.id">
-          <LabCard :lab="lab" @click="handleLabClick" />
+          <LabCard 
+            :lab="lab" 
+            :favorite-loading="favoriteLoading.has(lab.id)"
+            @click="handleLabClick" 
+            @toggle-favorite="handleToggleFavorite" 
+          />
         </template>
       </div>
 
