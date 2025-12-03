@@ -30,7 +30,7 @@ const goBack = () => {
 // 申请使用仪器
 const applyInstrument = () => {
   // 跳转到申请表单页面
-  router.push(`/lab/instruments/${route.params.id}/apply`);
+  router.push(`/instruments/${route.params.id}/apply`);
 };
 
 // 报告故障

@@ -75,7 +75,7 @@ const handleReset = () => {
 
 // 点击仪器卡片
 const handleInstrumentClick = (instrument) => {
-  router.push(`/lab/instruments/${instrument.id}`);
+  router.push(`/instruments/${instrument.id}`);
 };
 
 // 监听分页变化

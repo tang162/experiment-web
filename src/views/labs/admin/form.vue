@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { ElButton, ElForm, ElFormItem, ElInput, ElInputNumber, ElSelect, ElOption, ElTag, ElMessage, ElSwitch } from 'element-plus';
-import { getLabsApi, createLabApi, updateLabApi } from '@/api';
+import { getLabDetailApi, createLabApi, updateLabApi, getInstrumentsOptionsApi } from '@/api';
 import { PageLayout, ImageUpload } from '@/components';
 import { useForm } from '@/composables';
 
@@ -12,7 +12,18 @@ const route = useRoute();
 const isEdit = computed(() => !!route.params.id);
 const title = computed(() => isEdit.value ? '编辑实验室' : '新建实验室');
 
-const equipmentInput = ref('');
+// 判断是否从个人中心跳转过来
+const fromProfile = computed(() => {
+  return route.name === 'LabCreateSimple' || route.name === 'LabEditSimple';
+});
+
+// 仪器列表
+const instrumentOptions = ref([]);
+const instrumentLoading = ref(false);
+
+// 图片上传组件引用
+const imageUploadRef = ref(null);
+
 const tagInput = ref('');
 
 const rules = {
@@ -35,6 +46,14 @@ const rules = {
   ],
 };
 
+// 提交成功后的跳转路径
+const getRedirectPath = () => {
+  if (fromProfile.value) {
+    return '/profile';
+  }
+  return '/labs/admin';
+};
+
 const { formRef, form: labForm, loading, handleSubmit } = useForm({
   initialValues: {
     name: '',
@@ -45,18 +64,30 @@ const { formRef, form: labForm, loading, handleSubmit } = useForm({
     tags: [],
     description: '',
     images: [],
-    equipmentList: [],
+    instrumentIds: [],
   },
   rules,
   onSubmit: async (values) => {
+    // 获取待上传的图片文件
+    const pendingFiles = imageUploadRef.value?.getPendingFiles() || [];
+    
+    // 构建提交数据
+    const submitData = {
+      ...values,
+      // 只保留已上传的图片URL
+      images: values.images.filter(img => typeof img === 'string' && img.startsWith('http')),
+      // 添加待上传的文件
+      imageFiles: pendingFiles,
+    };
+
     if (isEdit.value) {
-      await updateLabApi(Number(route.params.id), values);
+      await updateLabApi(Number(route.params.id), submitData);
       ElMessage.success('更新成功');
     } else {
-      await createLabApi(values);
+      await createLabApi(submitData);
       ElMessage.success('创建成功');
     }
-    router.push('/lab/labs/admin');
+    router.push(getRedirectPath());
   },
   onError: (error) => {
     ElMessage.error(error.message || '操作失败');
@@ -76,14 +107,39 @@ const departments = [
   '经济管理学院',
 ];
 
+// 加载仪器列表
+const loadInstruments = async (keyword = '') => {
+  instrumentLoading.value = true;
+  try {
+    const result = await getInstrumentsOptionsApi({ keyword, pageSize: 100 });
+    instrumentOptions.value = result.list  || [];
+  } catch (error) {
+    console.error('加载仪器列表失败:', error);
+  } finally {
+    instrumentLoading.value = false;
+  }
+};
+
 const loadLabDetail = async () => {
   if (!isEdit.value) return;
 
   try {
-    // Get all labs and find the specific one
-    const labs = await getLabsApi({});
-    const lab = labs.find(l => l.id === Number(route.params.id));
+    // 使用详情接口获取实验室信息
+    const lab = await getLabDetailApi(Number(route.params.id));
     if (lab) {
+      // 获取已关联的仪器ID
+      const instrumentIds = lab.instruments?.map(i => i.id) || [];
+      
+      // 将已关联的仪器添加到选项列表中（避免编辑时看不到已选中的仪器）
+      if (lab.instruments && lab.instruments.length > 0) {
+        const existingIds = new Set(instrumentOptions.value.map(i => i.id));
+        lab.instruments.forEach(instrument => {
+          if (!existingIds.has(instrument.id)) {
+            instrumentOptions.value.push({ id: instrument.id, name: instrument.name });
+          }
+        });
+      }
+      
       Object.assign(labForm, {
         name: lab.name,
         location: lab.location,
@@ -93,24 +149,18 @@ const loadLabDetail = async () => {
         tags: lab.tags || [],
         description: lab.description || '',
         images: lab.images || [],
-        equipmentList: lab.equipmentList || [],
+        instrumentIds,
       });
     }
   } catch (error) {
     ElMessage.error('加载实验室信息失败');
-    router.push('/lab/labs/admin');
+    router.push(getRedirectPath());
   }
 };
 
-const addEquipment = () => {
-  if (equipmentInput.value.trim() && !labForm.equipmentList?.includes(equipmentInput.value.trim())) {
-    labForm.equipmentList.push(equipmentInput.value.trim());
-    equipmentInput.value = '';
-  }
-};
-
-const removeEquipment = (index) => {
-  labForm.equipmentList.splice(index, 1);
+// 远程搜索仪器
+const remoteSearchInstruments = (query) => {
+  loadInstruments(query);
 };
 
 const addTag = () => {
@@ -124,11 +174,13 @@ const removeTag = (index) => {
   labForm.tags.splice(index, 1);
 };
 
+// 处理图片变化（包括删除）
 const handleImageChange = (images) => {
   labForm.images = images;
 };
 
 onMounted(() => {
+  loadInstruments();
   loadLabDetail();
 });
 </script>
@@ -163,19 +215,26 @@ onMounted(() => {
           </ElSelect>
         </ElFormItem>
 
-        <ElFormItem label="设备列表">
-          <div class="space-y-2">
-            <div class="flex space-x-2">
-              <ElInput v-model="equipmentInput" placeholder="输入设备名称" @keyup.enter="addEquipment" />
-              <ElButton @click="addEquipment">添加</ElButton>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <ElTag v-for="(equipment, index) in labForm.equipmentList" :key="index" closable
-                @close="removeEquipment(index)">
-                {{ equipment }}
-              </ElTag>
-            </div>
-          </div>
+        <ElFormItem label="关联仪器">
+          <ElSelect
+            v-model="labForm.instrumentIds"
+            multiple
+            filterable
+            remote
+            reserve-keyword
+            placeholder="搜索并选择仪器"
+            :remote-method="remoteSearchInstruments"
+            :loading="instrumentLoading"
+            style="width: 100%"
+          >
+            <ElOption
+              v-for="item in instrumentOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </ElSelect>
+          <div class="text-gray-400 text-sm mt-1">可搜索并选择多个仪器关联到此实验室</div>
         </ElFormItem>
 
         <ElFormItem label="标签">
@@ -197,7 +256,14 @@ onMounted(() => {
         </ElFormItem>
 
         <ElFormItem label="实验室图片">
-          <ImageUpload v-model="labForm.images" :limit="5" :multiple="true" @change="handleImageChange" />
+          <ImageUpload 
+            ref="imageUploadRef"
+            v-model="labForm.images" 
+            :limit="10" 
+            :multiple="true" 
+            @change="handleImageChange"
+          />
+          <div class="text-gray-400 text-sm mt-1">最多上传10张图片，支持jpg、png格式</div>
         </ElFormItem>
 
         <ElFormItem>

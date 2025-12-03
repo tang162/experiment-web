@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from "vue";
 import { Monitor, Location, Calendar } from "@element-plus/icons-vue";
-import { ElIcon, ElTag } from "element-plus";
+import { ElIcon, ElTag, ElImage } from "element-plus";
 import { INSTRUMENT_STATUS_MAP } from "@/types";
 
 const props = defineProps({
@@ -20,6 +20,12 @@ const statusInfo = computed(() => {
   };
 });
 
+// 获取第一张图片
+const coverImage = computed(() => {
+  const images = props.instrument.images;
+  return images && images.length > 0 ? images[0] : null;
+});
+
 const handleClick = () => {
   emit("click", props.instrument);
 };
@@ -29,7 +35,12 @@ const handleClick = () => {
   <div
     class="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
     @click="handleClick">
-    <div class="h-48 bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center relative">
+    <!-- 有图片时显示图片 -->
+    <div v-if="coverImage" class="h-48 relative">
+      <ElImage :src="coverImage" fit="cover" class="w-full h-full" />
+    </div>
+    <!-- 无图片时显示默认背景 -->
+    <div v-else class="h-48 bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center relative">
       <ElIcon :size="64" color="white">
         <Monitor />
       </ElIcon>

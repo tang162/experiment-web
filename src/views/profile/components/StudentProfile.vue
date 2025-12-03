@@ -3,10 +3,18 @@ import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElTable, ElTableColumn } from 'element-plus';
 import { useAuthStore } from '@/stores';
-import { equipmentApi, getAppointmentsApi, getMyInstrumentApplicationsApi, getMyFavoritesApi, toggleFavoriteApi } from '@/api';
-import { ReservationTable, LabCard, EmptyState } from '@/components';
+import { getAppointmentsApi, getMyInstrumentApplicationsApi, getMyFavoritesApi, toggleFavoriteApi, getMyRepairsApi, cancelAppointmentApi } from '@/api';
+import { ReservationTable, LabCard, EmptyState, EvaluationDialog, AppointmentDetailDialog } from '@/components';
 import { ApplicationStatus, RepairStatus, ReservationStatus, INSTRUMENT_STATUS_MAP } from '@/types';
 const authStore = useAuthStore();
+
+// 评价弹窗
+const evaluationDialogVisible = ref(false);
+const currentAppointmentForEvaluation = ref(null);
+
+// 详情弹窗
+const detailDialogVisible = ref(false);
+const currentAppointmentForDetail = ref(null);
 
 
 const router = useRouter();
@@ -70,7 +78,7 @@ const fetchReservations = async () => {
   loading.value = true;
   try {
     const response = await getAppointmentsApi({ page: 1, pageSize: 10 });
-    appointments.value = response.list || response.data || [];
+    appointments.value = response.list ||  [];
   } catch (error) {
     console.error('获取预约记录失败:', error);
     ElMessage.error('获取预约记录失败');
@@ -83,7 +91,8 @@ const fetchApplications = async () => {
   loading.value = true;
   try {
     const response = await getMyInstrumentApplicationsApi({ page: 1, pageSize: 10 });
-    applications.value = response.list || response.data || [];
+    applications.value = response.list ||   [];
+ 
   } catch (error) {
     console.error('获取申请记录失败:', error);
     ElMessage.error('获取申请记录失败');
@@ -95,10 +104,11 @@ const fetchApplications = async () => {
 const fetchRepairRequests = async () => {
   loading.value = true;
   try {
-    const response = await equipmentApi.getMyRepairRequests({ page: 1, pageSize: 10 });
-    repairRequests.value = response.list;
+    const response = await getMyRepairsApi({ page: 1, pageSize: 10 });
+    repairRequests.value = response.list || [];
   } catch (error) {
     console.error('获取报修记录失败:', error);
+    ElMessage.error('获取报修记录失败');
   } finally {
     loading.value = false;
   }
@@ -108,7 +118,7 @@ const fetchFavorites = async () => {
   loading.value = true;
   try {
     const response = await getMyFavoritesApi({ page: 1, pageSize: 10 });
-    favorites.value = response.list || response.data || [];
+    favorites.value = response.list || [];
   } catch (error) {
     console.error('获取收藏失败:', error);
     ElMessage.error('获取收藏失败');
@@ -154,7 +164,7 @@ const handleCancelReservation = async (id) => {
       type: 'warning',
     });
 
-    // await reservationApi.cancelReservation(id);
+    await cancelAppointmentApi(id);
     ElMessage.success('取消成功');
     fetchReservations();
   } catch (error) {
@@ -162,6 +172,26 @@ const handleCancelReservation = async (id) => {
       ElMessage.error('取消失败');
     }
   }
+};
+
+// 查看预约详情
+const handleViewDetail = (row) => {
+  // 找到原始预约数据
+  const appointment = appointments.value.find(item => item.id === row.id);
+  currentAppointmentForDetail.value = appointment || row;
+  detailDialogVisible.value = true;
+};
+
+// 打开评价弹窗
+const handleEvaluate = (row) => {
+  const appointment = appointments.value.find(item => item.id === row.id);
+  currentAppointmentForEvaluation.value = appointment || row;
+  evaluationDialogVisible.value = true;
+};
+
+// 评价成功后刷新
+const handleEvaluationSuccess = () => {
+  fetchReservations();
 };
 
 const removeFavorite = async (lab) => {
@@ -238,7 +268,16 @@ const getRepairStatusText = (status) => {
 
 // 查看仪器详情
 const viewDetail = (row) => {
-  router.push(`/lab/instruments/${row.instrument.id}`);
+  if (row.instrument?.id) {
+    router.push(`/instruments/${row.instrument.id}`);
+  } else {
+    ElMessage.warning('仪器信息不存在');
+  }
+};
+
+// 查看实验室详情
+const goToLabDetail = (lab) => {
+  router.push(`/labs/${lab.id}`);
 };
 
 onMounted(() => {
@@ -290,7 +329,13 @@ onMounted(() => {
 
       <ElTabPane label="预约历史" name="reservations">
         <div class="bg-white rounded-lg shadow-md p-6">
-          <ReservationTable :reservations="reservations" :loading="loading" @cancel="handleCancelReservation" />
+          <ReservationTable 
+            :reservations="reservations" 
+            :loading="loading" 
+            @cancel="handleCancelReservation"
+            @view="handleViewDetail"
+            @evaluate="handleEvaluate"
+          />
         </div>
       </ElTabPane>
 
@@ -301,28 +346,28 @@ onMounted(() => {
             <ElTableColumn prop="id" label="申请ID" width="80" />
             <ElTableColumn prop="name" label="仪器名称" min-width="150">
               <template #default="{ row }">
-                {{ row.instrument.name || '未设置' }}
+                {{ row.instrument?.name || '未设置' }}
               </template>
             </ElTableColumn>
             <ElTableColumn prop="model" label="型号" min-width="120">
               <template #default="{ row }">
-                {{ row.instrument.model || '未设置' }}
+                {{ row.instrument?.model || '未设置' }}
               </template>
             </ElTableColumn>
             <ElTableColumn prop="serialNumber" label="序列号" min-width="120">
               <template #default="{ row }">
-                {{ row.instrument.serialNumber || '未设置' }}
+                {{ row.instrument?.serialNumber || '未设置' }}
               </template>
             </ElTableColumn>
             <ElTableColumn prop="lab" label="所属实验室" min-width="150">
               <template #default="{ row }">
-                {{ row.lab.name }}- {{ row.lab.location }}
+                {{ row.instrument?.lab?.name || '未知' }}
               </template>
             </ElTableColumn>
             <ElTableColumn prop="status" label="状态" width="100">
               <template #default="{ row }">
-                <ElTag :type="getStatusInfo(row.status).color" size="small">
-                  {{ getStatusInfo(row.status).label }}
+                <ElTag :type="getApplicationStatusType(row.status)" size="small">
+                  {{ getApplicationStatusText(row.status) }}
                 </ElTag>
               </template>
             </ElTableColumn>
@@ -346,19 +391,14 @@ onMounted(() => {
       <ElTabPane label="我的收藏" name="favorites">
         <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6 min-h-[400px]">
           <div v-if="favorites.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="lab in favorites" :key="lab.id" class="bg-white rounded-lg border border-gray-200 p-6">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold">{{ lab.lab.name }}</h3>
-                <ElButton type="danger" size="small" text @click="removeFavorite(lab.lab)">
-                  取消收藏
-                </ElButton>
-              </div>
-              <p class="text-gray-600 mb-2">{{ lab.department }}</p>
-              <div class="flex items-center justify-between text-sm text-gray-500">
-                <span>容量：{{ lab.lab.capacity }}人</span>
-                <span>评分：{{ lab.lab.rating || '暂无' }}</span>
-              </div>
-            </div>
+            <LabCard
+              v-for="item in favorites"
+              :key="item.id"
+              :lab="{ ...item.lab, isFavorite: true }"
+              :show-favorite="true"
+              @click="goToLabDetail(item.lab)"
+              @toggle-favorite="removeFavorite(item.lab)"
+            />
           </div>
           
           <EmptyState 
@@ -367,7 +407,43 @@ onMounted(() => {
             description="还没有收藏任何实验室"
             :show-action="true"
             action-text="去浏览实验室"
-            @action="$router.push('/lab/labs')"
+            @action="$router.push('/labs')"
+          />
+        </div>
+      </ElTabPane>
+
+      <ElTabPane label="报修记录" name="repairs">
+        <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
+          <ElTable :data="repairRequests" stripe style="width: 100%">
+            <ElTableColumn prop="id" label="报修ID" width="80" />
+            <ElTableColumn prop="instrument" label="仪器名称" min-width="150">
+              <template #default="{ row }">
+                {{ row.instrument?.name || '未知仪器' }}
+              </template>
+            </ElTableColumn>
+            <ElTableColumn prop="description" label="故障描述" min-width="200">
+              <template #default="{ row }">
+                <span class="line-clamp-2">{{ row.description }}</span>
+              </template>
+            </ElTableColumn>
+            <ElTableColumn prop="status" label="状态" width="100">
+              <template #default="{ row }">
+                <ElTag :type="getRepairStatusType(row.status)" size="small">
+                  {{ getRepairStatusText(row.status) }}
+                </ElTag>
+              </template>
+            </ElTableColumn>
+            <ElTableColumn prop="createdAt" label="报修时间" width="180">
+              <template #default="{ row }">
+                {{ formatDate(row.createdAt) }}
+              </template>
+            </ElTableColumn>
+          </ElTable>
+
+          <EmptyState 
+            v-if="repairRequests.length === 0 && !loading"
+            icon="Tools"
+            description="暂无报修记录"
           />
         </div>
       </ElTabPane>
@@ -390,5 +466,18 @@ onMounted(() => {
         <ElButton type="primary" @click="handleSaveProfile">保存</ElButton>
       </template>
     </ElDialog>
+
+    <!-- 预约详情弹窗 -->
+    <AppointmentDetailDialog
+      v-model="detailDialogVisible"
+      :appointment="currentAppointmentForDetail"
+    />
+
+    <!-- 评价弹窗 -->
+    <EvaluationDialog
+      v-model="evaluationDialogVisible"
+      :appointment="currentAppointmentForEvaluation"
+      @success="handleEvaluationSuccess"
+    />
   </div>
 </template>

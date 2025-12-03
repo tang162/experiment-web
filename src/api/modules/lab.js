@@ -51,7 +51,7 @@ export function getLabsOptionsApi(params) {
  * @returns {Promise<any>}
  */
 export function createLabApi(formData) {
-  return request.post(Api.GET_LABS, formData);
+  return request.upload(Api.GET_LABS, formData);
 }
 
 /**
@@ -61,7 +61,7 @@ export function createLabApi(formData) {
  * @returns {Promise<any>}
  */
 export function updateLabApi(id, formData) {
-  return request.post(`${Api.GET_LABS}/${id}`, formData);
+  return request.upload(`${Api.GET_LABS}/${id}`, formData);
 }
 
 /**
@@ -71,4 +71,13 @@ export function updateLabApi(id, formData) {
  */
 export function deleteLabApi(id) {
   return request.delete(`${Api.GET_LABS}/${id}`);
+}
+
+/**
+ * 获取我创建的实验室（教师权限）
+ * @param {object} params
+ * @returns {Promise<any>}
+ */
+export function getMyLabsApi(params) {
+  return request.get(`${Api.GET_LABS}/my`, params);
 }

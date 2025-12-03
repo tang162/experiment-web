@@ -90,7 +90,7 @@ const submitApplication = async () => {
     submitting.value = true;
     await applyInstrumentApi(instrumentId.value, applicationForm);
     ElMessage.success('申请成功，请等待审核');
-    router.push('/equipment/apply');
+    router.push('/profile/applications');
   } catch (error) {
     if (error?.message) {
       ElMessage.error(error.message);

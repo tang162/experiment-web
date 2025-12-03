@@ -73,6 +73,28 @@ const labRoutes = [
           roles: ["teacher"],
         },
       },
+      // 创建实验室（简化路径）- 需要教师权限
+      {
+        path: "labs/create",
+        name: "LabCreateSimple",
+        component: () => import("@/views/labs/admin/form.vue"),
+        meta: {
+          title: "新建实验室",
+          requiresAuth: true,
+          roles: ["teacher"],
+        },
+      },
+      // 编辑实验室（简化路径）- 需要教师权限
+      {
+        path: "labs/:id/edit",
+        name: "LabEditSimple",
+        component: () => import("@/views/labs/admin/form.vue"),
+        meta: {
+          title: "编辑实验室",
+          requiresAuth: true,
+          roles: ["teacher"],
+        },
+      },
       // 实验室详情 - 公开访问
       {
         path: "labs/:id",

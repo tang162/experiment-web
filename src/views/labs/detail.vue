@@ -4,8 +4,13 @@ import { useRoute, useRouter } from 'vue-router';
 import { ElButton, ElTag, ElDivider, ElRate, ElCarousel, ElCarouselItem, ElImage, ElMessage, ElIcon } from 'element-plus';
 import { ArrowLeft, Star } from '@element-plus/icons-vue';
 import { getLabDetailApi, toggleFavoriteApi } from '@/api';
-import { PageLayout } from '@/components';
+import { PageLayout, InstrumentCard } from '@/components';
 import { useApi } from '@/composables';
+
+// 点击器材卡片跳转到器材详情
+const goToInstrumentDetail = (instrument) => {
+  router.push(`/instruments/${instrument.id}`);
+};
 
 const route = useRoute();
 const router = useRouter();
@@ -28,7 +33,7 @@ const goBack = () => {
 };
 
 const goToReserve = () => {
-  router.push(`/lab/labs/reserve/${route.params.id}`);
+  router.push(`/labs/reserve/${route.params.id}`);
 };
 
 // 收藏相关的计算属性
@@ -236,6 +241,22 @@ onMounted(() => {
           <div>
             <h3 class="text-lg font-semibold mb-4 text-gray-800">实验室介绍</h3>
             <p class="text-gray-700 leading-relaxed whitespace-pre-wrap">{{ lab.description }}</p>
+          </div>
+        </div>
+
+        <!-- 关联器材 -->
+        <div v-if="lab.instruments && lab.instruments.length > 0">
+          <ElDivider />
+          <div>
+            <h3 class="text-lg font-semibold mb-4 text-gray-800">关联器材</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <InstrumentCard 
+                v-for="instrument in lab.instruments" 
+                :key="instrument.id" 
+                :instrument="instrument"
+                @click="goToInstrumentDetail"
+              />
+            </div>
           </div>
         </div>
       </div>

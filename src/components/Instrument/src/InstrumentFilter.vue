@@ -1,6 +1,7 @@
 <script setup>
-import { computed } from "vue";
-import { ElInput, ElSelect, ElOption, ElButton } from "element-plus";
+import { ref, computed, onMounted, watch } from "vue";
+import { ElSelect, ElOption, ElButton } from "element-plus";
+import { getLabsOptionsApi } from "@/api";
 
 const props = defineProps({
   modelValue: {
@@ -13,11 +14,30 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits([
-  "update:modelValue",
-  "filter",
-  "reset",
-]);
+const emit = defineEmits(["update:modelValue", "filter", "reset"]);
+
+// 实验室下拉选项
+const labOptions = ref([]);
+const labLoading = ref(false);
+
+// 获取实验室下拉选项
+const fetchLabOptions = async (keyword = "") => {
+  labLoading.value = true;
+  try {
+    const res = await getLabsOptionsApi({ keyword, pageSize: 50 });
+    labOptions.value = res.list || [];
+  } catch (error) {
+    console.error("获取实验室列表失败:", error);
+    labOptions.value = [];
+  } finally {
+    labLoading.value = false;
+  }
+};
+
+// 实验室远程搜索
+const handleLabSearch = (keyword) => {
+  fetchLabOptions(keyword);
+};
 
 const localLabId = computed({
   get: () => props.modelValue.labId,
@@ -44,18 +64,44 @@ const handleReset = () => {
   });
   emit("reset");
 };
+
+onMounted(() => {
+  if (props.showLabFilter) {
+    fetchLabOptions();
+  }
+});
+
+// 监听 showLabFilter 变化
+watch(
+  () => props.showLabFilter,
+  (val) => {
+    if (val && labOptions.value.length === 0) {
+      fetchLabOptions();
+    }
+  }
+);
 </script>
 
 <template>
   <div class="bg-white rounded-lg shadow-md p-6">
     <div class="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2 lg:grid-cols-3">
-      <ElInput
+      <ElSelect
         v-if="showLabFilter"
-        v-model.number="localLabId"
-        placeholder="搜索实验室ID"
-        type="number"
+        v-model="localLabId"
+        placeholder="选择实验室"
         clearable
-      />
+        filterable
+        remote
+        :remote-method="handleLabSearch"
+        :loading="labLoading"
+      >
+        <ElOption
+          v-for="lab in labOptions"
+          :key="lab.id"
+          :label="lab.name"
+          :value="lab.id"
+        />
+      </ElSelect>
 
       <ElSelect v-model="localStatus" placeholder="设备状态" clearable>
         <ElOption label="正常" :value="0" />

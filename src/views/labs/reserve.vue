@@ -118,7 +118,7 @@ const handleSubmit = async () => {
     try {
       await createAppointmentApi(formData);
       ElMessage.success('预约申请已提交，请等待审核');
-      router.push('/reservation/list');
+      router.push('/profile/reservations');
     } catch (error) {
       ElMessage.error(error.message || '预约失败，请稍后重试');
     } finally {

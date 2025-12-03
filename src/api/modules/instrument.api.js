@@ -6,13 +6,13 @@ const Api = Object.freeze({
   /** 获取仪器下拉列表 */
   GET_INSTRUMENTS_OPTIONS: "/instruments/options",
   /** 获取我的申请 */
-  GET_MY_INSTRUMENT_APPLICATIONS: "/instruments/applications/my",
+  GET_MY_INSTRUMENT_APPLICATIONS: "/instrument-applications/my",
   /** 申请列表 */
-  GET_INSTRUMENT_APPLICATIONS: "/instruments/applications",
+  GET_INSTRUMENT_APPLICATIONS: "/instrument-applications",
   /** 申请使用仪器 */
-  APPLY_INSTRUMENT: "/instruments/apply",
+  APPLY_INSTRUMENT: "/instrument-applications/apply",
   /** 审核申请 */
-  REVIEW_INSTRUMENT_APPLICATION: "/instruments/applications/review",
+  REVIEW_INSTRUMENT_APPLICATION: "/instrument-applications",
 });
 
 /**
@@ -106,4 +106,13 @@ export function applyInstrumentApi(id, params) {
  */
 export function reviewInstrumentApplicationApi(id, params) {
   return request.post(`${Api.REVIEW_INSTRUMENT_APPLICATION}/${id}`, params);
+}
+
+/**
+ * 取消仪器申请
+ * @param {number|string} id
+ * @returns {Promise<any>}
+ */
+export function cancelInstrumentApplicationApi(id) {
+  return request.delete(`${Api.GET_INSTRUMENT_APPLICATIONS}/${id}`);
 }

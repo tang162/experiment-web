@@ -20,28 +20,21 @@ const functionCards = [
     title: '实验室预约',
     icon: 'Calendar',
     description: '快速预约实验室',
-    route: '/lab/labs',
+    route: '/labs',
     color: 'from-blue-400 to-blue-600',
   },
   {
     title: '仪器申请',
     icon: 'Tools',
     description: '申请使用实验仪器',
-    route: '/equipment/apply',
+    route: '/instruments',
     color: 'from-green-400 to-green-600',
-  },
-  {
-    title: '设备报修',
-    icon: 'Warning',
-    description: '报告设备故障',
-    route: '/equipment/repair',
-    color: 'from-orange-400 to-orange-600',
   },
   {
     title: '预约记录',
     icon: 'Document',
     description: '查看预约历史',
-    route: '/reservation/list',
+    route: '/profile/reservations',
     color: 'from-purple-400 to-purple-600',
   },
   {
@@ -52,24 +45,17 @@ const functionCards = [
     color: 'from-pink-400 to-pink-600',
   },
   {
-    title: '我的收藏',
-    icon: 'Star',
-    description: '查看收藏的实验室',
-    route: '/favorites',
-    color: 'from-yellow-400 to-yellow-600',
-  },
-  {
     title: '消息通知',
     icon: 'Message',
     description: '查看系统通知',
-    route: '/notifications',
+    route: '/notification/list',
     color: 'from-indigo-400 to-indigo-600',
   },
   {
     title: '维修记录',
     icon: 'Setting',
     description: '查看维修记录',
-    route: '/repairs/my',
+    route: '/profile/repairs',
     color: 'from-red-400 to-red-600',
   },
 ];
@@ -102,7 +88,7 @@ const fetchPopularLabs = async () => {
 
 const handleSearch = (keyword) => {
   router.push({
-    path: '/lab/labs',
+    path: '/labs',
     query: keyword ? { keyword } : {},
   });
 };
@@ -112,7 +98,7 @@ const goToFunction = (route) => {
 };
 
 const handleLabClick = (lab) => {
-  router.push(`/lab/labs/${lab.id}`);
+  router.push(`/labs/${lab.id}`);
 };
 
 const handleToggleFavorite = async (lab) => {
@@ -172,7 +158,7 @@ onMounted(() => {
       <div>
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-2xl font-bold text-gray-900">热门实验室</h2>
-          <ElButton link @click="router.push('/lab/labs')">
+          <ElButton link @click="router.push('/labs')">
             查看更多 <ElIcon class="ml-1">
               <ArrowRight />
             </ElIcon>

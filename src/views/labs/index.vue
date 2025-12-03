@@ -83,7 +83,7 @@ const handleReset = () => {
 
 // 点击实验室卡片
 const handleLabClick = (lab) => {
-  router.push(`/lab/labs/${lab.id}`);
+  router.push(`/labs/${lab.id}`);
 };
 
 // 切换收藏状态
