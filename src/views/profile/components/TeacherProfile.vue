@@ -176,6 +176,8 @@ watch(() => labsPagination.page, loadMyLabs);
 
 onMounted(() => {
   fetchUserInfo();
+  // 根据初始标签页加载对应数据
+  handleTabChange(activeTab.value);
 });
 </script>
 
