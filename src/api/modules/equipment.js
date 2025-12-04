@@ -60,6 +60,14 @@ export const equipmentApi = {
   },
 
   /**
+   * 获取所有借用申请（管理员/教师权限）
+   * @deprecated 请使用 getInstrumentApplicationsApi
+   */
+  getApplications(params = {}) {
+    return getInstrumentApplicationsApi(params);
+  },
+
+  /**
    * 获取待处理的借用申请（教师权限）
    * @deprecated 请使用 getInstrumentApplicationsApi
    */
