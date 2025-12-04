@@ -1,9 +1,9 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ElButton, ElTag, ElDivider, ElRate, ElCarousel, ElCarouselItem, ElImage, ElMessage, ElIcon } from 'element-plus';
-import { ArrowLeft, Star } from '@element-plus/icons-vue';
-import { getLabDetailApi, toggleFavoriteApi } from '@/api';
+import { ElButton, ElTag, ElDivider, ElRate, ElCarousel, ElCarouselItem, ElImage, ElMessage, ElIcon, ElCard, ElAvatar, ElEmpty } from 'element-plus';
+import { ArrowLeft, Star, User } from '@element-plus/icons-vue';
+import { getLabDetailApi, toggleFavoriteApi, getLabEvaluationsApi } from '@/api';
 import { PageLayout, InstrumentCard } from '@/components';
 import { useApi } from '@/composables';
 
@@ -18,6 +18,10 @@ const router = useRouter();
 const { data: lab, loading, execute: fetchLabDetail } = useApi();
 const favoriteLoading = ref(false); // Track loading state for favorite button
 
+// 评论相关
+const evaluations = ref([]);
+const { loading: evaluationsLoading, execute: fetchEvaluations } = useApi();
+
 const loadLabDetail = async () => {
   const result = await fetchLabDetail(() =>
     getLabDetailApi(Number(route.params.id))
@@ -25,6 +29,17 @@ const loadLabDetail = async () => {
 
   if (result) {
     lab.value = result;
+  }
+};
+
+// 加载评论列表
+const loadEvaluations = async () => {
+  const result = await fetchEvaluations(() =>
+    getLabEvaluationsApi(Number(route.params.id))
+  );
+
+  if (result) {
+    evaluations.value = result.list || [];
   }
 };
 
@@ -124,8 +139,23 @@ const formattedUpdateTime = computed(() => {
   return new Date(lab.value.updatedAt).toLocaleString('zh-CN');
 });
 
+// 格式化评论时间
+const formatEvaluationDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const diff = now - date;
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  
+  if (days === 0) return '今天';
+  if (days === 1) return '昨天';
+  if (days < 7) return `${days}天前`;
+  return date.toLocaleDateString('zh-CN');
+};
+
 onMounted(() => {
   loadLabDetail();
+  loadEvaluations();
 });
 </script>
 
@@ -258,6 +288,95 @@ onMounted(() => {
               />
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- 用户评论 -->
+      <div class="bg-white rounded-lg shadow-md p-8 mt-6">
+        <h3 class="text-lg font-semibold mb-4 text-gray-800">
+          用户评论 <span class="text-sm text-gray-500">({{ evaluations.length }})</span>
+        </h3>
+
+        <div v-loading="evaluationsLoading">
+          <div v-if="evaluations.length > 0" class="space-y-4">
+            <ElCard v-for="evaluation in evaluations" :key="evaluation.id" shadow="hover">
+              <div class="flex items-start space-x-4">
+                <!-- 用户头像 -->
+                <ElAvatar :size="48" :icon="User" />
+
+                <!-- 评论内容 -->
+                <div class="flex-1">
+                  <div class="flex items-center justify-between mb-2">
+                    <div>
+                      <span class="font-semibold text-gray-900">
+                        {{ evaluation.user?.nickname || evaluation.user?.username || '匿名用户' }}
+                      </span>
+                      <span class="text-sm text-gray-500 ml-2">
+                        {{ formatEvaluationDate(evaluation.createdAt) }}
+                      </span>
+                    </div>
+                    <div class="flex items-center">
+                      <ElRate 
+                        :model-value="evaluation.overallRating" 
+                        disabled 
+                        show-score 
+                        text-color="#ff9900"
+                        size="small"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- 各项评分 -->
+                  <div v-if="evaluation.equipmentRating || evaluation.environmentRating || evaluation.serviceRating" class="flex flex-wrap gap-4 mb-2 text-sm">
+                    <div v-if="evaluation.equipmentRating" class="flex items-center">
+                      <span class="text-gray-600 mr-1">设备:</span>
+                      <ElRate 
+                        :model-value="evaluation.equipmentRating" 
+                        disabled 
+                        size="small"
+                      />
+                    </div>
+                    <div v-if="evaluation.environmentRating" class="flex items-center">
+                      <span class="text-gray-600 mr-1">环境:</span>
+                      <ElRate 
+                        :model-value="evaluation.environmentRating" 
+                        disabled 
+                        size="small"
+                      />
+                    </div>
+                    <div v-if="evaluation.serviceRating" class="flex items-center">
+                      <span class="text-gray-600 mr-1">服务:</span>
+                      <ElRate 
+                        :model-value="evaluation.serviceRating" 
+                        disabled 
+                        size="small"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- 评论文字 -->
+                  <p v-if="evaluation.comment" class="text-gray-700 leading-relaxed mb-3">
+                    {{ evaluation.comment }}
+                  </p>
+
+                  <!-- 评论图片 -->
+                  <div v-if="evaluation.images && evaluation.images.length > 0" class="grid grid-cols-3 gap-2">
+                    <ElImage
+                      v-for="(image, index) in evaluation.images"
+                      :key="index"
+                      :src="image"
+                      :preview-src-list="evaluation.images"
+                      :initial-index="index"
+                      fit="cover"
+                      class="w-full h-24 rounded cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </div>
+            </ElCard>
+          </div>
+
+          <ElEmpty v-else description="暂无评论" />
         </div>
       </div>
     </div>

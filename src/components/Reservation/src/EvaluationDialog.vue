@@ -58,6 +58,39 @@ watch(visible, (val) => {
     resetForm();
   }
 });
+
+// 提交评价
+const handleSubmit = async () => {
+  try {
+    await formRef.value.validate();
+    loading.value = true;
+    
+    // 获取待上传的图片文件
+    const pendingFiles = imageUploadRef.value?.getPendingFiles() || [];
+    
+    // 构建提交数据对象（不是FormData，upload方法会自动创建）
+    const submitData = {
+      appointmentId: props.appointment?.id,
+      overallRating: form.overallRating,
+      equipmentRating: form.equipmentRating,
+      environmentRating: form.environmentRating,
+      serviceRating: form.serviceRating,
+      comment: form.comment,
+      images: pendingFiles.map(file => file.raw || file),
+    };
+    
+    await createEvaluationApi(submitData);
+    ElMessage.success('评价提交成功');
+    visible.value = false;
+    emit('success');
+  } catch (error) {
+    if (error !== 'cancel' && error?.message) {
+      ElMessage.error(error.message || '提交失败');
+    }
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
 
 <template>
@@ -112,42 +145,7 @@ watch(visible, (val) => {
     
     <template #footer>
       <ElButton @click="visible = false">取消</ElButton>
-      <ElButton
-        type="primary"
-        :loading="loading"
-        @click="async () => {
-          try {
-            await formRef.validate();
-            loading = true;
-            
-            // 获取待上传的图片文件
-            const pendingFiles = imageUploadRef.value?.getPendingFiles() || [];
-            
-            // 构建提交数据，图片和表单一起提交
-            const submitData = {
-              labId: appointment?.lab?.id || appointment?.labId,
-              appointmentId: appointment?.id,
-              overallRating: form.overallRating,
-              equipmentRating: form.equipmentRating,
-              environmentRating: form.environmentRating,
-              serviceRating: form.serviceRating,
-              comment: form.comment,
-              files: pendingFiles,
-            };
-            
-            await createEvaluationApi(submitData);
-            ElMessage.success('评价提交成功');
-            visible = false;
-            emit('success');
-          } catch (error) {
-            if (error !== 'cancel' && error?.message) {
-              ElMessage.error(error.message || '提交失败');
-            }
-          } finally {
-            loading = false;
-          }
-        }"
-      >
+      <ElButton type="primary" :loading="loading" @click="handleSubmit">
         提交评价
       </ElButton>
     </template>

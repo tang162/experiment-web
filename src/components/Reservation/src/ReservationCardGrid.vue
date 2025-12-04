@@ -37,10 +37,12 @@ const canCancel = (status) => {
 };
 
 const canEvaluate = (row) => {
-  return row.status === ReservationStatus.APPROVED || 
-         row.status === ReservationStatus.COMPLETED ||
-         row.status === 1 || 
-         row.status === 4;
+  // 只有已通过或已完成的预约可以评价，且未评价过
+  const canEvaluateStatus = row.status === ReservationStatus.APPROVED || 
+                            row.status === ReservationStatus.COMPLETED ||
+                            row.status === 1 || 
+                            row.status === 4;
+  return canEvaluateStatus && !row.hasEvaluation;
 };
 
 const canFeedback = (row) => {
