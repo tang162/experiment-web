@@ -3,7 +3,7 @@ import { ref, reactive, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElTable, ElTableColumn } from 'element-plus';
 import { useAuthStore } from '@/stores';
-import { getAppointmentsApi, getMyInstrumentApplicationsApi, getMyFavoritesApi, toggleFavoriteApi, getMyRepairsApi, cancelAppointmentApi } from '@/api';
+import { getMyAppointmentsApi, getMyInstrumentApplicationsApi, getMyFavoritesApi, toggleFavoriteApi, getMyRepairsApi, cancelAppointmentApi } from '@/api';
 import { ReservationTable, LabCard, EmptyState, EvaluationDialog, AppointmentDetailDialog } from '@/components';
 import { ApplicationStatus, RepairStatus, ReservationStatus, INSTRUMENT_STATUS_MAP } from '@/types';
 const authStore = useAuthStore();
@@ -77,8 +77,8 @@ const fetchUserInfo = () => {
 const fetchReservations = async () => {
   loading.value = true;
   try {
-    const response = await getAppointmentsApi({ page: 1, pageSize: 10 });
-    appointments.value = response.list ||  [];
+    const response = await getMyAppointmentsApi({ page: 1, pageSize: 10 });
+    appointments.value = response || [];
   } catch (error) {
     console.error('获取预约记录失败:', error);
     ElMessage.error('获取预约记录失败');
