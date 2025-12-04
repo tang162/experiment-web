@@ -1,130 +1,45 @@
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { ElMessage, ElMessageBox, ElTabs, ElTabPane, ElTag, ElDialog, ElForm, ElFormItem, ElInput, ElButton, ElTable, ElTableColumn } from 'element-plus';
+import { ref, onMounted } from 'vue';
+import { ElTabs, ElTabPane } from 'element-plus';
 import { useAuthStore } from '@/stores';
-import { getMyAppointmentsApi, getMyInstrumentApplicationsApi, getMyFavoritesApi, toggleFavoriteApi, getMyRepairsApi, cancelAppointmentApi } from '@/api';
-import { ReservationTable, LabCard, EmptyState, EvaluationDialog, AppointmentDetailDialog } from '@/components';
-import { ApplicationStatus, RepairStatus, ReservationStatus, INSTRUMENT_STATUS_MAP } from '@/types';
+import { ReservationCardGrid, LabCard, EmptyState, EvaluationDialog, AppointmentDetailDialog, InstrumentApplicationCard, FeedbackCard, RepairCard } from '@/components';
+import { useProfile } from '@/composables';
+import ProfileInfoCard from './ProfileInfoCard.vue';
+
 const authStore = useAuthStore();
-
-// 评价弹窗
-const evaluationDialogVisible = ref(false);
-const currentAppointmentForEvaluation = ref(null);
-
-// 详情弹窗
-const detailDialogVisible = ref(false);
-const currentAppointmentForDetail = ref(null);
-
-
-const router = useRouter();
-
 const activeTab = ref('info');
 const user = ref(null);
-const editDialogVisible = ref(false);
-const appointments = ref([]);
-const applications = ref([]);
-const repairRequests = ref([]);
-const favorites = ref([]);
-const loading = ref(false);
 
-const editForm = reactive({
-  nickname: '',
-  email: '',
-  phone: '',
-});
-
-// 将 API 数据格式转换为组件需要的格式
-const reservations = computed(() => {
-  return appointments.value.map(item => ({
-    id: item.id,
-    labId: item.lab.id,
-    labName: item.lab.name,
-    userId: item.user.id,
-    userName: item.user.username,
-    date: item.appointmentDate,
-    timeSlot: item.timeSlot,
-    purpose: item.purpose,
-    description: item.description,
-    participantCount: item.participantCount,
-    status: mapStatusToEnum(item.status),
-    createdAt: item.createdAt,
-  }));
-});
-
-// 将数字状态码映射为枚举
-const mapStatusToEnum = (status) => {
-  const statusMap = {
-    0: ReservationStatus.PENDING,
-    1: ReservationStatus.APPROVED,
-    2: ReservationStatus.REJECTED,
-    3: ReservationStatus.COMPLETED,
-    4: ReservationStatus.CANCELLED,
-  };
-  return statusMap[status] || ReservationStatus.PENDING;
-};
-
+// 使用公共逻辑
+const {
+  loading,
+  applications,
+  repairRequests,
+  favorites,
+  feedbacks,
+  reservations,
+  evaluationDialogVisible,
+  currentAppointmentForEvaluation,
+  detailDialogVisible,
+  currentAppointmentForDetail,
+  fetchReservations,
+  fetchApplications,
+  fetchFavorites,
+  fetchRepairRequests,
+  fetchFeedbacks,
+  handleCancelReservation,
+  handleViewDetail,
+  handleEvaluate,
+  handleEvaluationSuccess,
+  removeFavorite,
+  goToLabDetail,
+  viewInstrumentDetail,
+  viewFeedbackDetail,
+  handleFeedback,
+} = useProfile();
 
 const fetchUserInfo = () => {
   user.value = authStore.getUserInfo;
-  if (user.value) {
-    editForm.nickname = user.value.nickname || '';
-    editForm.email = user.value.email || '';
-    editForm.phone = user.value.phone || '';
-  }
-};
-
-const fetchReservations = async () => {
-  loading.value = true;
-  try {
-    const response = await getMyAppointmentsApi({ page: 1, pageSize: 10 });
-    appointments.value = response || [];
-  } catch (error) {
-    console.error('获取预约记录失败:', error);
-    ElMessage.error('获取预约记录失败');
-  } finally {
-    loading.value = false;
-  }
-};
-
-const fetchApplications = async () => {
-  loading.value = true;
-  try {
-    const response = await getMyInstrumentApplicationsApi({ page: 1, pageSize: 10 });
-    applications.value = response.list ||   [];
- 
-  } catch (error) {
-    console.error('获取申请记录失败:', error);
-    ElMessage.error('获取申请记录失败');
-  } finally {
-    loading.value = false;
-  }
-};
-
-const fetchRepairRequests = async () => {
-  loading.value = true;
-  try {
-    const response = await getMyRepairsApi({ page: 1, pageSize: 10 });
-    repairRequests.value = response.list || [];
-  } catch (error) {
-    console.error('获取报修记录失败:', error);
-    ElMessage.error('获取报修记录失败');
-  } finally {
-    loading.value = false;
-  }
-};
-
-const fetchFavorites = async () => {
-  loading.value = true;
-  try {
-    const response = await getMyFavoritesApi({ page: 1, pageSize: 10 });
-    favorites.value = response.list || [];
-  } catch (error) {
-    console.error('获取收藏失败:', error);
-    ElMessage.error('获取收藏失败');
-  } finally {
-    loading.value = false;
-  }
 };
 
 const handleTabChange = (tabName) => {
@@ -141,143 +56,10 @@ const handleTabChange = (tabName) => {
     case 'favorites':
       fetchFavorites();
       break;
+    case 'feedbacks':
+      fetchFeedbacks();
+      break;
   }
-};
-
-const handleSaveProfile = async () => {
-  try {
-    // await userApi.updateProfile(editForm);
-    await authStore.fetchUserInfo();
-    fetchUserInfo();
-    editDialogVisible.value = false;
-    ElMessage.success('保存成功');
-  } catch (error) {
-    ElMessage.error('保存失败');
-  }
-};
-
-const handleCancelReservation = async (id) => {
-  try {
-    await ElMessageBox.confirm('确定要取消此预约吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-    });
-
-    await cancelAppointmentApi(id);
-    ElMessage.success('取消成功');
-    fetchReservations();
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('取消失败');
-    }
-  }
-};
-
-// 查看预约详情
-const handleViewDetail = (row) => {
-  // 找到原始预约数据
-  const appointment = appointments.value.find(item => item.id === row.id);
-  currentAppointmentForDetail.value = appointment || row;
-  detailDialogVisible.value = true;
-};
-
-// 打开评价弹窗
-const handleEvaluate = (row) => {
-  const appointment = appointments.value.find(item => item.id === row.id);
-  currentAppointmentForEvaluation.value = appointment || row;
-  evaluationDialogVisible.value = true;
-};
-
-// 评价成功后刷新
-const handleEvaluationSuccess = () => {
-  fetchReservations();
-};
-
-const removeFavorite = async (lab) => {
-  try {
-    await toggleFavoriteApi(lab.id);
-    ElMessage.success('已取消收藏');
-    fetchFavorites();
-  } catch (error) {
-    ElMessage.error('操作失败');
-  }
-};
-
-// 获取状态信息
-const getStatusInfo = (status) => {
-  return INSTRUMENT_STATUS_MAP[status];
-};
-
-// 格式化时间
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleString('zh-CN');
-};
-
-const getApplicationStatusType = (status) => {
-  switch (status) {
-    case ApplicationStatus.PENDING:
-      return 'warning';
-    case ApplicationStatus.APPROVED:
-      return 'success';
-    case ApplicationStatus.REJECTED:
-      return 'danger';
-    default:
-      return 'info';
-  }
-};
-
-const getApplicationStatusText = (status) => {
-  switch (status) {
-    case ApplicationStatus.PENDING:
-      return '待审核';
-    case ApplicationStatus.APPROVED:
-      return '已通过';
-    case ApplicationStatus.REJECTED:
-      return '已驳回';
-    default:
-      return '未知';
-  }
-};
-
-const getRepairStatusType = (status) => {
-  switch (status) {
-    case RepairStatus.PENDING:
-      return 'warning';
-    case RepairStatus.IN_PROGRESS:
-      return 'primary';
-    case RepairStatus.COMPLETED:
-      return 'success';
-    default:
-      return 'info';
-  }
-};
-
-const getRepairStatusText = (status) => {
-  switch (status) {
-    case RepairStatus.PENDING:
-      return '待处理';
-    case RepairStatus.IN_PROGRESS:
-      return '维修中';
-    case RepairStatus.COMPLETED:
-      return '已完成';
-    default:
-      return '未知';
-  }
-};
-
-// 查看仪器详情
-const viewDetail = (row) => {
-  if (row.instrument?.id) {
-    router.push(`/instruments/${row.instrument.id}`);
-  } else {
-    ElMessage.warning('仪器信息不存在');
-  }
-};
-
-// 查看实验室详情
-const goToLabDetail = (lab) => {
-  router.push(`/labs/${lab.id}`);
 };
 
 onMounted(() => {
@@ -289,101 +71,46 @@ onMounted(() => {
   <div>
     <ElTabs v-model="activeTab" @tab-change="handleTabChange">
       <ElTabPane label="基本信息" name="info">
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-bold">个人信息</h2>
-            <div class="flex gap-2">
-              <ElButton type="primary" @click="$router.push('/profile/edit')">
-                编辑信息
-              </ElButton>
-              <ElButton @click="$router.push('/profile/password')">
-                修改密码
-              </ElButton>
-            </div>
-          </div>
-
-          <div class="space-y-4">
-            <div class="flex items-center">
-              <span class="text-gray-600 w-24">用户名：</span>
-              <span class="font-medium">{{ user?.username }}</span>
-            </div>
-            <div class="flex items-center">
-              <span class="text-gray-600 w-24">昵称：</span>
-              <span class="font-medium">{{ user?.nickname || '未设置' }}</span>
-            </div>
-            <div class="flex items-center">
-              <span class="text-gray-600 w-24">邮箱：</span>
-              <span class="font-medium">{{ user?.email || '未设置' }}</span>
-            </div>
-            <div class="flex items-center">
-              <span class="text-gray-600 w-24">手机号：</span>
-              <span class="font-medium">{{ user?.phone || '未设置' }}</span>
-            </div>
-            <div class="flex items-center">
-              <span class="text-gray-600 w-24">角色：</span>
-              <ElTag type="success">学生</ElTag>
-            </div>
-          </div>
-        </div>
+        <ProfileInfoCard :user="user" role="student" />
       </ElTabPane>
 
       <ElTabPane label="预约历史" name="reservations">
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <ReservationTable 
+        <div v-loading="loading" class="min-h-[400px]">
+          <ReservationCardGrid 
+            v-if="reservations.length > 0"
             :reservations="reservations" 
             :loading="loading" 
             @cancel="handleCancelReservation"
             @view="handleViewDetail"
             @evaluate="handleEvaluate"
+            @feedback="handleFeedback"
           />
+          <div v-if="reservations.length === 0 && !loading" class="bg-white rounded-lg shadow-md p-12">
+            <EmptyState 
+              icon="Calendar"
+              description="暂无预约记录"
+            />
+          </div>
         </div>
       </ElTabPane>
 
       <ElTabPane label="仪器申请" name="applications">
-        <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
-          <!-- 表格 -->
-          <ElTable :data="applications" stripe style="width: 100%">
-            <ElTableColumn prop="id" label="申请ID" width="80" />
-            <ElTableColumn prop="name" label="仪器名称" min-width="150">
-              <template #default="{ row }">
-                {{ row.instrument?.name || '未设置' }}
-              </template>
-            </ElTableColumn>
-            <ElTableColumn prop="model" label="型号" min-width="120">
-              <template #default="{ row }">
-                {{ row.instrument?.model || '未设置' }}
-              </template>
-            </ElTableColumn>
-            <ElTableColumn prop="serialNumber" label="序列号" min-width="120">
-              <template #default="{ row }">
-                {{ row.instrument?.serialNumber || '未设置' }}
-              </template>
-            </ElTableColumn>
-            <ElTableColumn prop="lab" label="所属实验室" min-width="150">
-              <template #default="{ row }">
-                {{ row.instrument?.lab?.name || '未知' }}
-              </template>
-            </ElTableColumn>
-            <ElTableColumn prop="status" label="状态" width="100">
-              <template #default="{ row }">
-                <ElTag :type="getApplicationStatusType(row.status)" size="small">
-                  {{ getApplicationStatusText(row.status) }}
-                </ElTag>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn prop="createdAt" label="申请时间" width="180">
-              <template #default="{ row }">
-                {{ formatDate(row.createdAt) }}
-              </template>
-            </ElTableColumn>
-            <ElTableColumn label="操作" width="120" fixed="right">
-              <template #default="{ row }">
-                <ElButton link type="primary" size="small" @click="viewDetail(row)">
-                  查看详情
-                </ElButton>
-              </template>
-            </ElTableColumn>
-          </ElTable>
+        <div v-loading="loading" class="min-h-[400px]">
+          <div v-if="applications.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <InstrumentApplicationCard
+              v-for="application in applications"
+              :key="application.id"
+              :application="application"
+              @view-detail="viewInstrumentDetail"
+            />
+          </div>
+
+          <div v-if="applications.length === 0 && !loading" class="bg-white rounded-lg shadow-md p-12">
+            <EmptyState 
+              icon="Document"
+              description="暂无仪器申请记录"
+            />
+          </div>
         </div>
       </ElTabPane>
 
@@ -413,59 +140,47 @@ onMounted(() => {
       </ElTabPane>
 
       <ElTabPane label="报修记录" name="repairs">
-        <div v-loading="loading" class="bg-white rounded-lg shadow-md p-6">
-          <ElTable :data="repairRequests" stripe style="width: 100%">
-            <ElTableColumn prop="id" label="报修ID" width="80" />
-            <ElTableColumn prop="instrument" label="仪器名称" min-width="150">
-              <template #default="{ row }">
-                {{ row.instrument?.name || '未知仪器' }}
-              </template>
-            </ElTableColumn>
-            <ElTableColumn prop="description" label="故障描述" min-width="200">
-              <template #default="{ row }">
-                <span class="line-clamp-2">{{ row.description }}</span>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn prop="status" label="状态" width="100">
-              <template #default="{ row }">
-                <ElTag :type="getRepairStatusType(row.status)" size="small">
-                  {{ getRepairStatusText(row.status) }}
-                </ElTag>
-              </template>
-            </ElTableColumn>
-            <ElTableColumn prop="createdAt" label="报修时间" width="180">
-              <template #default="{ row }">
-                {{ formatDate(row.createdAt) }}
-              </template>
-            </ElTableColumn>
-          </ElTable>
+        <div v-loading="loading" class="min-h-[400px]">
+          <div v-if="repairRequests.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <RepairCard
+              v-for="repair in repairRequests"
+              :key="repair.id"
+              :repair="repair"
+            />
+          </div>
 
-          <EmptyState 
-            v-if="repairRequests.length === 0 && !loading"
-            icon="Tools"
-            description="暂无报修记录"
-          />
+          <div v-if="repairRequests.length === 0 && !loading" class="bg-white rounded-lg shadow-md p-12">
+            <EmptyState 
+              icon="Tools"
+              description="暂无报修记录"
+            />
+          </div>
+        </div>
+      </ElTabPane>
+
+      <ElTabPane label="我的反馈" name="feedbacks">
+        <div v-loading="loading" class="min-h-[400px]">
+          <div v-if="feedbacks.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <FeedbackCard
+              v-for="feedback in feedbacks"
+              :key="feedback.id"
+              :feedback="feedback"
+              @view-detail="viewFeedbackDetail"
+            />
+          </div>
+
+          <div v-if="feedbacks.length === 0 && !loading" class="bg-white rounded-lg shadow-md p-12">
+            <EmptyState 
+              icon="ChatLineSquare"
+              description="暂无反馈记录"
+              :show-action="true"
+              action-text="提交反馈"
+              @action="$router.push('/feedbacks/create')"
+            />
+          </div>
         </div>
       </ElTabPane>
     </ElTabs>
-
-    <ElDialog v-model="editDialogVisible" title="编辑个人信息" width="500px">
-      <ElForm :model="editForm" label-width="80px">
-        <ElFormItem label="昵称">
-          <ElInput v-model="editForm.nickname" />
-        </ElFormItem>
-        <ElFormItem label="邮箱">
-          <ElInput v-model="editForm.email" />
-        </ElFormItem>
-        <ElFormItem label="手机号">
-          <ElInput v-model="editForm.phone" maxlength="11" />
-        </ElFormItem>
-      </ElForm>
-      <template #footer>
-        <ElButton @click="editDialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="handleSaveProfile">保存</ElButton>
-      </template>
-    </ElDialog>
 
     <!-- 预约详情弹窗 -->
     <AppointmentDetailDialog

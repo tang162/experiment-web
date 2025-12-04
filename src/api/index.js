@@ -10,3 +10,4 @@ export * from "./modules/news";
 export * from "./modules/banner";
 export * from "./modules/repair";
 export * from "./modules/evaluation";
+export * from "./modules/feedback";

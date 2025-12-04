@@ -24,9 +24,13 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  showFeedback: {
+    type: Boolean,
+    default: true,
+  },
 });
 
-const emit = defineEmits(["cancel", "approve", "reject", "view", "evaluate"]);
+const emit = defineEmits(["cancel", "approve", "reject", "view", "evaluate", "feedback"]);
 
 const canCancel = (status) => {
   return status === ReservationStatus.PENDING;
@@ -34,6 +38,14 @@ const canCancel = (status) => {
 
 // 判断是否可以评价（已完成或已通过的预约可以评价）
 const canEvaluate = (row) => {
+  return row.status === ReservationStatus.APPROVED || 
+         row.status === ReservationStatus.COMPLETED ||
+         row.status === 1 || // 已通过
+         row.status === 4;   // 已完成
+};
+
+// 判断是否可以反馈（已通过或已完成的预约可以反馈）
+const canFeedback = (row) => {
   return row.status === ReservationStatus.APPROVED || 
          row.status === ReservationStatus.COMPLETED ||
          row.status === 1 || // 已通过
@@ -63,7 +75,7 @@ const canEvaluate = (row) => {
           <ReservationStatusTag :status="row.status" size="small" />
         </template>
       </ElTableColumn>
-      <ElTableColumn v-if="showActions" label="操作" width="220" fixed="right" align="center">
+      <ElTableColumn v-if="showActions" label="操作" width="280" fixed="right" align="center">
         <template #default="{ row }">
           <div class="flex gap-2 justify-center">
             <ElButton v-if="canCancel(row.status)" type="danger" size="small" @click="emit('cancel', row.id)">
@@ -79,6 +91,14 @@ const canEvaluate = (row) => {
               @click="emit('evaluate', row)"
             >
               评价
+            </ElButton>
+            <ElButton 
+              v-if="showFeedback && canFeedback(row)" 
+              type="warning" 
+              size="small" 
+              @click="emit('feedback', row)"
+            >
+              反馈
             </ElButton>
           </div>
         </template>

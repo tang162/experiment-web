@@ -26,7 +26,8 @@ const menuItems = computed(() => {
   if (!isStudent.value) {
     baseMenus.push(
       { title: '预约审核', path: '/teacher/appointments', icon: 'Document' },
-      { title: '申请审核', path: '/teacher/applications', icon: 'DocumentChecked' }
+      { title: '申请审核', path: '/teacher/applications', icon: 'DocumentChecked' },
+      { title: '问题反馈', path: '/feedbacks', icon: 'ChatDotRound' }
     );
   }
 

@@ -4,13 +4,17 @@ import { useRouter } from 'vue-router';
 import { ElCarousel, ElCarouselItem, ElButton, ElIcon } from 'element-plus';
 import { ArrowRight } from '@element-plus/icons-vue';
 import { getLabsApi, toggleFavoriteApi } from '@/api';
-import { getBannersApi } from '@/api/modules/banner';
 import { ElMessage } from 'element-plus';
 import { LabCard, SearchBar } from '@/components';
 
 const router = useRouter();
 
-const banners = ref([]);
+// 直接使用固定的轮播图地址
+const banners = ref([
+  'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1200&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1581093458791-9d42e1c5e2e2?w=1200&h=400&fit=crop',
+  'https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?w=1200&h=400&fit=crop',
+]);
 const popularLabs = ref([]);
 const searchKeyword = ref('');
 const loading = ref(false);
@@ -60,19 +64,7 @@ const functionCards = [
   },
 ];
 
-const fetchBanners = async () => {
-  try {
-    const { list } = await getBannersApi({ typeId: 1, limit: 5 });
 
-    banners.value = list.map(item => {
-      return [...item.images]
-    })
-    console.log(banners.value);
-
-  } catch (error) {
-    console.error('获取轮播图失败:', error);
-  }
-};
 
 const fetchPopularLabs = async () => {
   try {
@@ -112,7 +104,6 @@ const handleToggleFavorite = async (lab) => {
 };
 
 onMounted(() => {
-  fetchBanners();
   fetchPopularLabs();
 });
 </script>
@@ -122,9 +113,9 @@ onMounted(() => {
     <div class="container mx-auto px-4 py-8">
       <div class="mb-8">
         <ElCarousel height="400px" :interval="5000" arrow="always">
-          <ElCarouselItem v-for="banner in banners[0]" :key="banner.id">
-            <div class="h-full w-full cursor-pointer" @click="banner.link && router.push(banner.link)">
-              <img :src="banner" :alt="banner.title" class="w-full h-full object-contain rounded-lg" />
+          <ElCarouselItem v-for="(banner, index) in banners" :key="index">
+            <div class="h-full w-full">
+              <img :src="banner" :alt="`轮播图 ${index + 1}`" class="w-full h-full object-cover rounded-lg" />
             </div>
           </ElCarouselItem>
         </ElCarousel>

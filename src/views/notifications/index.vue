@@ -48,7 +48,7 @@ const loadNotifications = async () => {
 const markAsRead = async (id) => {
   try {
     await markAsReadApi(id);
-    loadNotifications();
+    await loadNotifications();
   } catch (error) {
     ElMessage.error('操作失败');
   }
