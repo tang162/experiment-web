@@ -9,8 +9,15 @@ import ProfileInfoCard from './ProfileInfoCard.vue';
 import NewsLikesTab from './NewsLikesTab.vue';
 import NewsFavoritesTab from './NewsFavoritesTab.vue';
 
+const props = defineProps({
+  initialTab: {
+    type: String,
+    default: 'info',
+  },
+});
+
 const authStore = useAuthStore();
-const activeTab = ref('info');
+const activeTab = ref(props.initialTab);
 const user = ref(null);
 
 // 使用公共逻辑

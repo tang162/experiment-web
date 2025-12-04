@@ -123,7 +123,7 @@ const handleSubmit = async () => {
 
     if (result) {
       ElMessage.success('故障报告提交成功');
-      router.push('/profile/repairs');
+      router.push('/profile?tab=repairs');
     }
   });
 };

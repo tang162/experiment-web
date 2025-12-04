@@ -19,10 +19,17 @@ import NewsLikesTab from './NewsLikesTab.vue';
 import NewsFavoritesTab from './NewsFavoritesTab.vue';
 import MyNewsTab from './MyNewsTab.vue';
 
+const props = defineProps({
+  initialTab: {
+    type: String,
+    default: 'info',
+  },
+});
+
 const router = useRouter();
 const authStore = useAuthStore();
 
-const activeTab = ref('info');
+const activeTab = ref(props.initialTab);
 const user = ref(null);
 
 // 使用公共逻辑
@@ -108,7 +115,7 @@ const handleTabChange = (tab) => {
     case 'repairs':
       fetchRepairRequests();
       break;
-    case 'myFeedbacks':
+    case 'feedbacks':
       fetchFeedbacks();
       break;
     case 'newsLikes':
@@ -302,7 +309,7 @@ onMounted(() => {
         </div>
       </ElTabPane>
 
-      <ElTabPane label="我的反馈" name="myFeedbacks">
+      <ElTabPane label="我的反馈" name="feedbacks">
         <div v-loading="loading" class="min-h-[400px]">
           <div v-if="feedbacks.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <FeedbackCard

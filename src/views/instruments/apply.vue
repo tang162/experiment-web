@@ -90,7 +90,8 @@ const submitApplication = async () => {
     submitting.value = true;
     await applyInstrumentApi(instrumentId.value, applicationForm);
     ElMessage.success('申请成功，请等待审核');
-    router.push('/profile/applications');
+    // 跳转到个人中心，并通过 query 参数指定打开"仪器申请"标签
+    router.push({ path: '/profile', query: { tab: 'applications' } });
   } catch (error) {
     if (error?.message) {
       ElMessage.error(error.message);

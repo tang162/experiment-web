@@ -70,7 +70,7 @@ const handleSubmit = async () => {
   const result = await submitFeedback(() => createFeedbackApi(form));
   if (result) {
     ElMessage.success('反馈提交成功');
-    router.push('/feedbacks');
+    router.push('/profile?tab=feedbacks');
   }
 };
 
