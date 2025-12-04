@@ -70,10 +70,13 @@ const { formRef, form: labForm, loading, handleSubmit } = useForm({
   onSubmit: async (values) => {
     // 获取待上传的图片文件
     const pendingFiles = imageUploadRef.value?.getPendingFiles() || [];
+
+    const {tags,...newData}=values
     
     // 构建提交数据
     const submitData = {
-      ...values,
+      ...newData,
+      tags: JSON.stringify(tags ??[]),
       // 只保留已上传的图片URL
       images: values.images.filter(img => typeof img === 'string' && img.startsWith('http')),
       // 添加待上传的文件
