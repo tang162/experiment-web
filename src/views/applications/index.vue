@@ -1,7 +1,7 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { ElMessage, ElPagination } from 'element-plus';
+import { ElMessage, ElPagination, ElDialog, ElDescriptions, ElDescriptionsItem, ElTag } from 'element-plus';
 import { PageLayout, DataTable, FilterBar, ApplicationCard } from '@/components';
 import { equipmentApi } from '@/api';
 import { useApi, usePagination } from '@/composables';
@@ -11,6 +11,8 @@ const route = useRoute();
 
 const applications = ref([]);
 const total = ref(0);
+const selectedApplication = ref(null);
+const dialogVisible = ref(false);
 
 // 筛选条件
 const filters = reactive({
@@ -109,9 +111,24 @@ const handleReset = () => {
   router.replace({ query: {} });
 };
 
-// 处理行点击
+// 状态映射: 0-待审核,1-已通过,2-已拒绝,3-已归还
+const statusMap = {
+  0: { label: '待审核', type: 'warning' },
+  1: { label: '已通过', type: 'success' },
+  2: { label: '已拒绝', type: 'danger' },
+  3: { label: '已归还', type: 'info' },
+};
+
+// 处理行点击 - 显示详情对话框
 const handleRowClick = (row) => {
-  router.push(`/applications/${row.id}`);
+  selectedApplication.value = row;
+  dialogVisible.value = true;
+};
+
+// 关闭对话框
+const closeDialog = () => {
+  dialogVisible.value = false;
+  selectedApplication.value = null;
 };
 
 // 处理分页变化
@@ -176,5 +193,44 @@ onMounted(() => {
         @current-change="handlePageChangeEvent"
       />
     </div>
+
+    <!-- 申请详情对话框 -->
+    <ElDialog
+      v-model="dialogVisible"
+      :title="`申请详情 #${selectedApplication?.id}`"
+      width="700px"
+      @close="closeDialog"
+    >
+      <div v-if="selectedApplication">
+        <ElDescriptions :column="2" border>
+          <ElDescriptionsItem label="申请ID">
+            {{ selectedApplication.id }}
+          </ElDescriptionsItem>
+          <ElDescriptionsItem label="申请类型">
+            {{ selectedApplication.type === 'equipment' ? '设备申请' : '仪器申请' }}
+          </ElDescriptionsItem>
+          <ElDescriptionsItem label="申请项目" :span="2">
+            {{ selectedApplication.itemName }}
+          </ElDescriptionsItem>
+          <ElDescriptionsItem label="申请人">
+            {{ selectedApplication.userName }}
+          </ElDescriptionsItem>
+          <ElDescriptionsItem label="状态">
+            <ElTag :type="statusMap[selectedApplication.status]?.type">
+              {{ statusMap[selectedApplication.status]?.label }}
+            </ElTag>
+          </ElDescriptionsItem>
+          <ElDescriptionsItem label="使用时段" :span="2">
+            {{ selectedApplication.timeSlot }}
+          </ElDescriptionsItem>
+          <ElDescriptionsItem label="用途" :span="2">
+            {{ selectedApplication.purpose }}
+          </ElDescriptionsItem>
+          <ElDescriptionsItem v-if="selectedApplication.createdAt" label="申请时间" :span="2">
+            {{ selectedApplication.createdAt }}
+          </ElDescriptionsItem>
+        </ElDescriptions>
+      </div>
+    </ElDialog>
   </PageLayout>
 </template>

@@ -1,3 +1,46 @@
+
+<script setup>
+import { computed } from 'vue';
+import { ElTag, ElButton } from 'element-plus';
+
+const props = defineProps({
+  application: {
+    type: Object,
+    required: true,
+  },
+});
+
+const emit = defineEmits(['click', 'view-detail']);
+
+// 状态映射: 0-待审核,1-已通过,2-已拒绝,3-已归还
+const statusMap = {
+  0: { type: 'warning', text: '待审核' },
+  1: { type: 'success', text: '已通过' },
+  2: { type: 'danger', text: '已拒绝' },
+  3: { type: 'info', text: '已归还' },
+};
+
+const statusType = computed(() => {
+  return statusMap[props.application.status]?.type || 'info';
+});
+
+const statusText = computed(() => {
+  return statusMap[props.application.status]?.text || '未知';
+});
+
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleString('zh-CN');
+};
+
+const handleClick = () => {
+  emit('click', props.application);
+};
+
+const handleViewDetail = () => {
+  emit('view-detail', props.application);
+};
+</script>
+
 <template>
   <div class="application-card bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-5 cursor-pointer" @click="handleClick">
     <div class="flex justify-between items-start mb-3">
@@ -27,66 +70,9 @@
       </div>
     </div>
 
-    <div class="mt-4 pt-4 border-t border-gray-100 flex justify-end">
-      <ElButton type="primary" size="small" @click.stop="handleViewDetail">
-        查看详情
-      </ElButton>
-    </div>
   </div>
 </template>
 
-<script setup>
-import { computed } from 'vue';
-import { ElTag, ElButton } from 'element-plus';
-import { ApplicationStatus } from '@/types';
-
-const props = defineProps({
-  application: {
-    type: Object,
-    required: true,
-  },
-});
-
-const emit = defineEmits(['click', 'view-detail']);
-
-const statusType = computed(() => {
-  switch (props.application.status) {
-    case ApplicationStatus.PENDING:
-      return 'warning';
-    case ApplicationStatus.APPROVED:
-      return 'success';
-    case ApplicationStatus.REJECTED:
-      return 'danger';
-    default:
-      return 'info';
-  }
-});
-
-const statusText = computed(() => {
-  switch (props.application.status) {
-    case ApplicationStatus.PENDING:
-      return '待审核';
-    case ApplicationStatus.APPROVED:
-      return '已通过';
-    case ApplicationStatus.REJECTED:
-      return '已驳回';
-    default:
-      return '未知';
-  }
-});
-
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleString('zh-CN');
-};
-
-const handleClick = () => {
-  emit('click', props.application);
-};
-
-const handleViewDetail = () => {
-  emit('view-detail', props.application);
-};
-</script>
 
 <style scoped>
 .application-card:hover {

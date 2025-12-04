@@ -38,6 +38,10 @@ export function useProfile() {
   const detailDialogVisible = ref(false);
   const currentAppointmentForDetail = ref(null);
 
+  // 仪器申请详情弹窗
+  const applicationDetailDialogVisible = ref(false);
+  const currentApplicationForDetail = ref(null);
+
   // 将 API 数据格式转换为组件需要的格式
   const reservations = computed(() => {
     return appointments.value?.map(item => ({
@@ -191,13 +195,16 @@ export function useProfile() {
     router.push(`/labs/${lab.id}`);
   };
 
-  // 查看仪器详情
+  // 查看仪器申请详情 - 显示对话框而不是跳转
   const viewInstrumentDetail = (row) => {
-    if (row.instrument?.id) {
-      router.push(`/instruments/${row.instrument.id}`);
-    } else {
-      ElMessage.warning('仪器信息不存在');
-    }
+    currentApplicationForDetail.value = row;
+    applicationDetailDialogVisible.value = true;
+  };
+
+  // 关闭仪器申请详情对话框
+  const closeApplicationDetail = () => {
+    applicationDetailDialogVisible.value = false;
+    currentApplicationForDetail.value = null;
   };
 
   // 查看反馈详情
@@ -225,6 +232,8 @@ export function useProfile() {
     currentAppointmentForEvaluation,
     detailDialogVisible,
     currentAppointmentForDetail,
+    applicationDetailDialogVisible,
+    currentApplicationForDetail,
     fetchReservations,
     fetchApplications,
     fetchFavorites,
@@ -237,6 +246,7 @@ export function useProfile() {
     removeFavorite,
     goToLabDetail,
     viewInstrumentDetail,
+    closeApplicationDetail,
     viewFeedbackDetail,
     handleFeedback,
   };

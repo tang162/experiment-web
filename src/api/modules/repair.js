@@ -29,3 +29,12 @@ export function getMyRepairsApi(params) {
 export function reportInstrumentFaultApi(instrumentId, formData) {
   return request.post(`${Api.REPORT_REPAIR}/${instrumentId}`, formData);
 }
+
+/**
+ * 取消报修
+ * @param {number|string} id - 报修ID
+ * @returns {Promise<any>}
+ */
+export function cancelRepairApi(id) {
+  return request.delete(`${Api.REPAIRS}/${id}`);
+}

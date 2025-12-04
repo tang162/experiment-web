@@ -7,10 +7,12 @@ import {
   ElButton,
   ElPagination,
   ElEmpty,
+  ElMessage,
+  ElMessageBox,
 } from 'element-plus';
 import { useAuthStore } from '@/stores';
-import { getMyLabsApi } from '@/api';
-import { LabCard, ReservationCardGrid, EmptyState, EvaluationDialog, AppointmentDetailDialog, InstrumentApplicationCard, FeedbackCard, RepairCard } from '@/components';
+import { getMyLabsApi, returnInstrumentApi } from '@/api';
+import { LabCard, ReservationCardGrid, EmptyState, EvaluationDialog, AppointmentDetailDialog, InstrumentApplicationCard, InstrumentApplicationDetailDialog, FeedbackCard, RepairCard, RepairDetailDialog } from '@/components';
 import { useApi, usePagination, useProfile } from '@/composables';
 import ProfileInfoCard from './ProfileInfoCard.vue';
 import NewsLikesTab from './NewsLikesTab.vue';
@@ -35,6 +37,8 @@ const {
   currentAppointmentForEvaluation,
   detailDialogVisible,
   currentAppointmentForDetail,
+  applicationDetailDialogVisible,
+  currentApplicationForDetail,
   fetchReservations,
   fetchApplications,
   fetchFavorites,
@@ -47,6 +51,7 @@ const {
   removeFavorite,
   goToLabDetail,
   viewInstrumentDetail,
+  closeApplicationDetail,
   viewFeedbackDetail,
 } = useProfile();
 
@@ -133,6 +138,32 @@ const handleCreateLab = () => {
   router.push('/labs/create');
 };
 
+// 处理归还成功
+const handleReturnSuccess = () => {
+  fetchApplications();
+};
+
+// 报修详情相关
+const repairDetailDialogVisible = ref(false);
+const currentRepairForDetail = ref(null);
+
+// 查看报修详情
+const handleViewRepairDetail = (repair) => {
+  currentRepairForDetail.value = repair;
+  repairDetailDialogVisible.value = true;
+};
+
+// 关闭报修详情对话框
+const closeRepairDetail = () => {
+  repairDetailDialogVisible.value = false;
+  currentRepairForDetail.value = null;
+};
+
+// 处理取消报修成功
+const handleCancelRepairSuccess = () => {
+  fetchRepairRequests();
+};
+
 // 监听分页变化
 watch(() => labsPagination.page, loadMyLabs);
 
@@ -214,7 +245,7 @@ onMounted(() => {
               v-for="application in applications"
               :key="application.id"
               :application="application"
-              @view-detail="viewInstrumentDetail"
+              @click="viewInstrumentDetail"
             />
           </div>
 
@@ -258,6 +289,7 @@ onMounted(() => {
               v-for="repair in repairRequests"
               :key="repair.id"
               :repair="repair"
+              @click="handleViewRepairDetail"
             />
           </div>
 
@@ -317,6 +349,22 @@ onMounted(() => {
       v-model="evaluationDialogVisible"
       :appointment="currentAppointmentForEvaluation"
       @success="handleEvaluationSuccess"
+    />
+
+    <!-- 仪器申请详情弹窗 -->
+    <InstrumentApplicationDetailDialog
+      v-model="applicationDetailDialogVisible"
+      :application="currentApplicationForDetail"
+      @close="closeApplicationDetail"
+      @return-success="handleReturnSuccess"
+    />
+
+    <!-- 报修详情弹窗 -->
+    <RepairDetailDialog
+      v-model="repairDetailDialogVisible"
+      :repair="currentRepairForDetail"
+      @close="closeRepairDetail"
+      @cancel-success="handleCancelRepairSuccess"
     />
   </div>
 </template>

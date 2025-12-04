@@ -116,3 +116,12 @@ export function reviewInstrumentApplicationApi(id, params) {
 export function cancelInstrumentApplicationApi(id) {
   return request.delete(`${Api.GET_INSTRUMENT_APPLICATIONS}/${id}`);
 }
+
+/**
+ * 归还仪器
+ * @param {number|string} id - 申请ID
+ * @returns {Promise<any>}
+ */
+export function returnInstrumentApi(id) {
+  return request.post(`${Api.GET_INSTRUMENT_APPLICATIONS}/${id}/return`);
+}
