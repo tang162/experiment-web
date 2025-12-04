@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { ElButton, ElIcon, ElMessage, ElMessageBox, ElDivider } from 'element-plus';
+import { ElButton, ElIcon, ElMessage, ElMessageBox, ElDivider, ElCarousel, ElCarouselItem, ElTag } from 'element-plus';
 import { ArrowLeft, Edit, Delete, Star, StarFilled, Collection, FolderOpened } from '@element-plus/icons-vue';
 import { getNewsDetailApi, deleteNewsApi } from '@/api';
 import { PageLayout } from '@/components';
@@ -114,6 +114,13 @@ onMounted(() => {
         <!-- 标题 -->
         <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ newsDetail.title }}</h1>
 
+        <!-- 标签 -->
+        <div v-if="newsDetail.tags && newsDetail.tags.length > 0" class="flex gap-2 mb-4">
+          <ElTag v-for="tag in newsDetail.tags" :key="tag" type="info">
+            {{ tag }}
+          </ElTag>
+        </div>
+
         <!-- 元信息 -->
         <div class="flex items-center justify-between mb-6 text-sm text-gray-500">
           <div class="flex items-center gap-4">
@@ -143,26 +150,26 @@ onMounted(() => {
           <div class="text-gray-700 leading-relaxed whitespace-pre-wrap">{{ newsDetail.content }}</div>
         </div>
 
-        <!-- 封面图片 -->
-        <div v-if="newsDetail.coverImage" class="mb-8">
+        <!-- 封面图 -->
+        <div v-if="newsDetail.coverImage || newsDetail.cover" class="mb-8">
           <img
-            :src="newsDetail.coverImage"
-            alt="封面图片"
-            class="w-full rounded-lg"
+            :src="newsDetail.coverImage || newsDetail.cover"
+            alt="封面图"
+            class="w-full max-h-96 object-cover rounded-lg"
           />
         </div>
 
-        <!-- 图片 -->
+        <!-- 图片组轮播 -->
         <div v-if="newsDetail.images && newsDetail.images.length > 0" class="mb-8">
-          <div class="grid grid-cols-2 gap-4">
-            <img
-              v-for="(image, index) in newsDetail.images"
-              :key="index"
-              :src="image"
-              :alt="`图片${index + 1}`"
-              class="w-full rounded-lg"
-            />
-          </div>
+          <ElCarousel :interval="4000" type="card" height="400px" arrow="always">
+            <ElCarouselItem v-for="(image, index) in newsDetail.images" :key="index">
+              <img
+                :src="image"
+                :alt="`图片${index + 1}`"
+                class="w-full h-full object-cover rounded-lg"
+              />
+            </ElCarouselItem>
+          </ElCarousel>
         </div>
 
         <ElDivider />

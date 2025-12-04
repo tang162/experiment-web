@@ -37,7 +37,7 @@ export function getNewsDetailApi(id) {
  * @returns {Promise<any>}
  */
 export function createNewsApi(formData) {
-  return request.post(Api.NEWS, formData);
+  return request.upload(Api.NEWS, formData);
 }
 
 /**
@@ -47,7 +47,7 @@ export function createNewsApi(formData) {
  * @returns {Promise<any>}
  */
 export function updateNewsApi(id, formData) {
-  return request.post(`${Api.NEWS}/${id}`, formData);
+  return request.upload(`${Api.NEWS}/${id}`, formData);
 }
 
 /**
@@ -84,6 +84,15 @@ export function getMyNewsLikesApi(params = {}) {
  */
 export function getMyNewsFavoritesApi(params = {}) {
   return request.get(Api.MY_FAVORITES, params);
+}
+
+/**
+ * 获取我发布的新闻列表
+ * @param {object} params - { page, pageSize }
+ * @returns {Promise<any>}
+ */
+export function getMyNewsApi(params = {}) {
+  return request.get(`${Api.NEWS}/my`, params);
 }
 
 

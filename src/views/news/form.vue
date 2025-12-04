@@ -9,6 +9,7 @@ import {
   ElMessage,
   ElIcon,
   ElUpload,
+  ElTag,
 } from 'element-plus';
 import { ArrowLeft, Plus } from '@element-plus/icons-vue';
 import { createNewsApi, updateNewsApi, getNewsDetailApi } from '@/api';
@@ -21,13 +22,17 @@ const route = useRoute();
 const newsForm = reactive({
   title: '',
   content: '',
-  category: '',
-  images: [],
+  tags: [], // 标签数组
+  cover: null, // 封面图
+  images: [], // 图片组
 });
+
+const tagInput = ref(''); // 标签输入框
 
 const formRef = ref();
 const submitting = ref(false);
-const fileList = ref([]);
+const coverFileList = ref([]); // 封面图文件列表
+const imageFileList = ref([]); // 图片组文件列表
 
 const { loading, execute: fetchDetail } = useApi();
 
@@ -54,11 +59,19 @@ const loadDetail = async () => {
   if (result) {
     newsForm.title = result.title;
     newsForm.content = result.content;
-    newsForm.category = result.category || '';
+    newsForm.tags = result.tags || [];
     
-    // 处理已有图片
+    // 处理封面图（后端返回字段可能是 coverImage）
+    if (result.coverImage || result.cover) {
+      coverFileList.value = [{
+        name: 'cover',
+        url: result.coverImage || result.cover,
+      }];
+    }
+    
+    // 处理图片组
     if (result.images && result.images.length > 0) {
-      fileList.value = result.images.map((url, index) => ({
+      imageFileList.value = result.images.map((url, index) => ({
         name: `image-${index}`,
         url,
       }));
@@ -82,14 +95,45 @@ const beforeUpload = (file) => {
   return true;
 };
 
-// 文件列表变化
-const handleFileChange = (file, files) => {
-  fileList.value = files;
+// 封面图变化
+const handleCoverChange = (file, files) => {
+  coverFileList.value = files;
 };
 
-// 移除文件
-const handleRemove = (file, files) => {
-  fileList.value = files;
+// 移除封面图
+const handleCoverRemove = (file, files) => {
+  coverFileList.value = files;
+};
+
+// 图片组变化
+const handleImagesChange = (file, files) => {
+  imageFileList.value = files;
+};
+
+// 移除图片组
+const handleImagesRemove = (file, files) => {
+  imageFileList.value = files;
+};
+
+// 添加标签
+const handleAddTag = () => {
+  const tag = tagInput.value.trim();
+  if (tag && !newsForm.tags.includes(tag)) {
+    if (newsForm.tags.length >= 5) {
+      ElMessage.warning('最多只能添加5个标签');
+      return;
+    }
+    newsForm.tags.push(tag);
+    tagInput.value = '';
+  }
+};
+
+// 删除标签
+const handleRemoveTag = (tag) => {
+  const index = newsForm.tags.indexOf(tag);
+  if (index > -1) {
+    newsForm.tags.splice(index, 1);
+  }
 };
 
 // 提交表单
@@ -99,25 +143,30 @@ const submitForm = async () => {
 
     submitting.value = true;
 
-    const formData = new FormData();
-    formData.append('title', newsForm.title);
-    formData.append('content', newsForm.content);
-    if (newsForm.category) {
-      formData.append('category', newsForm.category);
+    const data = {
+      title: newsForm.title,
+      content: newsForm.content,
+      tags: JSON.stringify( newsForm.tags || [])
+    };
+
+    // 添加封面图（字段名改为 coverImage 匹配后端）
+    if (coverFileList.value.length > 0 && coverFileList.value[0].raw) {
+      data.coverImage = coverFileList.value[0].raw;
     }
 
-    // 添加新上传的图片
-    fileList.value.forEach((file) => {
-      if (file.raw) {
-        formData.append('images', file.raw);
-      }
-    });
+    // 添加图片组（支持多选）
+    const images = imageFileList.value
+      .filter(file => file.raw)
+      .map(file => file.raw);
+    if (images.length > 0) {
+      data.images = images;
+    }
 
     if (isEdit.value) {
-      await updateNewsApi(newsId.value, formData);
+      await updateNewsApi(newsId.value, data);
       ElMessage.success('更新成功');
     } else {
-      await createNewsApi(formData);
+      await createNewsApi(data);
       ElMessage.success('发布成功');
     }
 
@@ -162,12 +211,28 @@ onMounted(() => {
           />
         </ElFormItem>
 
-        <ElFormItem label="分类" prop="category">
-          <ElInput
-            v-model="newsForm.category"
-            placeholder="请输入新闻分类（选填）"
-            maxlength="20"
-          />
+        <ElFormItem label="标签">
+          <div class="w-full">
+            <div class="flex gap-2 mb-2 flex-wrap">
+              <ElTag
+                v-for="tag in newsForm.tags"
+                :key="tag"
+                closable
+                @close="handleRemoveTag(tag)"
+              >
+                {{ tag }}
+              </ElTag>
+            </div>
+            <div class="flex gap-2">
+              <ElInput
+                v-model="tagInput"
+                placeholder="输入标签后按回车添加（最多5个）"
+                maxlength="20"
+                @keyup.enter="handleAddTag"
+              />
+              <ElButton @click="handleAddTag">添加</ElButton>
+            </div>
+          </div>
         </ElFormItem>
 
         <ElFormItem label="新闻内容" prop="content">
@@ -181,21 +246,40 @@ onMounted(() => {
           />
         </ElFormItem>
 
-        <ElFormItem label="图片">
+        <ElFormItem label="封面图">
           <ElUpload
-            v-model:file-list="fileList"
+            v-model:file-list="coverFileList"
             action="#"
             list-type="picture-card"
             :auto-upload="false"
             :before-upload="beforeUpload"
-            :on-change="handleFileChange"
-            :on-remove="handleRemove"
-            :limit="5"
+            :on-change="handleCoverChange"
+            :on-remove="handleCoverRemove"
+            :limit="1"
           >
             <ElIcon><Plus /></ElIcon>
           </ElUpload>
           <div class="text-sm text-gray-500 mt-2">
-            支持上传最多5张图片，每张不超过5MB
+            上传封面图，不超过5MB
+          </div>
+        </ElFormItem>
+
+        <ElFormItem label="图片组">
+          <ElUpload
+            v-model:file-list="imageFileList"
+            action="#"
+            list-type="picture-card"
+            :auto-upload="false"
+            :before-upload="beforeUpload"
+            :on-change="handleImagesChange"
+            :on-remove="handleImagesRemove"
+            :limit="9"
+            multiple
+          >
+            <ElIcon><Plus /></ElIcon>
+          </ElUpload>
+          <div class="text-sm text-gray-500 mt-2">
+            支持多选，最多上传9张图片，每张不超过5MB
           </div>
         </ElFormItem>
 

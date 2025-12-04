@@ -136,8 +136,18 @@ onMounted(() => {
         class="cursor-pointer transition-all hover:shadow-lg"
         @click="viewDetail(news.id)"
       >
-        <div class="flex justify-between items-start">
-          <div class="flex-1">
+        <div class="flex justify-between items-start gap-4">
+          <!-- 封面图 -->
+          <div v-if="news.coverImage || news.cover" class="flex-shrink-0">
+            <img
+              :src="news.coverImage || news.cover"
+              :alt="news.title"
+              class="w-32 h-32 object-cover rounded-lg"
+            />
+          </div>
+
+          <!-- 内容区域 -->
+          <div class="flex-1 min-w-0">
             <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ news.title }}</h3>
             <p class="text-gray-600 mb-3 line-clamp-2">{{ news.content }}</p>
             <div class="flex items-center gap-4 text-sm text-gray-500">
@@ -176,7 +186,9 @@ onMounted(() => {
               </ElButton>
             </div>
           </div>
-          <div v-if="news.tags && news.tags.length > 0" class="ml-4">
+
+          <!-- 标签 -->
+          <div v-if="news.tags && news.tags.length > 0" class="flex-shrink-0">
             <ElTag v-for="tag in news.tags" :key="tag" class="mr-1">{{ tag }}</ElTag>
           </div>
         </div>

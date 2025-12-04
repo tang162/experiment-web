@@ -15,6 +15,7 @@ import { useApi, usePagination, useProfile } from '@/composables';
 import ProfileInfoCard from './ProfileInfoCard.vue';
 import NewsLikesTab from './NewsLikesTab.vue';
 import NewsFavoritesTab from './NewsFavoritesTab.vue';
+import MyNewsTab from './MyNewsTab.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -82,6 +83,7 @@ const loadMyLabs = async () => {
 // 组件引用
 const newsLikesTabRef = ref(null);
 const newsFavoritesTabRef = ref(null);
+const myNewsTabRef = ref(null);
 
 // Tab切换处理
 const handleTabChange = (tab) => {
@@ -109,6 +111,9 @@ const handleTabChange = (tab) => {
       break;
     case 'newsFavorites':
       newsFavoritesTabRef.value?.init();
+      break;
+    case 'myNews':
+      myNewsTabRef.value?.init();
       break;
   }
 };
@@ -286,6 +291,10 @@ onMounted(() => {
             />
           </div>
         </div>
+      </ElTabPane>
+
+      <ElTabPane label="我的动态" name="myNews">
+        <MyNewsTab ref="myNewsTabRef" />
       </ElTabPane>
 
       <ElTabPane label="点赞的动态" name="newsLikes">
