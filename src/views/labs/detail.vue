@@ -294,7 +294,7 @@ onMounted(() => {
       <!-- 用户评论 -->
       <div class="bg-white rounded-lg shadow-md p-8 mt-6">
         <h3 class="text-lg font-semibold mb-4 text-gray-800">
-          用户评论 <span class="text-sm text-gray-500">({{ evaluations.length }})</span>
+          用户评价<span class="text-sm text-gray-500">({{ evaluations.length }})</span>
         </h3>
 
         <div v-loading="evaluationsLoading">
@@ -302,7 +302,15 @@ onMounted(() => {
             <ElCard v-for="evaluation in evaluations" :key="evaluation.id" shadow="hover">
               <div class="flex items-start space-x-4">
                 <!-- 用户头像 -->
-                <ElAvatar :size="48" :icon="User" />
+                <ElAvatar 
+                  :size="48" 
+                  :src="evaluation.user?.avatar" 
+                  :icon="User"
+                >
+                  <template v-if="!evaluation.user?.avatar">
+                    {{ evaluation.user?.nickname?.[0] || evaluation.user?.username?.[0] || '?' }}
+                  </template>
+                </ElAvatar>
 
                 <!-- 评论内容 -->
                 <div class="flex-1">
