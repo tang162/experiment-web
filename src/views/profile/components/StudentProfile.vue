@@ -5,6 +5,8 @@ import { useAuthStore } from '@/stores';
 import { ReservationCardGrid, LabCard, EmptyState, EvaluationDialog, AppointmentDetailDialog, InstrumentApplicationCard, FeedbackCard, RepairCard } from '@/components';
 import { useProfile } from '@/composables';
 import ProfileInfoCard from './ProfileInfoCard.vue';
+import NewsLikesTab from './NewsLikesTab.vue';
+import NewsFavoritesTab from './NewsFavoritesTab.vue';
 
 const authStore = useAuthStore();
 const activeTab = ref('info');
@@ -42,6 +44,10 @@ const fetchUserInfo = () => {
   user.value = authStore.getUserInfo;
 };
 
+// 组件引用
+const newsLikesTabRef = ref(null);
+const newsFavoritesTabRef = ref(null);
+
 const handleTabChange = (tabName) => {
   switch (tabName) {
     case 'reservations':
@@ -58,6 +64,12 @@ const handleTabChange = (tabName) => {
       break;
     case 'feedbacks':
       fetchFeedbacks();
+      break;
+    case 'newsLikes':
+      newsLikesTabRef.value?.init();
+      break;
+    case 'newsFavorites':
+      newsFavoritesTabRef.value?.init();
       break;
   }
 };
@@ -179,6 +191,14 @@ onMounted(() => {
             />
           </div>
         </div>
+      </ElTabPane>
+
+      <ElTabPane label="点赞的动态" name="newsLikes">
+        <NewsLikesTab ref="newsLikesTabRef" />
+      </ElTabPane>
+
+      <ElTabPane label="收藏的动态" name="newsFavorites">
+        <NewsFavoritesTab ref="newsFavoritesTabRef" />
       </ElTabPane>
     </ElTabs>
 

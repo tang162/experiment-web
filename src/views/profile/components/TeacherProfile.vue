@@ -13,6 +13,8 @@ import { getMyLabsApi } from '@/api';
 import { LabCard, ReservationCardGrid, EmptyState, EvaluationDialog, AppointmentDetailDialog, InstrumentApplicationCard, FeedbackCard, RepairCard } from '@/components';
 import { useApi, usePagination, useProfile } from '@/composables';
 import ProfileInfoCard from './ProfileInfoCard.vue';
+import NewsLikesTab from './NewsLikesTab.vue';
+import NewsFavoritesTab from './NewsFavoritesTab.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -77,6 +79,10 @@ const loadMyLabs = async () => {
 
 
 
+// 组件引用
+const newsLikesTabRef = ref(null);
+const newsFavoritesTabRef = ref(null);
+
 // Tab切换处理
 const handleTabChange = (tab) => {
   switch (tab) {
@@ -97,6 +103,12 @@ const handleTabChange = (tab) => {
       break;
     case 'myFeedbacks':
       fetchFeedbacks();
+      break;
+    case 'newsLikes':
+      newsLikesTabRef.value?.init();
+      break;
+    case 'newsFavorites':
+      newsFavoritesTabRef.value?.init();
       break;
   }
 };
@@ -274,6 +286,14 @@ onMounted(() => {
             />
           </div>
         </div>
+      </ElTabPane>
+
+      <ElTabPane label="点赞的动态" name="newsLikes">
+        <NewsLikesTab ref="newsLikesTabRef" />
+      </ElTabPane>
+
+      <ElTabPane label="收藏的动态" name="newsFavorites">
+        <NewsFavoritesTab ref="newsFavoritesTabRef" />
       </ElTabPane>
     </ElTabs>
 

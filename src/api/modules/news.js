@@ -7,6 +7,10 @@ const Api = Object.freeze({
   LIKE_NEWS: "/news/like",
   /** 审核新闻 */
   REVIEW_NEWS: "/news/review",
+  /** 我的点赞 */
+  MY_LIKES: "/news/my/likes",
+  /** 我的收藏 */
+  MY_FAVORITES: "/news/my/favorites",
 });
 
 /**
@@ -64,12 +68,22 @@ export function likeNewsApi(id) {
   return request.post(`${Api.LIKE_NEWS}/${id}`);
 }
 
-// 兼容旧的导出方式
-export const newsApi = {
-  getNewsList: getNewsListApi,
-  getNewsDetail: getNewsDetailApi,
-  toggleLike: likeNewsApi,
-  toggleFavorite(id) {
-    return request.post(`/api/news/${id}/favorite`);
-  },
-};
+/**
+ * 获取我点赞的新闻列表
+ * @param {object} params - { page, pageSize }
+ * @returns {Promise<any>}
+ */
+export function getMyNewsLikesApi(params = {}) {
+  return request.get(Api.MY_LIKES, params);
+}
+
+/**
+ * 获取我收藏的新闻列表
+ * @param {object} params - { page, pageSize }
+ * @returns {Promise<any>}
+ */
+export function getMyNewsFavoritesApi(params = {}) {
+  return request.get(Api.MY_FAVORITES, params);
+}
+
+

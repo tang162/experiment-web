@@ -1,13 +1,14 @@
 <script setup>
 import { ref, reactive, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { ElCard, ElButton, ElTag, ElPagination, ElInput, ElIcon, ElEmpty } from 'element-plus';
-import { Search, Plus } from '@element-plus/icons-vue';
+import { ElCard, ElButton, ElTag, ElPagination, ElInput, ElIcon, ElEmpty, ElMessage } from 'element-plus';
+import { Search, Plus, Star, StarFilled, Collection, FolderOpened } from '@element-plus/icons-vue';
 import { getNewsListApi } from '@/api';
 import { PageLayout } from '@/components';
 import { useApi, usePagination } from '@/composables';
 import { useAuthStore } from '@/stores';
 import { UserRole } from '@/types';
+import { request } from '@/utils/https';
 
 const router = useRouter();
 const route = useRoute();
@@ -28,10 +29,10 @@ const { pagination, handlePageChange, resetPage } = usePagination({
   totalItems: total,
 });
 
-// 是否是教师
-const isTeacher = authStore.getUserRole === UserRole.TEACHER;
+// 是否是教师或管理员
+const canPublish = ['teacher', 'admin', 'super_admin'].includes(authStore.getUserRole);
 
-// 加载新闻列表
+// 加载动态列表
 const loadNews = async () => {
   const result = await fetchNews(() =>
     getNewsListApi({
@@ -48,6 +49,32 @@ const loadNews = async () => {
   }
 };
 
+// 切换点赞
+const toggleLike = async (news, event) => {
+  event.stopPropagation();
+  try {
+    const response = await request.post(`/news/${news.id}/like`);
+    news.isLiked = response.isLiked;
+    news.likes = news.isLiked ? (news.likes || 0) + 1 : Math.max(0, (news.likes || 0) - 1);
+    ElMessage.success(response.message);
+  } catch (error) {
+    ElMessage.error(error.message || '操作失败');
+  }
+};
+
+// 切换收藏
+const toggleFavorite = async (news, event) => {
+  event.stopPropagation();
+  try {
+    const response = await request.post(`/news/${news.id}/favorite`);
+    news.isFavorited = response.isFavorited;
+    news.favorites = news.isFavorited ? (news.favorites || 0) + 1 : Math.max(0, (news.favorites || 0) - 1);
+    ElMessage.success(response.message);
+  } catch (error) {
+    ElMessage.error(error.message || '操作失败');
+  }
+};
+
 // 搜索
 const handleSearch = () => {
   resetPage();
@@ -59,7 +86,7 @@ const viewDetail = (id) => {
   router.push(`/news/${id}`);
 };
 
-// 发布新闻
+// 发布动态
 const createNews = () => {
   router.push('/news/create');
 };
@@ -78,13 +105,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageLayout title="新闻公告" description="查看最新的实验室新闻和公告" :loading="loading">
+  <PageLayout title="动态" description="查看最新的实验室动态和公告" :loading="loading">
     <!-- 搜索和操作栏 -->
     <div class="mb-6 flex justify-between items-center">
       <div class="flex gap-4 flex-1 max-w-md">
         <ElInput
           v-model="filters.keyword"
-          placeholder="搜索新闻标题或内容"
+          placeholder="搜索动态标题或内容"
           clearable
           @keyup.enter="handleSearch"
         >
@@ -95,12 +122,12 @@ onMounted(() => {
         <ElButton type="primary" @click="handleSearch">搜索</ElButton>
       </div>
       
-      <ElButton v-if="isTeacher" type="primary" :icon="Plus" @click="createNews">
-        发布新闻
+      <ElButton v-if="canPublish" type="primary" :icon="Plus" @click="createNews">
+        发布动态
       </ElButton>
     </div>
 
-    <!-- 新闻列表 -->
+    <!-- 动态列表 -->
     <div class="space-y-4">
       <ElCard
         v-for="news in newsList"
@@ -114,20 +141,49 @@ onMounted(() => {
             <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ news.title }}</h3>
             <p class="text-gray-600 mb-3 line-clamp-2">{{ news.content }}</p>
             <div class="flex items-center gap-4 text-sm text-gray-500">
-              <span>作者: {{ news.author?.username || '未知' }}</span>
+              <span>作者: {{ news.author?.nickname || news.author?.username || '未知' }}</span>
               <span>发布时间: {{ formatDate(news.createdAt) }}</span>
-              <span v-if="news.viewCount">浏览: {{ news.viewCount }}</span>
-              <span v-if="news.likeCount">点赞: {{ news.likeCount }}</span>
+              <span class="flex items-center gap-1">
+                <ElIcon><Star /></ElIcon>
+                {{ news.likes || 0 }}
+              </span>
+              <span class="flex items-center gap-1">
+                <ElIcon><Collection /></ElIcon>
+                {{ news.favorites || 0 }}
+              </span>
+            </div>
+            <!-- 操作按钮 -->
+            <div class="flex items-center gap-2 mt-3">
+              <ElButton
+                size="small"
+                :type="news.isLiked ? 'primary' : 'default'"
+                @click="toggleLike(news, $event)"
+              >
+                <ElIcon class="mr-1">
+                  <component :is="news.isLiked ? StarFilled : Star" />
+                </ElIcon>
+                {{ news.isLiked ? '已点赞' : '点赞' }}
+              </ElButton>
+              <ElButton
+                size="small"
+                :type="news.isFavorited ? 'warning' : 'default'"
+                @click="toggleFavorite(news, $event)"
+              >
+                <ElIcon class="mr-1">
+                  <component :is="news.isFavorited ? FolderOpened : Collection" />
+                </ElIcon>
+                {{ news.isFavorited ? '已收藏' : '收藏' }}
+              </ElButton>
             </div>
           </div>
-          <div v-if="news.category" class="ml-4">
-            <ElTag>{{ news.category }}</ElTag>
+          <div v-if="news.tags && news.tags.length > 0" class="ml-4">
+            <ElTag v-for="tag in news.tags" :key="tag" class="mr-1">{{ tag }}</ElTag>
           </div>
         </div>
       </ElCard>
 
       <!-- 空状态 -->
-      <ElEmpty v-if="newsList.length === 0 && !loading" description="暂无新闻" />
+      <ElEmpty v-if="newsList.length === 0 && !loading" description="暂无动态" />
 
       <!-- 分页 -->
       <div v-if="total > pagination.pageSize" class="flex justify-center mt-6">

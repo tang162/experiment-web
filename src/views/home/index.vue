@@ -42,7 +42,7 @@ const functionCards = [
     color: 'from-purple-400 to-purple-600',
   },
   {
-    title: '新闻公告',
+    title: '动态公告',
     icon: 'Bell',
     description: '查看最新公告',
     route: '/news',

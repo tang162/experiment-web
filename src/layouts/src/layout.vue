@@ -3,7 +3,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElBadge, ElButton, ElIcon, ElDropdown, ElAvatar, ElDropdownMenu, ElDropdownItem } from 'element-plus'
-import { User, SwitchButton, Bell } from '@element-plus/icons-vue';
+import { User, SwitchButton, Bell, Plus } from '@element-plus/icons-vue';
 import { useAuthStore } from '@/stores';
 import { getUnreadCountApi } from '@/api';
 import { UserRole } from '@/types';
@@ -15,6 +15,7 @@ const unreadCount = ref(0);
 
 const userInfo = computed(() => authStore.getUserInfo);
 const isStudent = computed(() => authStore.getUserRole === UserRole.STUDENT);
+const canPublishNews = computed(() => ['teacher', 'admin', 'super_admin'].includes(authStore.getUserRole));
 
 const menuItems = computed(() => {
   const baseMenus = [
@@ -33,6 +34,10 @@ const menuItems = computed(() => {
 
   return baseMenus;
 });
+
+const goToPublishNews = () => {
+  router.push('/news/create');
+};
 
 const fetchUnreadCount = async () => {
   try {
@@ -130,7 +135,41 @@ onMounted(() => {
     <main class="flex-1">
       <router-view />
     </main>
+
+    <!-- 浮动发布按钮 -->
+    <ElButton
+      v-if="authStore.getIsLoggedIn && canPublishNews"
+      type="primary"
+      circle
+      size="large"
+      class="floating-action-button"
+      @click="goToPublishNews"
+    >
+      <ElIcon :size="24">
+        <Plus />
+      </ElIcon>
+    </ElButton>
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.floating-action-button {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 56px;
+  height: 56px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+</style>

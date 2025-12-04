@@ -22,11 +22,11 @@ export const LOGIN_PATH = "/login";
 export function getDefaultHomePath(role = UserRole.STUDENT) {
   switch (role) {
     case UserRole.TEACHER:
-      return "/teacher/reservations";
+      return "/home";
     case UserRole.STUDENT:
-      return "/lab";
+      return "/home";
     default:
-      return "/lab";
+      return "/home";
   }
 }
 
